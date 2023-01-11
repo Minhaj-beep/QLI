@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "408533616894",
+    "project_id": "ql-instructor",
+    "storage_bucket": "ql-instructor.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:408533616894:android:f3a26aa224e2f85a90bdaf",
+        "android_client_info": {
+          "package_name": "com.ql.instructor"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "408533616894-osgnbhh8uv65ir881sv726tt1lr2q9k1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ql.instructor",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "408533616894-ls53dphrdi4747bcgicoshb1bbdjjhdf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCdFXej0Cgiz-IH-o21n6qY05vbhvq759w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "408533616894-ls53dphrdi4747bcgicoshb1bbdjjhdf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
