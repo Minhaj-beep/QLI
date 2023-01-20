@@ -3,12 +3,14 @@ import React,{useState,useEffect} from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Icon,Modal,Text, Box,VStack,HStack,Input,FormControl,Button,Link,Heading,Image,Container,Spinner,Spacer,IconButton} from 'native-base';
 import { setLoading } from '../Redux/Features/userDataSlice';
+import { setLoggedIn } from '../Redux/Features/authSlice';
 import { setLogin_Status, setEmail } from '../Redux/Features/loginSlice';
 import {useDispatch,useSelector} from 'react-redux';
 import CountDown from 'react-native-countdown-component';
 import AppBar from '../components/Navbar';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {GoogleSignin} from '@react-native-google-signin/google-signin';
 
 const { width, height } = Dimensions.get('window')
 
@@ -17,7 +19,7 @@ const AccountSettings = ({navigation}) => {
   const GUser = useSelector(state => state.Login.GUser);
 
   const dispatch = useDispatch();
-  // const JWT = useSelector(state => state.login.JWT);
+  const JWT = useSelector(state => state.Login.JWT);
   const OEmail = useSelector(state => state.Login.email);
   const BaseURL = useSelector(state => state.UserData.BaseURL)
   const [loginWithGoogle, isloginWithGoogle] = useState(null)
@@ -38,17 +40,6 @@ const AccountSettings = ({navigation}) => {
     console.log('Is login with google : =========', data)
     isloginWithGoogle(data)
     isLoading(false)
-  }
-
-  const ClearLocalStorage = async() => {
-    try{
-      // await AsyncStorage.removeItem('Email');
-      // await AsyncStorage.removeItem('JWT');
-      // await AsyncStorage.removeItem('Name');
-      await AsyncStorage.clear()
-    } catch(e){
-      alert('Something went wrong with Local Storage')
-    }
   }
 
   const [CEmail, setCEmail] = useState(OEmail); 
@@ -167,13 +158,13 @@ const MatchPassword = (mail) =>{
             dispatch(setLoading(false));
          }else if(result.status > 200){
           dispatch(setLoading(false));
-           alert('Error: ' + result.message);
+          //  alert('Error: ' + result.message);
            console.log(result);
          }
        }).catch(error =>{
          dispatch(setLoading(false));
          console.log(error);
-         alert('Error: ' + error);
+        //  alert('Error: ' + error);
        })
     }
     dispatch(setLoading(false));
@@ -214,17 +205,76 @@ const MatchPassword = (mail) =>{
             console.log(result);
          }else if(result.status > 200){
           dispatch(setLoading(false));
-           alert('Error: ' + result.message);
+          //  alert('Error: ' + result.message);
            console.log(result);
          }
        }).catch(error =>{
          dispatch(setLoading(false));
          console.log(error);
-         alert('Error: ' + error);
+        //  alert('Error: ' + error);
        })
     }
     dispatch(setLoading(false));
   }
+
+  const ClearLocalStorage = async () => {
+    try {
+      await AsyncStorage.clear();
+      await AsyncStorage.setItem('isLoggedInBefore', 'true')
+    } catch (e) {
+      alert('Local storage error: ' + e);
+    }
+  };
+
+  const logOutFromCurrentDevice = async () => {
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'x-auth-token': JWT,
+        type: 'text',
+      },
+      body: JSON.stringify({
+        email: OEmail,
+        userType: 'INSTRUCTOR',
+      }),
+    };
+
+    await fetch(BaseURL + 'logout', requestOptions)
+    .then(response => response.json())
+    .then(result => {
+      console.log('Has the user logged out ??????? ', result)
+    })
+  }
+
+  const GSignOut = async () => {
+    try {
+      await GoogleSignin.signOut()
+        .then(() => console.log('Google logged out'))
+        .catch(error => {
+          console.log('Error:' + error);
+        });
+
+      auth()
+        .signOut()
+        .then(() => console.log('Google logged out'))
+        .catch(error => {
+          console.log('Error:' + error);
+        });
+    } catch (error) {
+      console.log('Error:' + error);
+    }
+  };
+
+  const LogOut = () => {
+    dispatch(setLoading(true));
+    dispatch(setLoggedIn(false));
+    ClearLocalStorage();
+    GSignOut();
+    dispatch(setLoading(false));
+    logOutFromCurrentDevice()
+  };
 
   const ChangePassword = () => {
     dispatch(setLoading(true))
@@ -252,17 +302,24 @@ const MatchPassword = (mail) =>{
          {
             setShowCP(false)
             setSuccessCP(true)
-            dispatch(setLoading(false))
+            // dispatch(setLoading(false))
             console.log(result)
+            alert('Kindly login with your new credentials.')
+            try {
+              LogOut()
+            } catch (e) {
+              console.log('What is happening', e)
+            }
+            
          }else if(result.status > 200){
           dispatch(setLoading(false))
-           alert('Error: ' + result.message);
+          //  alert('Error: ' + result.message);
            console.log(result);
          }
        }).catch(error =>{
          dispatch(setLoading(false))
          console.log(error)
-         alert('Error: ' + error);
+        //  alert('Error: ' + error);
        })
     }
     dispatch(setLoading(false));
@@ -297,7 +354,7 @@ const MatchPassword = (mail) =>{
             console.log(result)
          }else if(result.status > 200){
           dispatch(setLoading(false))
-           alert('Error: ' + result.message);
+          //  alert('Error: ' + result.message);
            console.log(result);
          }
        }).catch(error =>{
@@ -339,13 +396,13 @@ const MatchPassword = (mail) =>{
             console.log(result)
          }else if(result.status > 200){
           dispatch(setLoading(false))
-           alert('Error: ' + result.message);
+          //  alert('Error: ' + result.message);
            console.log(result);
          }
        }).catch(error =>{
          dispatch(setLoading(false))
          console.log('Error verifyDA:'+error)
-         alert('Error verifyDA: ' + error);
+        //  alert('Error verifyDA: ' + error);
        })
     }
     dispatch(setLoading(false));

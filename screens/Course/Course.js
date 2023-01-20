@@ -43,11 +43,11 @@ const Courses = ({navigation}) => {
       if(result.status === 200){
         dispatch(setIAssessmentList(result.data))
       }else{
-        alert(result.message)
+        console.log(result.message)
       }
     }).catch(error => {
       console.log(error)
-      alert('CError:'+error)
+      // alert('CError:'+error)
     })
   }
   const AppBarContent = {

@@ -126,12 +126,12 @@ const LCourseDetails = ({navigation}) => {
           // console.log(result.data[0].faqList)
           setFaqData(result.data[0].faqList)
         }else{
-          alert( result.message)
+          console.log( result.message)
         }
       })
       .catch(err => {
         console.log(err)
-        alert( err)
+        console.log( err)
       })
   }
 
@@ -159,13 +159,13 @@ const LCourseDetails = ({navigation}) => {
         }
         // console.log(SingleCD.courseCode)
       }else{
-        alert( result.message)
-        // alert('Error code'+result.status)
+        console.log( result.message)
+        // console.log('Error code'+result.status)
       }
     })
     .catch(err => {
       console.log(err)
-      alert( err)
+      console.log( err)
     })
   }
 
@@ -198,12 +198,12 @@ const LCourseDetails = ({navigation}) => {
       .then(response => response.text())
       .then(result => {
         if(result.status > 200){
-          alert(result.message)
+          console.log(result.message)
         }
         // console.log(result)
       })
       .catch(error => {
-        alert('Error: ' +error)  
+        console.log('Error: ' +error)  
         console.log('Error:', error)
       });
 
@@ -229,14 +229,14 @@ const LCourseDetails = ({navigation}) => {
         // console.log(result.data)
         setLearnerList(result.data)
       }else{
-        alert(result.status)
+        console.log(result.status)
         console.log(result)
       }
       // console.log(result)
     })
     .catch(error=> {
       console.log(error)
-      alert('Error: ' + error);
+      console.log('Error: ' + error);
     })
   }
 
@@ -255,10 +255,11 @@ const LCourseDetails = ({navigation}) => {
     .then(response => response.json())
     .then(result => {
       if(result.status === 200){
+        console.log('Hellooooooooooooooooooooooooooooooooooooooooooooooo')
         dispatch(setLiveAssessmentList(result.data))
      }else if(result.status != 200) {
       console.log(result.message)
-      alert('GetAssessment:'+result.message)
+      console.log('GetAssessment:'+result.message)
      }
     })
     .catch(error => console.log('error', error));
@@ -612,6 +613,7 @@ const LCourseDetails = ({navigation}) => {
           >
       
             <Divider my={1}/>
+            {console.log('====================SingleCD===========', SingleCD)}
             <VStack space={2}>
               <Text style={{fontSize: 12,color: '#8C8C8C'}}>Course Title</Text>
               <Text style={{fontSize: 15,color: '#000000',fontWeight: 'bold',maxWidth:width/1.4}}>{SingleCD.courseName}</Text>

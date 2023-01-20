@@ -89,12 +89,12 @@ const CourseDetails = ({navigation}) => {
         setChatArray(data[0].messages)
         }
       }else{
-        alert(result.message)
+        console.log(result.message)
       }
     })
     .catch(err => {
       console.log(err)
-      alert(err)
+      // alert(err)
     })
   }
 
@@ -127,11 +127,11 @@ const CourseDetails = ({navigation}) => {
       .then(response => response.json())
       .then(result => {
         if(result.status > 200){
-          alert(result.message)
+          console.log(result.message)
         }
       })
       .catch(error => {
-        alert('Error: ' +error)  
+        // alert('Error: ' +error)  
         console.log('Error:', error)
       });
 
@@ -183,14 +183,14 @@ const CourseDetails = ({navigation}) => {
         console.log(learner.length)
         setLearnerList(result.data)
       }else{
-        alert(result.message)
+        // alert(result.message)
         console.log(result)
       }
       // console.log(result)
     })
     .catch(error=> {
       console.log(error)
-      alert('Error: ' + error);
+      // alert('Error: ' + error);
     })
   }
 

@@ -227,7 +227,7 @@ const Search = ({navigation}) => {
             setURLString('');
             dispatch(setLoading(false));
             onClose();
-            alert('Error: ' + result.message);
+            alert(result.message);
             console.log(result.message);
           }
           // console.log(result);
@@ -236,7 +236,7 @@ const Search = ({navigation}) => {
           setFilterModal(false);
           dispatch(setLoading(false));
           console.log('Error:' + error);
-          alert('Error: ' + error);
+          alert(error);
         });
     }
   };
@@ -276,7 +276,7 @@ const Search = ({navigation}) => {
             setSearchActive(true);
           } else if (result.status > 200) {
             dispatch(setLoading(false));
-            alert('Error: ' + result.message);
+            alert(result.message);
             console.log(result.message);
           }
           // console.log(result);
@@ -284,7 +284,7 @@ const Search = ({navigation}) => {
         .catch(error => {
           dispatch(setLoading(false));
           console.log('Error:' + error);
-          alert('Error: ' + error);
+          alert(error);
         });
     }
   };
@@ -317,7 +317,7 @@ const Search = ({navigation}) => {
             // dispatch(setSearchData(result.data));
           } else if (result.status > 200) {
             dispatch(setLoading(false));
-            alert('Error: ' + result.message);
+            alert(result.message);
             console.log(result.message);
           }
           // console.log(result);
@@ -325,7 +325,7 @@ const Search = ({navigation}) => {
         .catch(error => {
           dispatch(setLoading(false));
           console.log('Error:' + error);
-          alert('Error: ' + error);
+          alert(error);
         });
     }
   };
@@ -361,7 +361,7 @@ const Search = ({navigation}) => {
             dispatch(setSearchData(result.data));
           } else if (result.status > 200) {
             dispatch(setLoading(false));
-            alert('Error: ' + result.message);
+            alert(result.message);
             console.log(result.message);
           }
           // console.log(result);
@@ -369,7 +369,7 @@ const Search = ({navigation}) => {
         .catch(error => {
           dispatch(setLoading(false));
           console.log('Error:' + error);
-          alert('Error: ' + error);
+          alert(error);
         });
     }
   };

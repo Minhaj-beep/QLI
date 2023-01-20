@@ -46,13 +46,13 @@ const AssessmentTab = ({navigation}) => {
           setAssessmentList(null)
         }
       }else{
-        alert(result.message)
+        // alert(result.message)
         dispatch(setLoading(false));
       }
     }).catch(error => {
       dispatch(setLoading(false));
       console.log(error)
-      alert('CError:'+error)
+      // alert('CError:'+error)
     })
   }
 
@@ -60,6 +60,7 @@ const AssessmentTab = ({navigation}) => {
     return AssessmentList.map((data, index)=>{
         const price = data.currency === 'USD' ? '$' : '₹';
         const fee = price +' '+data.fee
+        {console.log(data.assessmentDetails)}
         return(
             <TouchableOpacity 
                 key={index} 
@@ -85,7 +86,8 @@ const AssessmentTab = ({navigation}) => {
                             7 Learners
                         </Text>
                       </HStack> */}
-                      <Text style={{maxWidth:300,fontSize: 10}}>{data.catogory}  {'>'}  {data.subCategory}</Text>
+                      {/* <Text style={{maxWidth:300,fontSize: 10}}>{data.catogory}  {'>'}  {data.subCategory}</Text> */}
+                      <Text style={{maxWidth:300,fontSize: 10}}>{Object.keys(data.assessmentDetails).length} Questions</Text>
                       </VStack>
                 </HStack>
             </TouchableOpacity>

@@ -83,7 +83,7 @@ export default function DashImg() {
             dispatch(setLoading(false));
           } else if (result.status > 200) {
             dispatch(setLoading(false));
-            alert('Error: ' + result.message);
+            // alert('Error: ' + result.message);
             console.log(result.message);
           }
           // console.log(result);
@@ -91,7 +91,7 @@ export default function DashImg() {
         .catch(error => {
           dispatch(setLoading(false));
           console.log('Error:' + error);
-          alert('Error: ' + error);
+          // alert('Error: ' + error);
         });
     }
   };
@@ -133,7 +133,7 @@ export default function DashImg() {
             console.log(result);
           } else if (result.status > 200) {
             setShowImgUp(false);
-            alert('Failed: ' + result.message);
+            // alert('Failed: ' + result.message);
             console.log(result);
           }
           // console.log(result);
@@ -141,7 +141,7 @@ export default function DashImg() {
         .catch(error => {
           setShowImgUp(false);
           console.log('Error:' + error);
-          alert('Error: ' + error);
+          // alert('Error: ' + error);
         });
     }
   };

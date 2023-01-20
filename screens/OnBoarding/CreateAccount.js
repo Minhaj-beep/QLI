@@ -69,11 +69,11 @@ const CreateAccount = ({navigation}) => {
 
   const [FullName, setFullName] = useState('');
   const [MiddleName, setMiddleName] = useState('');
-  const [LastName, setLastName] = useState('');
+  const [LastName, setLastName] = useState(null);
   const [Email, setEmail] = useState('');
   const [Password, setPassword] = useState('');
   const [CaOtp, setCaOtp] = useState();
-  const [MobileNo, setMobileNo] = useState();
+  const [MobileNo, setMobileNo] = useState(null);
 
   const [emailAbs, setemailAbs] = useState('');
 
@@ -87,11 +87,16 @@ const CreateAccount = ({navigation}) => {
   const [showVmodal, setVmodal] = useState(false);
   const [resend, setresend] = useState(true);
 
-  const [PhoneCountrycode, setPhoneCountrycode] = useState('IN');
+  const [countrycode, setCountryCode] = useState('IN');
   const [FormattedPhone, setFormattedPhone] = useState();
 
   const [time, setTime] = useState(60);
   const timerRef = useRef(time);
+  const firstNameRef = useRef()
+  const lastNameRef = useRef()
+  const mobileNumberRef = useRef()
+  const passwordRef = useRef()
+  const emailRef = useRef()
 
   const GSignOut = async () => {
     try {
@@ -162,7 +167,8 @@ const CreateAccount = ({navigation}) => {
         .then(result => {
           if (result.status === 200) {
             dispatch(setLoading(false));
-            alert('Account creation successful!');
+            // alert('Account creation successful!');
+            console.log('Account creation successful!');
             GSignOut();
             navigation.navigate('Login');
             console.log(result);
@@ -173,7 +179,7 @@ const CreateAccount = ({navigation}) => {
         })
         .catch(error => {
           console.log('Error:' + error);
-          alert('Error:' + error);
+          // alert('Error:' + error);
           dispatch(setLoading(false));
         });
     }
@@ -202,7 +208,7 @@ const CreateAccount = ({navigation}) => {
       })
       .catch(error => {
         console.log(error);
-        alert('Error:' + error);
+        // alert('Error:' + error);
       });
   }
 
@@ -240,7 +246,7 @@ const CreateAccount = ({navigation}) => {
             dispatch(setLoading(false));
           } else if (result.status > 200) {
             dispatch(setLoading(false));
-            alert('Error: ' + result.message);
+            // alert('Error: ' + result.message);
             console.log(result.message);
           }
           // console.log(result);
@@ -248,7 +254,7 @@ const CreateAccount = ({navigation}) => {
         .catch(error => {
           dispatch(setLoading(false));
           console.log('Error:' + error);
-          alert('Error: ' + error);
+          // alert('Error: ' + error);
         });
     }
   };
@@ -269,7 +275,7 @@ const CreateAccount = ({navigation}) => {
       lastName: LastName,
       email: Email,
       password: Password,
-      mobileNumber: `91${MobileNo}`,
+      mobileNumber: countrycode + '+' + MobileNo,
       userType: 'INSTRUCTOR',
     };
     dispatch(setLoading(true));
@@ -278,46 +284,72 @@ const CreateAccount = ({navigation}) => {
       ErrPassword !== true &&
       ErrFullName !== true &&
       ErrMobile !== true &&
-      ErrMobile !== true &&
-      ErrLastName !== true
-    ) {
-      //API CALL
-      //  let CallResponse = await FetchPost('none', body, 'register');
-      //   console.log(CallResponse);
-
-      const requestOptions = {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-          // 'gmailUserType':'INSTRUCTOR',
-          // 'token':Email
-        },
-        body: JSON.stringify(body),
-      };
-      // console.log(requestOptions);
-      await fetch(BaseURL + 'register', requestOptions)
-        .then(response => response.json())
-        .then(result => {
-          dispatch(setLoading(false));
-          if (result.status === 200) {
-            setVmodal(true);
-            setTime(60);
-            timerRef.current = 60;
-            setOTPTimer();
-          } else if (result.status !== 200) {
+      ErrLastName !== true &&
+      LastName !== '' &&
+      MobileNo !== null
+      ) {
+        // Object.keys(MobileNo).length > 5 ? console.log('yes') : console.log('No')
+        //API CALL
+        //  let CallResponse = await FetchPost('none', body, 'register');
+        //   console.log(CallResponse);
+        
+        const requestOptions = {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            // 'gmailUserType':'INSTRUCTOR',
+            // 'token':Email
+          },
+          body: JSON.stringify(body),
+        };
+        // console.log(requestOptions);
+      fetch(BaseURL + 'register', requestOptions)
+      .then(response => response.json())
+      .then(result => {
+        dispatch(setLoading(false));
+        if (result.status === 200) {
+          setVmodal(true);
+          setTime(60);
+          timerRef.current = 60;
+          setOTPTimer();
+        } else if (result.status !== 200) {
+            console.log('submit')
             setVmodal(false);
-            alert('Error:' + result.message);
+            if (result.message ==='All input is required'){
+              lastNameRef.current.focus()
+            } else {
+              alert(result.message);
+            }
+            console.log('Error::::::' + result.message);
           }
         })
         .catch(error => {
           console.error('Error:', error);
           dispatch(setLoading(false));
-          alert(' API Error:', error);
+          // alert(' API Error:', error);
         });
     } else {
       dispatch(setLoading(false));
-      alert('Please enter the details properly!');
+      console.log(LastName)
+      if (Email ==='' || ErrEmail){
+        emailRef.current.focus()
+        console.log('.current.focus()1')
+      } else if (Password === '') {
+        passwordRef.current.focus()
+        console.log('.current.focus()2')
+      } else if (FullName === '') {
+        firstNameRef.current.focus()
+        console.log('.current.focus()3')
+      } else if (MobileNo === null) {
+        mobileNumberRef.current.focus()
+        console.log('.current.focus()4')
+      } else if (LastName === null || LastName === '' || !ErrLastName) {
+        console.log('.current.focus()5')
+        lastNameRef.current.focus()
+      } else {
+        alert('Please enter the details properly!!!!');
+      }
     }
     dispatch(setLoading(false));
   };
@@ -350,9 +382,9 @@ const CreateAccount = ({navigation}) => {
         }
       })
       .catch(error => {
-        console.error('Error:', error);
+        console.error('API Error:', error);
         dispatch(setLoading(false));
-        alert(' API Error:', error);
+        // alert(' API Error:', error);
       });
   };
 
@@ -491,6 +523,7 @@ const CreateAccount = ({navigation}) => {
                 <Input
                   variant="filled"
                   bg="#f3f3f3"
+                  ref={firstNameRef}
                   placeholder="Enter First Name"
                   onChangeText={text => {
                     let ValT = TextVal(text);
@@ -543,6 +576,7 @@ const CreateAccount = ({navigation}) => {
                 <Input
                   variant="filled"
                   bg="#f3f3f3"
+                  ref={lastNameRef}
                   placeholder="Enter Last Name"
                   onChangeText={text => {
                     let ValT = TextVal(text);
@@ -576,6 +610,7 @@ const CreateAccount = ({navigation}) => {
                 <Input
                   variant="filled"
                   bg="#f3f3f3"
+                  ref={emailRef}
                   placeholder="Enter your email"
                   onChangeText={text => {
                     let ValT = EmailVal(text);
@@ -602,34 +637,46 @@ const CreateAccount = ({navigation}) => {
                     {` *`}
                   </Text>
                 </Text>
+                <View>
                 <PhoneInput
-                  ref={phoneInput}
-                  defaultValue={MobileNo}
-                  defaultCode="IN"
+                  withDarkTheme={true}
+                  defaultCode={`${countrycode}`}
                   layout="first"
-                  containerStyle={styles.PhoneInput}
-                  textInputStyle={{height: 70, alignSelf: 'center', paddingBottom:9}}
-                  onChangeText={text => {
-                    let ValT = MobileVal(text);
-                    if (ValT === true) {
-                      setErrMobile(false);
-                      setMobileNo(text);
-                    } else if (ValT !== true) {
-                      setErrMobile(true);
-                      setMobileNo(text);
-                    }
-                  }}
-                  onChangeFormattedText={(num)=> {
-                    setFormattedPhone(num.slice(1));
-                    let Rnum = num.slice(3);
-                    let ValT = MobileVal(Rnum);
-                    // console.log(ValT);
-                    if (ValT){
-                       let code = phone(num).countryIso2;
-                       setPhoneCountrycode(code);
-                    }
-                  }}
+                  onChangeCountry={(res)=>setCountryCode(res.cca2)}
+                  textInputStyle={{height:50, color:"black", }}
+                  textContainerStyle={{height:50, backgroundColor:"#f3f3f3",}}
+                  codeTextStyle={{height:"150%",}}
+                  containerStyle={{width:"100%", backgroundColor:"#f3f3f3", color:"black", height:50, }}
                 />
+                <View style={{width:"100%",  flexDirection:"row", position:"absolute"}}>
+                  <View style={{width:"55%",  marginLeft:'45%'}}>
+                  <Input 
+                    variant="filled" 
+                    width={"100%"}
+                    justifyContent={"flex-end"}
+                    bg="#f3f3f3"
+                    mt={0.5}
+                    ref={mobileNumberRef}
+                    value={MobileNo}
+                    placeholder="Enter Mobile No."
+                    onChangeText={text => {
+                      let ValT = MobileVal(text);
+                      if (ValT === true) {
+                        setErrMobile(false);
+                        setMobileNo(text);
+                      } else if (ValT !== true) {
+                        setErrMobile(true);
+                        setMobileNo(text);
+                      }
+                    }}
+                    borderRadius={5}
+                    keyboardType="numeric" 
+                    p={2}
+                    style={{justifyContent:"flex-end"}}
+                  />
+                  </View>
+                </View>
+                </View>
 
                 {ErrMobile === true ? (
                   <Text style={{color: '#FF0000', fontSize: 9}}>
@@ -653,6 +700,7 @@ const CreateAccount = ({navigation}) => {
                 <Input
                   variant="filled"
                   bg="#f3f3f3"
+                  ref={passwordRef}
                   placeholder="Enter your password"
                   type={PShow ? 'text' : 'password'}
                   InputRightElement={

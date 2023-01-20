@@ -56,6 +56,7 @@
     "react-native-webbrowser": "^0.0.6",
     "react-native-webrtc": "^106.0.1",
     "react-native-webview": "^11.25.0",
+    "react-phone-number-input": "^3.2.16",
     "react-redux": "^8.0.5",
     "socket.io-client": "^4.5.4"
   },

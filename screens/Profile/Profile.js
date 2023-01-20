@@ -9,6 +9,7 @@ import {useDispatch,useSelector} from 'react-redux';
 import { setProfileData, setLoading } from '../Redux/Features/userDataSlice';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import PhoneInput from "react-native-phone-number-input";
+// import PhoneInput from 'react-phone-number-input'
 
 const { width, height } = Dimensions.get('window')
 
@@ -67,6 +68,7 @@ const Profile = ({navigation}) => {
   const [LastName, setLastName] = useState('')
   const [MiddleName, setMiddleName] = useState('')
   const [MobileN, setMobileN] = useState('')
+  const [contryCode, setCountryCode] = useState('')
 
   const [ErrMN, setErrMN] = useState(false)
 
@@ -141,7 +143,15 @@ const Profile = ({navigation}) => {
       settwitter(PData.twitter)
       setLastName(PData.lastName)
       setMiddleName(PData.middleName)
-      setMobileN(PData.mobileNumber)
+      ///////////////////////////////////////////////
+      // 'AF9113918441'.match(/\W/) ? console.log("===>",true) : console.log('===>',false);
+      if(PData.mobileNumber.match(/\W/)){
+        const splitted = PData.mobileNumber.split("+")
+        setMobileN(splitted[1])
+        setCountryCode(splitted[0])
+      } else {
+        setMobileN(PData.mobileNumber) 
+      }
       
       if(PData.fromTime === ""){
         let ftime = '00:00'
@@ -206,14 +216,14 @@ const Profile = ({navigation}) => {
             dispatch(setLoading(false));
           }else if(result.status > 200){
             dispatch(setLoading(false))
-            alert('Error: ' + result.message);
+            alert(result.message);
             console.log(result.message);
           }
           // console.log(result);
         }).catch(error =>{
           dispatch(setLoading(false))
           console.log( error)
-          alert('Error: ' + error);
+          alert(error);
         })
     }
   };
@@ -231,7 +241,11 @@ const Profile = ({navigation}) => {
     if(catD === ''){
       alert('Please enter a category to proceed!')
     }else {
-      let match = cat.includes(catD)
+      // console.log(catD.trim(),  'This is cat D')
+      let match = catD.trim()
+      let arr = cat.map(v => v.toLowerCase())
+      match = arr.includes(match.toLowerCase())
+      console.log('Match == ', match)
       if ( match != true){
         const newArr = [...cat];
         var Data = catD
@@ -253,7 +267,7 @@ const Profile = ({navigation}) => {
 
   const RenderChip = () =>{
     console.log('yyet chip')
-    console.log(cat)
+    console.log('What is cat : ',cat)
     return(
               <FlatList
                 data={cat}
@@ -306,6 +320,9 @@ const Profile = ({navigation}) => {
     )}
 
     // console.log(errorMessage.inputField, ' and ', errorMessage.error)
+    const handleFocus = () => {
+      PhoneInput.current.focus()
+    }
 
   const updateProfile = () => {
     console.log('saving changes')
@@ -319,7 +336,7 @@ const Profile = ({navigation}) => {
         LastNameRef.current.focus()
         setErrorMessage({inputField: 'Last Name', error: 'Please insert this input'})
       } else if (ErrMN === true) {
-        // mobileRef.focus()
+        mobileRef.current.focus()
         setNumverFocus(true)
         setErrorMessage({inputField: 'Mobile', error: 'Please insert this input'})
       } else if (ErrAbout === true){
@@ -364,7 +381,8 @@ const Profile = ({navigation}) => {
           twitter:twitter,
           middleName:MiddleName,
           lastName:LastName,
-          mobileNumber:MobileN
+          mobileNumber:contryCode + '+' + MobileN,
+          // contryCode: 'IN'
         })
       }
       console.log(requestOptions);
@@ -378,13 +396,13 @@ const Profile = ({navigation}) => {
             // alert('Profile Update Success')
             console.log(result.data)
           }else if(result.status > 200){
-            alert('Error: ' + result.message);
+            alert(result.message);
             console.log(result.message);
           }
           // console.log(result);
         }).catch(error =>{
           console.log('CError:'+error)
-          alert('Error: ' + error);
+          alert(error);
         })
     }
   };
@@ -400,7 +418,7 @@ const Profile = ({navigation}) => {
       <AppBar props={AppBarContent} />
     </View>
     <SafeAreaView style={styles.container}>
-      <ScrollView scrollsToTop={numberFocus} style={{marginBottom: 40}}>
+      <ScrollView style={{marginBottom: 40}}>
 
         {showFromPicker && (
           <DateTimePicker
@@ -546,42 +564,52 @@ const Profile = ({navigation}) => {
                 fontWeight: 'bold',
                 paddingBottom:"2"
               }}
-              ref={mobileRef}
+              // ref={mobileRef}
                 style={styles.cinputlabel}
               >
                   Mobile No. <Text style={{color:'#FF0000'}}>*</Text>
                 </FormControl.Label>
                 <View style={{width:'100%',}}>
                 <PhoneInput
-                  defaultValue={MobileN}
-                  value={MobileN}
-                  ref={mobileRef}
-                  textInputProps={{
-                    autoFocus:numberFocus
-                  }}
+                  // defaultValue={MobileN}
+                  // value={MobileN}
+                  
+                  // ref={mobileRef}
+                  // textInputProps={{
+                  //   autoFocus:numberFocus,
+                  //   ref:{mobileRef}
+                  // }}
+   
                   withDarkTheme={true}
-                  defaultCode="IN"
+                  
+                  defaultCode={`${contryCode}`}
                   layout="first"
-                  onChangeText={(text) => {
-                    if(text.length != 10){
-                      setMobileN(text)
-                      setErrMN(true)
-                      setErrorMessage({name: ''})
-                    }else{
-                      setMobileN(text)
-                      setErrMN(false)
-                      setErrorMessage({name: ''})
-                    }
-                  }}
+                  // onChangeText={(text) => {
+                  //   if(text.length != 10){
+                  //     setMobileN(text)
+                  //     setErrMN(true)
+                  //     setErrorMessage({name: ''})
+                  //   }else{
+                  //     setMobileN(text)
+                  //     setErrMN(false)
+                  //     setErrorMessage({name: ''})
+                  //   }
+                  // }}
+                  onChangeCountry={(res)=>setCountryCode(res.cca2)}
                   textInputStyle={{height:50, color:"black", }}
                   textContainerStyle={{height:50, backgroundColor:"#f3f3f3",}}
                   codeTextStyle={{height:"150%",}}
                   containerStyle={{width:"100%", backgroundColor:"#f3f3f3", color:"black", height:50, }}
                 />
-                </View>
-                {/* <Input 
+                <View style={{width:"100%",  flexDirection:"row", position:"absolute"}}>
+                <View style={{width:"65%",  marginLeft:'35%'}}>
+
+                <Input 
                 variant="filled" 
+                width={"100%"}
+                justifyContent={"flex-end"}
                 bg="#f3f3f3"
+                mt={0.5}
                 value={MobileN} 
                 ref={mobileRef}
                 placeholder="Enter Mobile No."
@@ -599,7 +627,12 @@ const Profile = ({navigation}) => {
                 borderRadius={5}
                 keyboardType="numeric" 
                 p={2}
-                /> */}
+                style={{justifyContent:"flex-end"}}
+                />
+                </View>
+                </View>
+
+                </View>
             </FormControl>
             {errorMessage.inputField === 'Mobile' ? <Text style={{color:'red', fontSize:11}}>{errorMessage.error}</Text> : <></> }
             {ErrMN ? <Text style={{color:'#FF0000', fontSize:9}}> * Please enter the Mobile no. properly</Text> : null}

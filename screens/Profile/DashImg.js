@@ -82,14 +82,14 @@ export default function DashImg() {
             dispatch(setLoading(false));
           }else if(result.status > 200){
             dispatch(setLoading(false))
-            alert('Error: ' + result.message);
+            alert(result.message);
             console.log(result.message);
           }
           // console.log(result);
         }).catch(error =>{
           dispatch(setLoading(false))
           console.log(error)
-          alert('Error: ' + error);
+          alert(error);
         })
     }
   };
@@ -139,7 +139,7 @@ export default function DashImg() {
         .catch(error => {
           setShowImgUp(false);
           console.log('Error:' + error);
-          alert('Error: ' + error);
+          alert(error);
         });
     }
   };
@@ -249,7 +249,8 @@ export default function DashImg() {
             ml="50"
           />
         )}
-        {ProfileImg === false && (
+        {console.log('Profile Image is this one : ', ProfileImg)}
+        {!ProfileImg && (
           <Image
             rounded={100}
             size={150}

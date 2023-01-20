@@ -33,11 +33,13 @@ const Home = ({navigation}) => {
 
   const [DashData, setDashData] = useState();
 
+  
   useEffect(()=>{
     CheckLogin()
   },[])
-
+  
   const GetProfileD = async email => {
+
     if (email === '') {
       alert('Something is wrong, please login again');
     } else {
@@ -73,7 +75,7 @@ const Home = ({navigation}) => {
             // Permissions();
           } else if (result.status > 200) {
             dispatch(setLoading(false));
-            alert('GetProfileD error 1 : ' + result.message);
+            // alert('GetProfileD error 1 : ' + result.message);
             console.log('GetProfileD error 1 : ' + result.message);
           }
           // console.log(result);
@@ -81,7 +83,7 @@ const Home = ({navigation}) => {
         .catch(error => {
           dispatch(setLoading(false));
           console.log('GetProfileD error 2 : ' + error);
-          alert('GetProfileD error 2 : ' + error);
+          // alert('GetProfileD error 2 : ' + error);
         });
     }
   };
@@ -99,12 +101,12 @@ const Home = ({navigation}) => {
         } else {
           dispatch(setLoading(false));
           dispatch(setLoggedIn(false));
-          alert('Something went wrong with the local storage!');
+          console.log('Something went wrong with the local storage!');
         }
       })
       .catch(error => {
         console.log(error);
-        alert('Error CheckLogin : ' + error);
+        // alert('Error CheckLogin : ' + error);
       });
   };
 
@@ -141,13 +143,13 @@ const Home = ({navigation}) => {
         // console.log(NData)
       }else if(result.status > 200){
         dispatch(setLoading(false))
-        alert('Error: ' + result.message);
+        // alert('Error: ' + result.message);
         console.log(result.message);
       }
     }).catch(error =>{
       dispatch(setLoading(false))
       console.log(error)
-      alert('Error: ' + error);
+      // alert('Error: ' + error);
     })
   }
   const getData = async () => {
@@ -195,7 +197,7 @@ const Home = ({navigation}) => {
       }      
     } catch(e) {
       dispatch(setLoading(false));
-      alert('Something went wrong with the local storage')
+      console.log('Something went wrong with the local storage')
     }
   }
 
@@ -219,11 +221,11 @@ const Home = ({navigation}) => {
         setDashData(result.data)
         dispatch(setTHistory(result.data[4].data))
       }else{
-        alert('GetDData 1 : ', result.message)
+        console.log('GetDData 1 : ', result.message)
       }
     }).catch(error => {
       console.log(error)
-      alert('GetDData :'+error)
+      // alert('GetDData :'+error)
     })
   }
 
@@ -232,7 +234,7 @@ const Home = ({navigation}) => {
     const API = BaseURL+'getLiveCoursebyInstructor';
 
     if(email === ''){
-      alert('Something went wrong, please try again later');
+      console.log('Something went wrong, please try again later');
     }else{
       var requestOptions = {
         method:'GET',
@@ -251,7 +253,7 @@ const Home = ({navigation}) => {
           // console.log(result)
         }).catch(error => {
           console.log(error)
-          alert('getLiveCourse :'+error)
+          // alert('getLiveCourse :'+error)
         })
     }
 
@@ -260,7 +262,7 @@ const Home = ({navigation}) => {
   const getProfile = (email) => {
     dispatch(setLoading(true))
     if( email ===''){
-      alert('Something is wrong, please login again');
+      console.log('Something is wrong, please login again');
     }else{
       const requestOptions = {
         method: 'GET',
@@ -296,14 +298,14 @@ const Home = ({navigation}) => {
             dispatch(setLoading(false));
           }else if(result.status > 200){
             dispatch(setLoading(false))
-            alert('Error: ' + result.message);
+            // alert('Error: ' + result.message);
             console.log(result.message);
           }
           // console.log(result);
         }).catch(error =>{
           dispatch(setLoading(false))
           console.log(error)
-          alert('Error: ' + error);
+          // alert('Error: ' + error);
         })
     }
   };
@@ -311,7 +313,7 @@ const Home = ({navigation}) => {
 
   const getCourseCodes = (email) => { 
     if( email === ''){
-      alert('Home: Something went wrong, please Login again');
+      console.log('Home: Something went wrong, please Login again');
     }else{
       const requestOptions = {
         method: 'GET',
@@ -336,13 +338,13 @@ const Home = ({navigation}) => {
             dispatch(SetCourseData(result.data));
             // console.log(result.data)
           }else if(result.status > 200){
-            alert('Error: ' + result.message);
+            // alert('Error: ' + result.message);
             console.log(result);
           }
           // console.log(result);
         }).catch(error =>{
           console.log(error)
-          alert('Error: ' + error);
+          // alert('Error: ' + error);
         })
     }
   };

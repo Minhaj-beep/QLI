@@ -17,7 +17,7 @@ const LCourse = ({navigation}) => {
   const liveCourseL = useSelector(state => state.Course.LiveCourses);
   const BaseURL = useSelector(state => state.UserData.BaseURL)
   const [liveCourseData, setLiveCourseData] = useState()
-//   console.log(liveCourseL.length)
+  console.log(liveCourseL)
 
   useEffect(()=>{
     if(liveCourseL.length != 0){
@@ -63,6 +63,7 @@ const LCourse = ({navigation}) => {
           <TouchableOpacity style={styles.LcCard}
             onPress={()=>{
               dispatch(setSingleLiveCourse(data))
+              console.log('helooooooooooooooo: ', Object.keys(data.assesmentList).length)
               console.log('data ==================>', Object.keys(data.assesmentList).length, ' assesment for class code ', data.courseCode)
               navigation.navigate('LCourseDetails')
             }}

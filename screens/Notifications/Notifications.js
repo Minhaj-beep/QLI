@@ -67,13 +67,13 @@ const Notifications = ({navigation}) => {
         // console.log(NData)
       }else if(result.status > 200){
         dispatch(setLoading(false))
-        alert('Error1: ' + result.message);
+        // alert('Error1: ' + result.message);
         console.log(result.message);
       }
     }).catch(error =>{
       dispatch(setLoading(false))
       console.log(error)
-      alert('Error2: ' + error);
+      // alert('Error2: ' + error);
     })
   }
 

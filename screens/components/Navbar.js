@@ -58,7 +58,7 @@ const AppBar = ({props}) => {
       }
     } catch (error) {
       console.log(error.message);
-      alert(error.message);
+      // alert(error.message);
     }
   };
   const GetMail = async() => {
@@ -68,12 +68,12 @@ const AppBar = ({props}) => {
           let mail = JSON.parse(email);
           GetCartCount(mail);
         } else {
-          alert('Something went wrong with the local storage!');
+          console.log('Something went wrong with the local storage!');
         }
       })
       .catch(error => {
         console.log(error);
-        alert('Error:' + error);
+        // alert('Error:' + error);
       });
   };
 
@@ -121,7 +121,7 @@ const AppBar = ({props}) => {
             </VStack>
             <TouchableOpacity
               onPress={() => navigation.navigate('ProfileDash')}>
-              {ProfileImg === true ? (
+              {ProfileImg && Img !== '' ? (
                 <Image
                   // source={require('../../assets/personIcon.png')}
                   source={{uri: Img}}

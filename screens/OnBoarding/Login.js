@@ -132,6 +132,9 @@ const Login = ({navigation}) => {
         .then(response => response.json())
         .then(result => {
           if (result.status === 200) {
+            console.log('___________________________________________________')
+            console.log(result)
+            console.log('___________________________________________________')
             EUSavelocal('Email', JSON.stringify(Gmail));
             EUSavelocal('Name', JSON.stringify(GfullName));
             dispatch(setGUser(true));
@@ -140,13 +143,14 @@ const Login = ({navigation}) => {
             dispatch(setLoading(false));
           } else if (result.status > 200) {
             dispatch(setGUser(false));
-            alert('Error while creating: ' + result.message);
+            console.log('Error while creating: ' + result.message);
+            alert(result.message);
             dispatch(setLoading(false));
           }
         })
         .catch(error => {
           console.log('Error:' + error);
-          alert('Error:' + error);
+          // alert('Error:' + error);
           dispatch(setLoading(false));
         });
     }
@@ -261,7 +265,7 @@ const Login = ({navigation}) => {
         .catch(error => {
           console.log('Error handleForgot:', error);
           dispatch(setLoading(false));
-          alert('Error handleForgot:' + error);
+          console.log('Error handleForgot:' + error);
         });
     }
   };
@@ -302,14 +306,14 @@ const Login = ({navigation}) => {
 
             dispatch(setLoggedIn(true));
           } else if (result.status > 200) {
-            alert('Error: ' + result.message);
-            console.log(result.message);
+            alert(result.message);
+            console.log(result);
           }
         })
         .catch(error => {
           dispatch(setLoading(false));
           console.log('Error:', error);
-          alert('Error: ' + error);
+          alert(error);
         });
     } else {
       dispatch(setLoading(false));
@@ -353,7 +357,7 @@ const Login = ({navigation}) => {
             setRpass(true);
           } else if (result.status > 200) {
             console.log(result.message);
-            alert('Error:' + result.message);
+            alert(result.message);
           }
           console.log(result);
         })
@@ -402,7 +406,7 @@ const Login = ({navigation}) => {
         .catch(error => {
           dispatch(setLoading(false));
           console.log('Error:', error);
-          alert('Error:', error);
+          alert(error);
           throw new Error('error');
         });
     }
@@ -901,3 +905,17 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+
+
+
+// .then(result => {
+//   // console.log("Response for Request \n", result)
+//   if (result.message === "Token is Not Valid") {
+//       swal({
+//           title: "Please try to re-login",
+//           text: "You are already logged in on another device or browser!",
+//           icon: ErroImg,
+//           className: "error-window",
+//           button: true,
+//       })
+//   } else {

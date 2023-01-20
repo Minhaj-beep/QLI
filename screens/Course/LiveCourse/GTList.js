@@ -47,14 +47,13 @@ const GTList = ({navigation}) => {
                 console.log("data =========", Object.keys(result.data).length)
                 dispatch(setLoading(false))
             }else if(result.status > 200){
-                alert(result.message)
-                alert(result.message)
+                console.log(result.message)
                 dispatch(setLoading(false))
             }
         })
         .catch(error => {
-            alert('Error: '+error)
-            alert(error)
+            // alert('Error: '+error)
+            console.log(error)
             dispatch(setLoading(false))
         })
       } 
@@ -82,14 +81,14 @@ const GTList = ({navigation}) => {
                 console.log('hello data : ', Object.keys(result.data).length)
                 dispatch(setLoading(false))
             }else if(result.status > 200){
-                alert(result.message)
-                alert(result.message)
+                console.log(result.message)
+                // alert(result.message)
                 dispatch(setLoading(false))
             }
         })
         .catch(error => {
-            alert('Error: '+error)
-            alert(error)
+            console.log('Error: '+error)
+            // alert(error)
             dispatch(setLoading(false))
         })
       } 
@@ -145,8 +144,6 @@ const GTList = ({navigation}) => {
             )
         }
     }
-
-
 
   return (
     <SafeAreaView>

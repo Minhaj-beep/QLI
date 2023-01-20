@@ -22,7 +22,7 @@ export const FetchPost = async (header, body, API) => {
     return response;
   } catch (error) {
     console.log(error);
-    alert('Error: ' + error.message);
+    // alert('Error: ' + error.message);
   }
 
   // console.log(requestOptions);
@@ -64,7 +64,7 @@ export const FetchGet = (header, body) => {
       return result;
     })
     .catch(error => {
-      console.error('Error:', error);
-      alert(' API Error:', error);
+      console.error('API Error:', error);
+      // alert(' API Error:', error);
     });
 };

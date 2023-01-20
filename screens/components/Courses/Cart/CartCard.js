@@ -36,7 +36,7 @@ const CartCard = ({props}) => {
   const RemoveFromCart = async code => {
     dispatch(setLoading(true));
     if (email === '') {
-      alert('Something is wrong, please login again');
+      console.log('Something is wrong, please login again');
     } else {
       const requestOptions = {
         method: 'POST',
@@ -61,7 +61,7 @@ const CartCard = ({props}) => {
             dispatch(setLoading(false));
           } else if (result.status > 200) {
             dispatch(setLoading(false));
-            alert('Error: ' + result.message);
+            // alert('Error: ' + result.message);
             console.log(result.message);
           }
           // console.log(result);
@@ -69,7 +69,7 @@ const CartCard = ({props}) => {
         .catch(error => {
           dispatch(setLoading(false));
           console.log('Error:' + error);
-          alert('CError: ' + error);
+          // alert('CError: ' + error);
         });
     }
   };

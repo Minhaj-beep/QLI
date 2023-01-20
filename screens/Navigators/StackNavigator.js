@@ -1,5 +1,6 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import Login from '../OnBoarding/Login';
 import CreateAccount from '../OnBoarding/CreateAccount';
@@ -138,20 +139,43 @@ const AuthenticatedStack = () => {
 };
 
 const OnBoardingStack = () => {
+  const [isLoggenIn, setIsLoggedIn] = useState(null)
+  const getLoggedIn = async () => {
+    try{
+      let v = await  AsyncStorage.getItem('isLoggedInBefore')
+      if(v !== null){
+        // console.log(v)
+        setIsLoggedIn(v)
+        console.log('===========================AsyncStorage.setItem==================', v)
+      } else {
+        setIsLoggedIn('false')
+        console.log('===========================AsyncStorage.setItem==================', v)
+      }
+    } catch (e){
+      console.log('===========================Error==================', e)
+    }
+  }
+  getLoggedIn()
   return (
-    <Stack.Navigator initialRouteName="CreateAccount">
-      <Stack.Screen
-        name="Login"
-        component={Login}
-        options={{headerShown: false}}
-      />
-      <Stack.Screen
-        name="CreateAccount"
-        component={CreateAccount}
-        options={{headerShown: false}}
-        screenOptionStyle={screenOptionStyle}
-      />
-    </Stack.Navigator>
+    <>
+      {
+        isLoggenIn !== null ?
+        <Stack.Navigator initialRouteName={isLoggenIn !== 'true' ? "CreateAccount" : "Login"}>
+          <Stack.Screen
+            name="Login"
+            component={Login}
+            options={{headerShown: false}}
+          />
+          <Stack.Screen
+            name="CreateAccount"
+            component={CreateAccount}
+            options={{headerShown: false}}
+            screenOptionStyle={screenOptionStyle}
+          />
+        </Stack.Navigator>
+        : <></>
+      }
+    </>
   );
 };
 

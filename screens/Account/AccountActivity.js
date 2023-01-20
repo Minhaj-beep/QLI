@@ -24,7 +24,7 @@ const AccountActivity = ({navigation}) => {
     const getActivity = () =>{
         dispatch(setLoading(true))
         if(Email === '' ){
-        alert('Something went wrong, please login again and try');
+        console.log('Something went wrong, please login again and try');
         }else{
         const requestOptions = {
             method: 'GET',
@@ -46,13 +46,13 @@ const AccountActivity = ({navigation}) => {
                 dispatch(setLoading(false));
             }else if(result.status > 200){
                 dispatch(setLoading(false));
-                alert('Error: ' + result.message);
+                // alert('Error: ' + result.message);
                 console.log(result);
             }
         }).catch(error =>{
                 dispatch(setLoading(false));
                 console.log(error);
-                alert('Error: ' + error);
+                // alert('Error: ' + error);
         })
         }
     }

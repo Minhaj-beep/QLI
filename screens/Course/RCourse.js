@@ -31,7 +31,7 @@ export default function RCourse({navigation}) {
   const getCourseOverview = (courseCode) =>{
     const API = BaseURL+'getCourseOverview/?courseCode='+courseCode;
     if( courseCode ===''){
-      alert('Something went wrong, please Login again');
+      console.log('Something went wrong, please Login again');
     }else{
       const requestOptions = {
         method: 'GET',
@@ -57,12 +57,12 @@ export default function RCourse({navigation}) {
             // console.log(over);
             dispatch(setCCOverview(over));
           }else if(result.status > 200){
-            alert('Error: ' + result.message);
+            // alert('Error: ' + result.message);
             console.log(result.message);
           }
         }).catch(error =>{
           console.log(error)
-          alert('Error: ' + error);
+          // alert('Error: ' + error);
         })
     }
     
@@ -71,7 +71,7 @@ export default function RCourse({navigation}) {
   const getCourseFAQ =(courseCode) => {
     const API = BaseURL+'getAllFaq/?courseCode='+courseCode
     if(courseCode === ''){
-      alert('Something went wrong');
+      console.log('Something went wrong');
     }else{
       const requestOptions = {
         method:'GET',
@@ -96,13 +96,13 @@ export default function RCourse({navigation}) {
                 dispatch(setCCFAQ(faq))
                 console.log('update FAQ')
               }else if(result.status > 200){
-                alert('Error' + result.messsage)
+                // alert('Error' + result.messsage)
                 console.log(result.message)
               } 
       })
       .catch(error => {
         console.log('error', error)
-        alert('Error:' + error);
+        // alert('Error:' + error);
       });
         }
       }
