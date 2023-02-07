@@ -733,14 +733,7 @@ const CourseDetails = ({navigation}) => {
            </TouchableOpacity>
 
            <TouchableOpacity
-           style={{
-           backgroundColor:"#F0E1EB",
-           paddingTop:10,
-           paddingBottom:10,
-           paddingLeft:17,
-           paddingRight:17,
-           borderRadius:7
-           }}
+           style={{ backgroundColor:"#F0E1EB", paddingTop:10, paddingBottom:10, paddingLeft:17, paddingRight:17, borderRadius:7 }}
            onPress={()=>{
             dispatch(setAssessment(false))
             navigation.navigate('Chapters')

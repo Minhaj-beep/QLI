@@ -7,6 +7,7 @@ import { setLoggedIn } from '../Redux/Features/authSlice';
 import { setLogin_Status, setEmail } from '../Redux/Features/loginSlice';
 import {useDispatch,useSelector} from 'react-redux';
 import CountDown from 'react-native-countdown-component';
+import CountDownTimer from 'react-native-countdown-timer-hooks'
 import AppBar from '../components/Navbar';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -89,7 +90,7 @@ const AccountSettings = ({navigation}) => {
     let email = mail;
     let email_sub = email.substring(0,3);
     let email_abstract = email_sub + '***' + email.substring(email.length-4,email.length);
-    setemailAbs(email_abstract);
+    setemailAbs(mail);
   }
 
   const ValidatePassword = (pass) => {
@@ -156,6 +157,8 @@ const MatchPassword = (mail) =>{
             setShowCE(false);  
             setVerifyEC(true);
             dispatch(setLoading(false));
+            // console.log('Change email result: ', result)
+
          }else if(result.status > 200){
           dispatch(setLoading(false));
           //  alert('Error: ' + result.message);
@@ -199,9 +202,15 @@ const MatchPassword = (mail) =>{
             setCEmail(NEmail);
             setSuccessEC(true);
             dispatch(setEmail(NEmail));
-            ClearLocalStorage();
+            // ClearLocalStorage();
             dispatch(setLogin_Status(false))
-            dispatch(setLoading(false));
+            // dispatch(setLoading(false));
+            alert('Kindly login with your new credentials.')
+            try {
+              LogOut()
+            } catch (e) {
+              console.log('What is happening', e)
+            }
             console.log(result);
          }else if(result.status > 200){
           dispatch(setLoading(false));
@@ -484,7 +493,8 @@ const MatchPassword = (mail) =>{
                         
                         <VStack>
                         <Text fontSize="md" style={{fontWeight:'bold'}}>Verify it's You</Text>
-                        <Text fontSize={13} color="#8C8C8C">We sent a 6 Digit OTP {emailAbs}</Text>
+                        <Text fontSize={13} color="#8C8C8C">We sent a 6 Digit OTP to</Text>
+                        <Text fontSize={13} noOfLines={1} color="#8C8C8C">{emailAbs}</Text>
                         </VStack>
                           <FormControl  style={{Width:width/1}}>
                             <Input 
@@ -508,7 +518,16 @@ const MatchPassword = (mail) =>{
                           }
 
                           <HStack style={styles.otpcount} space={2}>
-                            <CountDown
+                            <CountDownTimer
+                              timestamp={60}
+                              timerCallback={()=>{
+                                setresend(false)
+                                setVerifyAuth(true)
+                              }}
+                              containerStyle={{backgroundColor: 'White', borderWidth: 0, width: 40, height: 20}}
+                              textStyle={{color: '#3e5160', fontSize: 12}}
+                            />
+                            {/* <CountDown
                             style={styles.count}
                             until={60}
                             size={10}
@@ -523,7 +542,7 @@ const MatchPassword = (mail) =>{
                             timeToShow={['M', 'S']}
                             timeLabels={{m: null, s: null}}
                             showSeparator
-                            />
+                            /> */}
                             <View style={styles.resendbtn}>
                             <TouchableOpacity
                             onPress={()=> 
@@ -714,7 +733,7 @@ const MatchPassword = (mail) =>{
                                 setErrCNPass(false);
                               }
                             }}
-                            InputRightElement={<Icon as={<Ionicons name={showCNPass ? "eye" : "eye-off"} />} size={6} mr="2" color="muted.400" onPress={() => setShowCNPass(!showCNPass)} />}
+                            InputRightElement={<Icon as={<Ionicons name={showCNPass ? "eye" : "eye-off"} />} size={6} mr="2" bg="muted.400" onPress={() => setShowCNPass(!showCNPass)} />}
                             />
                           </FormControl>
                           { 
@@ -871,9 +890,18 @@ const MatchPassword = (mail) =>{
                           }
 
                           <HStack style={styles.otpcount} space={2}>
-                            <CountDown
+                          <CountDownTimer
+                              timestamp={60}
+                              timerCallback={()=>{
+                                setresend(false)
+                                setVerifyAuth(true)
+                              }}
+                              containerStyle={{backgroundColor: 'White', borderWidth: 0, width: 40, height: 20}}
+                              textStyle={{color: '#3e5160', fontSize: 12}}
+                            />
+                            {/* <CountDown
                             style={styles.count}
-                            until={60}
+                            until={20}
                             size={10}
                             onFinish={() => {
                               setresend(false)
@@ -884,7 +912,7 @@ const MatchPassword = (mail) =>{
                             timeToShow={['M', 'S']}
                             timeLabels={{m: null, s: null}}
                             showSeparator
-                            />
+                            /> */}
                             <Link style={styles.resendbtn}>
                             <TouchableOpacity
                             onPress={()=>   

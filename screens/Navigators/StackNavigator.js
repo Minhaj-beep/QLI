@@ -21,6 +21,14 @@ import LCourseDetails from '../Course/LiveCourse/LCourseDetails';
 import Assessments from '../Course/Assessments/Assessments';
 import GTList from '../Course/LiveCourse/GTList';
 import LiveAssessmentList from '../Course/LiveCourse/LiveAssessmentList';
+import NotificationsManagement from '../Notification Management/NotificationManagement';
+import LiveVideos from '../Course/LiveVideos/LiveVideos';
+import PayoutInfo from '../PayoutInfo/PayoutInfo';
+import PayoutList from '../PayoutInfo/PayoutList';
+import Chapters from '../Course/Chapters';
+import Lessons from '../Course/Lessons';
+import LessonDetails from '../Course/LessonDetails';
+import GTStart from '../Course/LiveCourse/GTStart';
 
 const Stack = createNativeStackNavigator();
 
@@ -131,6 +139,54 @@ const AuthenticatedStack = () => {
       <Stack.Screen
         name="LiveAssessmentList"
         component={LiveAssessmentList}
+        options={{headerShown: false}}
+        screenOptionStyle={screenOptionStyle}
+      />
+      <Stack.Screen
+        name="NotificationsManagement"
+        component={NotificationsManagement}
+        options={{headerShown: false}}
+        screenOptionStyle={screenOptionStyle}
+      />
+      <Stack.Screen
+        name="LiveVideos"
+        component={LiveVideos}
+        options={{headerShown: false}}
+        screenOptionStyle={screenOptionStyle}
+      />
+      <Stack.Screen
+        name="PayoutInfo"
+        component={PayoutInfo}
+        options={{headerShown: false}}
+        screenOptionStyle={screenOptionStyle}
+      />
+      <Stack.Screen
+        name="PayoutList"
+        component={PayoutList}
+        options={{headerShown: false}}
+        screenOptionStyle={screenOptionStyle}
+      />
+      <Stack.Screen
+        name="Chapters"
+        component={Chapters}
+        options={{headerShown: false}}
+        screenOptionStyle={screenOptionStyle}
+      />
+      <Stack.Screen
+        name="Lessons"
+        component={Lessons}
+        options={{headerShown: false}}
+        screenOptionStyle={screenOptionStyle}
+      />
+      <Stack.Screen
+        name="LessonDetails"
+        component={LessonDetails}
+        options={{headerShown: false}}
+        screenOptionStyle={screenOptionStyle}
+      />
+      <Stack.Screen
+        name="GTStart"
+        component={GTStart}
         options={{headerShown: false}}
         screenOptionStyle={screenOptionStyle}
       />

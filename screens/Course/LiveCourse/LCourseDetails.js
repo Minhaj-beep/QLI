@@ -255,7 +255,7 @@ const LCourseDetails = ({navigation}) => {
     .then(response => response.json())
     .then(result => {
       if(result.status === 200){
-        console.log('Hellooooooooooooooooooooooooooooooooooooooooooooooo')
+        console.log('Hellooooooooooooooooooooooooooooooooooooooooooooooo', result)
         dispatch(setLiveAssessmentList(result.data))
      }else if(result.status != 200) {
       console.log(result.message)

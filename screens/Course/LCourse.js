@@ -6,6 +6,7 @@ import {useDispatch,useSelector} from 'react-redux';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LcCard from './LcCard';
 import {setSingleLiveCourse} from '../Redux/Features/CourseSlice'
+import { setLiveAssessmentList } from '../Redux/Features/CourseSlice';
 
 const LCourse = ({navigation}) => {
 
@@ -64,7 +65,11 @@ const LCourse = ({navigation}) => {
             onPress={()=>{
               dispatch(setSingleLiveCourse(data))
               console.log('helooooooooooooooo: ', Object.keys(data.assesmentList).length)
+              dispatch(setLiveAssessmentList(data.assesmentList))
               console.log('data ==================>', Object.keys(data.assesmentList).length, ' assesment for class code ', data.courseCode)
+              // data.assesmentList.map((i)=>{
+              //   console.log('data ==================>', i.assessmentDetails)
+              // })
               navigation.navigate('LCourseDetails')
             }}
           >

@@ -59,7 +59,7 @@ const ProfileSettings = props => {
       </TouchableOpacity>
 
       <TouchableOpacity
-        onPress={() => navigation.navigate('Notifications')}>
+        onPress={() => navigation.navigate('NotificationsManagement')}>
         <HStack style={styles.ProfileSettings}>
           <Text style={styles.ProfileText}>Notification Management</Text>
           <IconButton
@@ -99,10 +99,10 @@ const ProfileSettings = props => {
       <TouchableOpacity
         onPress={() => {
           // GetAccountInfo()
-          navigation.navigate('PaymentHistory');
+          navigation.navigate('PayoutList');
         }}>
         <HStack style={styles.ProfileSettings}>
-          <Text style={styles.ProfileText}>Payment History</Text>
+          <Text style={styles.ProfileText}>Payment Info</Text>
           <IconButton
             icon={
               <Icon size={20} name="chevron-forward-outline" color="#395061" />

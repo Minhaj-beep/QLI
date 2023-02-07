@@ -281,7 +281,7 @@ const CreateAccount = ({navigation}) => {
     dispatch(setLoading(true));
     if (
       ErrEmail !== true &&
-      ErrPassword !== true &&
+      ErrPassword !== true && Password !== '' &&
       ErrFullName !== true &&
       ErrMobile !== true &&
       ErrLastName !== true &&
@@ -331,22 +331,23 @@ const CreateAccount = ({navigation}) => {
         });
     } else {
       dispatch(setLoading(false));
+      console.log(Password, 'Password')
       console.log(LastName)
-      if (Email ==='' || ErrEmail){
-        emailRef.current.focus()
-        console.log('.current.focus()1')
-      } else if (Password === '') {
-        passwordRef.current.focus()
-        console.log('.current.focus()2')
-      } else if (FullName === '') {
+      if ( FullName === ''){
         firstNameRef.current.focus()
         console.log('.current.focus()3')
-      } else if (MobileNo === null) {
-        mobileNumberRef.current.focus()
-        console.log('.current.focus()4')
-      } else if (LastName === null || LastName === '' || !ErrLastName) {
+      } else if ( LastName === '' ) {
         console.log('.current.focus()5')
         lastNameRef.current.focus()
+      } else if (Email ==='' || ErrEmail) {
+        emailRef.current.focus()
+        console.log('.current.focus()1')
+      } else if (MobileNo === null || ErrMobile) {
+        mobileNumberRef.current.focus()
+        console.log('.current.focus()4')
+      } else if (Password === '' || ErrPassword) {
+        passwordRef.current.focus()
+        console.log('.current.focus()2')
       } else {
         alert('Please enter the details properly!!!!');
       }
@@ -642,11 +643,12 @@ const CreateAccount = ({navigation}) => {
                   withDarkTheme={true}
                   defaultCode={`${countrycode}`}
                   layout="first"
+                  placeholder=''
                   onChangeCountry={(res)=>setCountryCode(res.cca2)}
-                  textInputStyle={{height:50, color:"black", }}
-                  textContainerStyle={{height:50, backgroundColor:"#f3f3f3",}}
+                  textInputStyle={{height:50, }}
+                  textContainerStyle={{height:50, color:"#f3f3f3", backgroundColor:"#f3f3f3",}}
                   codeTextStyle={{height:"150%",}}
-                  containerStyle={{width:"100%", backgroundColor:"#f3f3f3", color:"black", height:50, }}
+                  containerStyle={{width:"100%", backgroundColor:"#f3f3f3", color:"#f3f3f3", height:50, }}
                 />
                 <View style={{width:"100%",  flexDirection:"row", position:"absolute"}}>
                   <View style={{width:"55%",  marginLeft:'45%'}}>
@@ -658,7 +660,7 @@ const CreateAccount = ({navigation}) => {
                     mt={0.5}
                     ref={mobileNumberRef}
                     value={MobileNo}
-                    placeholder="Enter Mobile No."
+                    // placeholder="Enter Mobile No."
                     onChangeText={text => {
                       let ValT = MobileVal(text);
                       if (ValT === true) {

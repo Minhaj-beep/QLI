@@ -10,7 +10,7 @@ import { setAssessmentData } from '../../Redux/Features/CourseSlice';
 const LiveAssessmentList = ({navigation}) => {
 
     const AssessmentList = useSelector(state => state.Course.LiveAssessmentList)
-    console.log(AssessmentList)
+    console.log('What is this: ', AssessmentList)
 
     const dispatch = useDispatch()
 
@@ -23,26 +23,26 @@ const LiveAssessmentList = ({navigation}) => {
       }
 
     const Render = () =>{
-        // return AssessmentList.map((data, index)=>{
-        //     return(
-        //         <TouchableOpacity 
-        //             key={index} 
-        //             style={styles.card}
-        //             onPress={()=> {
-        //                 dispatch(setAssessmentData(data.assessmentDetails))
-        //                 navigation.navigate('Assessments')
-        //             }}
-        //         >
-        //             <HStack justifyContent="space-between" alignItems="center">
-        //                 <Text style={{fontWeight:'bold',maxWidth:250}}>{data.assessmentTitle}</Text>
-        //                 <Container bg='#F0E1EB' p={1} borderRadius={2}>
-        //                 <Icon size="lg" as={Ionicons} name="chevron-forward-outline" color="#000000" />
-        //                 </Container>
-        //             </HStack>
-        //         </TouchableOpacity>
-        //     )
-        // })
-        return null
+        return AssessmentList.map((data, index)=>{
+            return(
+                <TouchableOpacity 
+                    key={index} 
+                    style={styles.card}
+                    onPress={()=> {
+                        dispatch(setAssessmentData(data.assessmentDetails))
+                        navigation.navigate('Assessments')
+                    }}
+                >
+                    <HStack justifyContent="space-between" alignItems="center">
+                        <Text style={{fontWeight:'bold',maxWidth:250}}>{data.assessmentTitle}</Text>
+                        <Container bg='#F0E1EB' p={1} borderRadius={2}>
+                        <Icon size="lg" as={Ionicons} name="chevron-forward-outline" color="#000000" />
+                        </Container>
+                    </HStack>
+                </TouchableOpacity>
+            )
+        })
+        // return null
     }
 
   return (
@@ -50,7 +50,7 @@ const LiveAssessmentList = ({navigation}) => {
         <AppBar props={AppBarContent}/>
         <ScrollView style={styles.container}>
             <VStack mt={2}>
-                <Render/>
+                {Object.keys(AssessmentList).length > 0 ? <Render/> : <Text style={{fontSize:12, color:'#8C8C8C', alignSelf:"center"}}>No Assessment available for this course!</Text>}
             </VStack>
        </ScrollView>
     </SafeAreaView>
