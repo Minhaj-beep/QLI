@@ -35,11 +35,6 @@ export default function RCourse({navigation}) {
     }else{
       const requestOptions = {
         method: 'GET',
-        // headers:{
-        //   'Accept': 'application/json',
-        //   'Content-Type': 'application/json',
-        //   'x-auth-token': Jwt_Token,
-        // },
         headers:{
           'Accept': 'application/json',
           'Content-Type': 'application/json',

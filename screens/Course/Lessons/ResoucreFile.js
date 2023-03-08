@@ -1,14 +1,15 @@
-import { StyleSheet, View,TouchableOpacity} from 'react-native';
-import React,{ useCallback } from 'react';
+import { StyleSheet, View,TouchableOpacity, Linking} from 'react-native';
+import React,{ useCallback, useState } from 'react';
 import  Ionicons  from 'react-native-vector-icons/Ionicons';
 import { HStack,IconButton,Icon,Link,Text,VStack } from 'native-base';
-// import { TouchableOpacity } from 'react-native-gesture-handler';
-// import {WebBrowser} from 'react-native-webbrowser';
+import WebView from 'react-native-webview';
+import RNFetchBlob from "rn-fetch-blob";
 
 const ResoucreFile = ({props}) => {
     // console.log(props);
     const data = props.data;
     const url = props.data.resourcePath;
+    const [download, setDownload] = useState(null)
     const navigation = props.navigation;
     // console.log(url)
 
@@ -27,8 +28,26 @@ const ResoucreFile = ({props}) => {
     // }
 
     const OpenDoc = async(props) =>{
-        // await WebBrowser.openBrowserAsync(props);
-        console.log(props);
+        await Linking.openURL(props)
+
+
+        // let dirs = RNFetchBlob.fs.dirs
+        // console.log(props);
+        // // setDownload(props)
+
+        // RNFetchBlob.config({
+        //     // add this option that makes response data to be stored as a file,
+        //     // this is much more performant.
+        //     path: dirs.DocumentDir + "/downloads",
+        //     fileCache: true,
+        // })
+        // .fetch("GET", props, {
+        //     //some headers ..
+        // })
+        // .then((res) => {
+        //     // the temp file path
+        //     console.log("The file saved to ", res.path());
+        // });
     }
   return (
     <View>

@@ -1,5 +1,5 @@
 import { StyleSheet, View,Dimensions,ScrollView,TouchableOpacity } from 'react-native';
-import React,{useState,useEffect} from 'react';
+import React,{useState,useEffect, useRef} from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Icon,Modal,Text, Box,VStack,HStack,Input,FormControl,Button,Link,Heading,Image,Container,Spinner,Spacer,IconButton} from 'native-base';
 import { setLoading } from '../Redux/Features/userDataSlice';
@@ -12,13 +12,15 @@ import AppBar from '../components/Navbar';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
+import PhoneInput from 'react-native-phone-number-input'
+import auth from '@react-native-firebase/auth'
 
 const { width, height } = Dimensions.get('window')
 
 const AccountSettings = ({navigation}) => {
 
   const GUser = useSelector(state => state.Login.GUser);
-
+  const ProfileD = useSelector(state => state.UserData.profileData);
   const dispatch = useDispatch();
   const JWT = useSelector(state => state.Login.JWT);
   const OEmail = useSelector(state => state.Login.email);
@@ -35,7 +37,21 @@ const AccountSettings = ({navigation}) => {
 
   useEffect(()=> {
     getLogingWithGoogle()
+
+    if(ProfileD.mobileNumber.match(/\W/)){
+      const splitted = ProfileD.mobileNumber.split("+")
+      setPhNo(splitted[1])
+      setCountryCode(splitted[0])
+    } else {
+      setPhNo(ProfileD.mobileNumber) 
+    }
   }, [])
+  useEffect(()=>{
+    console.log('Hollla')
+    if(newPhNo !== ''){
+      newPhNo.length !== 10 ? setErrNewPhNo(true) : setErrNewPhNo(false)
+    }
+  },[newPhNo])
   const getLogingWithGoogle = async() => {
     const data = await AsyncStorage.getItem('loginWithGoogle')
     console.log('Is login with google : =========', data)
@@ -86,6 +102,18 @@ const AccountSettings = ({navigation}) => {
   const [showCNPass, setShowCNPass] = useState(false);
   const [emailAbs, setemailAbs] = useState('');
 
+  const [changePhNo, setChangePhNo] = useState(false)
+  const [confirmChangePhNo, setConfirmChangePhNo] = useState(false)
+  const [successChangePhNo, setSuccessChangePhNo] = useState(false)
+  const [verificationId, setVerificationId] = useState('')
+  const [otp, setOtp] = useState('')
+  const mobileNumberRef = useRef()
+  const [errNewPhNo, setErrNewPhNo] = useState(false)
+  const [phNo, setPhNo] = useState(null)
+  const [newPhNo, setNewPhNo] = useState('')
+  const [countryCode, setCountryCode] = useState('')
+  const [time, setTime] = useState(60);
+
   const emailAbstract = (mail) => {
     let email = mail;
     let email_sub = email.substring(0,3);
@@ -127,6 +155,95 @@ const MatchPassword = (mail) =>{
       setCPmatch(true);
     }
 }
+
+  const sendOtp = async (phoneNumber) => {
+    try {
+      const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
+      setVerificationId(confirmation.verificationId);
+    } catch (error) {
+      console.log('Error sending OTP:', error);
+      // Alert.alert('Error', 'Could not send OTP. Please try again later.');
+    }
+  };
+
+  const verifyOtp = async () => {
+    let result = {}
+    try {
+      const credential = auth.PhoneAuthProvider.credential(
+        verificationId,
+        otp
+      );
+      result = await auth().signInWithCredential(credential);
+      console.log(result)
+    } catch (error) {
+      console.log('Error verifying OTP:', error);
+    }
+    // if(Object.keys(result).length > 0){
+    //   // alert('Done')
+    // } else {
+    //   alert('Please insert the OTP correctly and try again!')
+    // }
+    ChangePhoneNumber()
+  };
+
+
+  const ChangePhoneNumber = async () => {
+    console.log('Token: ', CEmail)
+    dispatch(setLoading(true));
+      const requestOptions = {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          token: CEmail,
+          gmailusertype: 'INSTRUCTOR',
+        },
+        body: JSON.stringify({
+          oldMobileNumber: phNo,
+          newMobileNumber: newPhNo,
+        }),
+      };
+      await fetch(BaseURL + 'changeMobileNumber', requestOptions)
+        .then(response => response.json())
+        .then(result => {
+          if (result.status === 200) {
+            setShowCP(false);
+            // setTime(60);
+            // timerRef.current = 60;
+
+            // setOTPTimer();
+            setSuccessCP(true)
+            setConfirmChangePhNo(false)
+            dispatch(setLoading(false));
+            console.log(result);
+          } else if (result.status > 200) {
+            dispatch(setLoading(false));
+            alert('Error ChangePassword: ' + result.message);
+            console.log('Error ChangePassword: 1' + result);
+          }
+        })
+        .catch(error => {
+          ChangePhoneNumber()
+          // dispatch(setLoading(false));
+          console.log('Error ChangePassword: 2' + error);
+          // alert('Error ChangePassword: ' + error);
+        });
+    dispatch(setLoading(false));
+  };
+
+  const submitPhNo = () => {
+    if(newPhNo !== null && newPhNo.length === 10){
+      // if(phNo === newPhNo){
+      //   alert('Please insert a new phone number')
+      // } else {
+        sendOtp('+91'+newPhNo)
+        setConfirmChangePhNo(true)
+        setChangePhNo(false)
+      // }
+    } else {
+        mobileNumberRef.current.focus()
+    }
+  }
 
   const ChangeEmail = () => {
     dispatch(setLoading(true))
@@ -994,7 +1111,206 @@ const MatchPassword = (mail) =>{
                     </VStack>
                   </Modal.Body>
               </Modal.Content>
-            </Modal>                
+            </Modal>         
+
+{/* Change mobile no popup */}
+        <Modal isOpen={changePhNo} onClose={() => setChangePhNo(false)} size="lg">
+          <Modal.Content maxWidth="700" borderRadius={20}>
+            <Modal.CloseButton />
+            <Modal.Body>
+              {/* <VStack> */}
+
+              <VStack safeArea flex={1} p={2} w="90%" mx="auto" space={5}>
+                <Heading size="md">
+                  <Text>Change Mobile Number</Text>
+                </Heading>
+                <Text>Enter the new mobile number</Text>
+
+                <FormControl style={{Width: width / 1}}>
+                <View>
+                  <PhoneInput
+                    defaultCode={`IN`}
+                    layout="first"
+                    textContainerStyle={{height:50, backgroundColor:"#f3f3f3",}}
+                    codeTextStyle={{height:"150%",}}
+                    containerStyle={{width:"100%", backgroundColor:"#f3f3f3", color:"black", height:50, }}
+                    onChangeCountry={(country)=>console.log(country)}
+                    disabled
+                  />
+                  <View style={{width:"100%",  flexDirection:"row", position:"absolute"}}>
+                    <View style={{width:"40%",  marginLeft:'60%'}}>
+                      <Input 
+                      variant="filled" 
+                      width={"100%"}
+                      justifyContent={"flex-end"}
+                      bg="#f3f3f3"
+                      mt={0.5}
+                      // value={MobileNo} 
+                      ref={mobileNumberRef}
+                      placeholder="Enter Mobile No."
+                      onChangeText={text => {
+                        setNewPhNo(text.trim())
+                      }}
+                      borderRadius={5}
+                      keyboardType="numeric" 
+                      p={2}
+                      style={{justifyContent:"flex-end"}}
+                      />
+                    </View>
+                  </View>
+                </View>
+                </FormControl>
+                {errNewPhNo === true ? (
+                  <Text style={{color: '#FF0000', fontSize: 9}}>
+                    {' '}
+                    * Please enter your mobile number properly
+                  </Text>
+                ) : null}
+                <Button
+                  bg="#3e5160"
+                  colorScheme="blueGray"
+                  style={{paddingTop: 10, paddingBottom: 10}}
+                  _pressed={{bg: '#fcfcfc', _text: {color: '#3e5160'}}}
+                  onPress={() => submitPhNo()}>
+                  Submit
+                </Button>
+
+                {/* </VStack> */}
+              </VStack>
+            </Modal.Body>
+          </Modal.Content>
+        </Modal>
+{/* Change mobile no otp popup */}
+        <Modal isOpen={confirmChangePhNo} onClose={() => setConfirmChangePhNo(false)} size="lg">
+          <Modal.Content maxWidth="700" borderRadius={20}>
+            <Modal.CloseButton />
+            <Modal.Body>
+              {/* <VStack> */}
+
+              <VStack safeArea flex={1} p={2} w="90%" mx="auto" space={5}>
+                <VStack>
+                  <Text fontSize="md" style={{fontWeight: 'bold'}}>
+                    Verify it's You
+                  </Text>
+                  <Text fontSize={13} color="#8C8C8C">
+                    We sent a 6 Digit OTP to +91{newPhNo}
+                  </Text>
+                </VStack>
+                <FormControl style={{Width: width / 1}}>
+                  <Input
+                    variant="filled"
+                    bg="#f3f3f3"
+                    keyboardType='numeric'
+                    placeholder="Enter 6 Digit OTP"
+                    onChangeText={text => {
+                      var otp = text.trim()
+                      if(otp.length === 6){
+                        var v = parseFloat(otp)
+                        if(Number.isInteger(v)){
+                          setOtp(otp)
+                        }
+                      }
+                    }}
+                  />
+                </FormControl>
+                {ErrVCECode === true ? (
+                  <Text style={{color: '#FF0000', fontSize: 9}}>
+                    {' '}
+                    * Please enter the OTP properly.
+                  </Text>
+                ) : (
+                  <Text style={{fontSize: 1}}> </Text>
+                )}
+
+                <HStack style={styles.otpcount} space={2}>
+                  <View style={styles.count}>
+                    <Text style={{fontSize: 12, color: '#3e5160'}}>
+                      00 : {time}
+                    </Text>
+                  </View>
+                  <View style={styles.resendbtn}>
+                    <TouchableOpacity
+                      onPress={() => {
+                        setVerifyEC(false);
+                        setVerifyAuth(false);
+                        ChangeEmail();
+                      }}
+                      disabled={resend}>
+                      <Text
+                        style={
+                          resend === true
+                            ? styles.resendtext
+                            : styles.resendtextActive
+                        }
+                        // style={[styles.Verifybtn, {opacity: resend ? 1 : 0.7}]}
+                      >
+                        Resend
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </HStack>
+
+                <Button
+                  bg="#3e5160"
+                  colorScheme="blueGray"
+                  style={[styles.Verifybtn, {opacity: resend ? 1 : 0.7}]}
+                  _pressed={{bg: '#fcfcfc', _text: {color: '#3e5160'}}}
+                  onPress={() => verifyOtp()}
+                  disabled={VerifyAuth}>
+                  Verify
+                </Button>
+
+                {/* </VStack> */}
+              </VStack>
+            </Modal.Body>
+          </Modal.Content>
+        </Modal>
+{/* Change mobile no success popup */}
+        <Modal isOpen={successChangePhNo} onClose={() => setSuccessChangePhNo(false)} size="lg">
+          <Modal.Content maxWidth="700" borderRadius={20}>
+            <Modal.CloseButton />
+            <Modal.Body>
+              {/* <VStack> */}
+
+              <VStack
+                safeArea
+                flex={1}
+                p={2}
+                w="90%"
+                mx="auto"
+                space={5}
+                justifyContent="center"
+                alignItems="center">
+                <Image
+                  source={require('../../assets/success_tick.png')}
+                  resizeMode="contain"
+                  size="md"
+                  alt="successful"
+                />
+
+                <Text fontWeight="bold" fontSize="17">
+                  Verification Successfull
+                </Text>
+
+                <Button
+                  bg="#3e5160"
+                  colorScheme="blueGray"
+                  style={{
+                    paddingTop: 10,
+                    paddingBottom: 10,
+                    paddingLeft: 40,
+                    paddingRight: 40,
+                  }}
+                  _pressed={{bg: '#fcfcfc', _text: {color: '#3e5160'}}}
+                  onPress={() => setSuccessEC(false)}>
+                  Done
+                </Button>
+
+                {/* </VStack> */}
+              </VStack>
+            </Modal.Body>
+          </Modal.Content>
+        </Modal>
 
           <VStack pl={4} pr={4} pt={8}>
               <VStack space={10}>
@@ -1049,6 +1365,32 @@ const MatchPassword = (mail) =>{
                     _text:{color: "#3e5160"}
                     }}
                     onPress={()=>setShowCP(true)}
+                  >
+                    Change
+                  </Button>
+                </HStack>
+                <HStack justifyContent='space-between' alignItems="center">
+                  <HStack  justifyContent='space-between' alignItems="center" space={3}>
+                    <Image
+                      alt='EmailAddress'
+                      source={require('../../assets/ACSettings/ChangeNumber.png')}
+                      size={12}
+                      resizeMode='contain'
+                    />
+                    <VStack>
+                      <Text fontSize="md" style={{fontWeight:'bold'}}>Mobile Number</Text>
+                      <Text fontWeight='500' color="#8C8C8C" style={{maxWidth:width/2.5}}>+919113918441</Text>
+                    </VStack>
+                  </HStack>
+
+                  <Button
+                  bg="#3e5160"
+                  colorScheme="blueGray"
+                  style={{width:width/5}}
+                  _pressed={{bg: "#fcfcfc",
+                    _text:{color: "#3e5160"}
+                    }}
+                    onPress={()=>setChangePhNo(true)}
                   >
                     Change
                   </Button>

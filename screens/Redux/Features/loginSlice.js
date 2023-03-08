@@ -10,7 +10,7 @@ const initialState = {
     GUser:false,
     login_Status:false,
     JWT: '',
-    NCount:''
+    NCount:null
 }
 
 export const loginSlice = createSlice({

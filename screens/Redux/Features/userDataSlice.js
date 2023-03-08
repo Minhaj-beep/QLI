@@ -12,7 +12,7 @@ profileData:'',
 SingleCD:'',
 LessonData:null,
 LData:null,
-BankData:'',
+BankData:[],
 SingleBD:'',
 THistory:'',
 BaseURL:'https://api.dev.qlearning.academy/'

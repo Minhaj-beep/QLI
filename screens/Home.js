@@ -10,17 +10,6 @@ import {useDispatch,useSelector} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {setLiveCourses} from './Redux/Features/CourseSlice';
 
-import {
-  RTCPeerConnection,
-  RTCIceCandidate,
-  RTCSessionDescription,
-  RTCView,
-  MediaStream,
-  MediaStreamTrack,
-  mediaDevices,
-  registerGlobals
-} from 'react-native-webrtc';
-
 const { width, height } = Dimensions.get('window')
 
 
@@ -29,9 +18,11 @@ const Home = ({navigation}) => {
   const dispatch = useDispatch();
   const GUser = useSelector(state => state.Auth.GUser);
   const BaseURL = useSelector(state => state.UserData.BaseURL);
+  const Name = useSelector(state => state.UserData.profileData);
+  console.log(Name, 'Name is this')
   const [NMCount, setNMCount] = useState();
-
   const [DashData, setDashData] = useState();
+  const [appBarLoaded, setAppBarLoaded] = useState(false);
 
   
   useEffect(()=>{
@@ -118,7 +109,7 @@ const Home = ({navigation}) => {
 
   const GetNotification = (email) =>{
     dispatch(setLoading(true))
-    const API = BaseURL+'v1/notifications/getNotifications'
+    const API = BaseURL+'/v1/notifications/getNotifications'
     var requestOptions = {
       method:'GET',
       headers:{
@@ -140,6 +131,7 @@ const Home = ({navigation}) => {
         dispatch(setNCount(res))
         setNMCount(res)
         dispatch(setLoading(false))
+        setAppBarLoaded(true)
         // console.log(NData)
       }else if(result.status > 200){
         dispatch(setLoading(false))
@@ -362,7 +354,7 @@ const Home = ({navigation}) => {
   return (
     <View style={styles.tcontainer}>
         <SafeAreaView>
-        <AppBar props={AppBarContent}/>
+        {appBarLoaded ? <AppBar props={AppBarContent}/> : null}
           <ScrollView>
           <Center mt={5} mb={20}>
            <VStack space={3}>

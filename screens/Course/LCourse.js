@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import LcCard from './LcCard';
 import {setSingleLiveCourse} from '../Redux/Features/CourseSlice'
 import { setLiveAssessmentList } from '../Redux/Features/CourseSlice';
+import { setCCOverview } from '../Redux/Features/userDataSlice';
 
 const LCourse = ({navigation}) => {
 
@@ -52,6 +53,40 @@ const LCourse = ({navigation}) => {
 
   }
 
+  const getCourseOverview = (courseCode) =>{
+    const API = BaseURL+'getCourseOverview/?courseCode='+courseCode;
+    if( courseCode ===''){
+      console.log('Something went wrong, please Login again');
+    }else{
+      const requestOptions = {
+        method: 'GET',
+        headers:{
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'gmailUserType':'INSTRUCTOR',
+          'token':email
+        },
+      }
+      // console.log(requestOptions);
+      fetch(API, requestOptions)
+        .then(response => response.json())
+        .then(result => {
+          if(result.status === 200)
+          {
+            const over = result.data[0]
+            // console.log(over);
+            dispatch(setCCOverview(over));
+          }else if(result.status > 200){
+            // alert('Error: ' + result.message);
+            console.log(result.message);
+          }
+        }).catch(error =>{
+          console.log(error)
+          // alert('Error: ' + error);
+        })
+    }
+  };
+
   const VRender = () =>{
     return liveCourseData.map((data,index) =>{
       const courseD ={
@@ -67,6 +102,7 @@ const LCourse = ({navigation}) => {
               console.log('helooooooooooooooo: ', Object.keys(data.assesmentList).length)
               dispatch(setLiveAssessmentList(data.assesmentList))
               console.log('data ==================>', Object.keys(data.assesmentList).length, ' assesment for class code ', data.courseCode)
+              getCourseOverview(data.courseCode)
               // data.assesmentList.map((i)=>{
               //   console.log('data ==================>', i.assessmentDetails)
               // })

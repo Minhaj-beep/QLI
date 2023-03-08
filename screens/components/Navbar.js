@@ -23,9 +23,8 @@ const AppBar = ({props}) => {
   const ProfileI = useSelector(state => state.Login.ProfileImg);
   const [ProfileImg, setProfileImg] = useState(false);
   //  const ProfileImg = false;
-  //   const NotiCount = useSelector(state => state.login.NCount);
+    const NotiCount = useSelector(state => state.Login.NCount);
   const navigation = props.navigation;
-  const [NCount, setNCount] = useState(0);
 
   // const dispatch = useDispatch()
   // console.log(String(NotiCount).length);
@@ -52,7 +51,7 @@ const AppBar = ({props}) => {
           let Citems = data.items;
           if (Citems.length !== 0){
             // console.log(Citems);
-            setNCount(Citems.length);
+            // setNCount(Citems.length);
           }
         }
       }
@@ -66,7 +65,7 @@ const AppBar = ({props}) => {
       .then(email => {
         if (email) {
           let mail = JSON.parse(email);
-          GetCartCount(mail);
+          // GetCartCount(mail);
         } else {
           console.log('Something went wrong with the local storage!');
         }
@@ -95,8 +94,8 @@ const AppBar = ({props}) => {
           </HStack>
 
           <HStack alignItems={'center'}>
-            <VStack>
-              {NCount ? (
+            <VStack >
+              {NotiCount !== null ? (
                 <Badge // bg="red.400"
                   bg="primary.100"
                   rounded="full"
@@ -107,14 +106,14 @@ const AppBar = ({props}) => {
                   _text={{
                     fontSize: 7,
                   }}>
-                  {NCount}
+                  {NotiCount}
                 </Badge>
               ) : null}
               <IconButton
                 mx={{
                   base: 'auto',
-                  md: 0,
-                }}
+                  md: 10,
+                }} style={{marginBottom:-5}}
                 icon={<Icon name={AppBarData.RightIcon1} color="#3e5160" size={20} />}
                 onPress={() => navigation.navigate('Notifications')}
               />

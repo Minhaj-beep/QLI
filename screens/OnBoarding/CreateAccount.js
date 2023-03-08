@@ -189,7 +189,6 @@ const CreateAccount = ({navigation}) => {
 
   useEffect(() => {
     CheckLogin();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function CheckLogin() {
@@ -288,22 +287,15 @@ const CreateAccount = ({navigation}) => {
       LastName !== '' &&
       MobileNo !== null
       ) {
-        // Object.keys(MobileNo).length > 5 ? console.log('yes') : console.log('No')
-        //API CALL
-        //  let CallResponse = await FetchPost('none', body, 'register');
-        //   console.log(CallResponse);
-        
         const requestOptions = {
           method: 'POST',
           headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
-            // 'gmailUserType':'INSTRUCTOR',
-            // 'token':Email
           },
           body: JSON.stringify(body),
         };
-        // console.log(requestOptions);
+
       fetch(BaseURL + 'register', requestOptions)
       .then(response => response.json())
       .then(result => {
@@ -644,7 +636,10 @@ const CreateAccount = ({navigation}) => {
                   defaultCode={`${countrycode}`}
                   layout="first"
                   placeholder=''
-                  onChangeCountry={(res)=>setCountryCode(res.cca2)}
+                  onChangeCountry={(res)=>{
+                    setCountryCode(res.cca2)
+                    console.log(res)
+                  }}
                   textInputStyle={{height:50, }}
                   textContainerStyle={{height:50, color:"#f3f3f3", backgroundColor:"#f3f3f3",}}
                   codeTextStyle={{height:"150%",}}

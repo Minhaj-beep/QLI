@@ -7,6 +7,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import CountDown from 'react-native-countdown-component';
 import { setLiveClassDetails } from '../../../Redux/Features/CourseSlice';
 import moment from 'moment';
+import { setLiveCourseLiveObject } from '../../../Redux/Features/CourseSlice';
 
 const { width, height } = Dimensions.get('window');
 
@@ -14,7 +15,7 @@ const LVStarted = ({props}) => {
 
   const dispatch = useDispatch();      
 
-  // console.log(props.data)
+  console.log(props, 'Is it here?')
   const data = props.data
 
   const [Title, setTitle] = useState();
@@ -56,6 +57,7 @@ const LVStarted = ({props}) => {
   return (
         <TouchableOpacity
           onPress={()=>{
+              dispatch(setLiveCourseLiveObject(props))
               props.navigation.navigate('GTStart')
               dispatch(setLiveClassDetails(data))
             }}

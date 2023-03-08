@@ -13,11 +13,12 @@ import {useDispatch,useSelector} from 'react-redux';
 import FAQContent from './components/FAQContent';
 import { setAssessment } from '../../Redux/Features/CourseSlice';
 import moment from 'moment';
-import { socket } from '../../StaticData/SocketContext';
+import { io } from 'socket.io-client'
 import DocumentPicker, { types } from 'react-native-document-picker'
 const { width, height } = Dimensions.get('window');
 
 const CourseDetails = ({navigation}) => {
+  let socket = io("wss://api.dev.qlearning.academy/ticket")
   const dispatch = useDispatch()
   const scrollViewRef = useRef()
   const [ChatArray, setChatArray] = useState([]); 
@@ -25,7 +26,6 @@ const CourseDetails = ({navigation}) => {
   const [currentMessage, setCurrentMessage] = useState(null)
   const [readyFile, setReadyFile] = useState(false)
   const [uploadFile, setUploadFile] = useState({})
-  const [isChatOpen, setIsChatOpen] = useState (false)
   const [chatLoading, setChatLoading] = useState(false)
   const [ChatText, setChatText] = useState();
   const [ShowRChat, setRChat] = useState(false);
@@ -35,6 +35,7 @@ const CourseDetails = ({navigation}) => {
   const ThumbnailImgPath = useSelector(state => state.UserData.CCThumbImg);
   const IntroVideoPath = useSelector(state => state.UserData.CCIntroVideo);
   const Overview = useSelector(state => state.UserData.CCOverview);
+  // console.log('This is the overview ============>', Overview)
   const FaqData = useSelector(state => state.UserData.CCFAQ);
   const SingleCD = useSelector(state => state.UserData.SingleCD);
   const Name = useSelector(state => state.UserData.profileData.fullName);
@@ -53,9 +54,7 @@ const CourseDetails = ({navigation}) => {
     <body>${OverC}</body>`
   }
 
-  const OpenDoc = async(props) =>{
-    await Linking.openURL(props)
-  }
+  const [isChatOpen, setIsChatOpen] = useState (false)
 
   useEffect(()=>{
     setIsChatOpen(ShowRChat)
@@ -69,7 +68,6 @@ const CourseDetails = ({navigation}) => {
       socket.on("connection-success", async(response) => {
         console.log(`Socket connected ${response.socketId}`);
       })
-      // console.log('courseCode:', CourseCode,  'userId:', JWT_token, 'userName:', Name)
       socket.emit('join-instructor', { courseCode: CourseCode,  userId: JWT_token, userName: Name }, async res => {
         console.log(`join-instructor ${res}`);
         console.log(res)
@@ -112,8 +110,7 @@ const CourseDetails = ({navigation}) => {
             {
                 userName: response.userName,
                 time: response.createdAt,
-                message: response.message,
-                type: response.type,
+                message: response.message
             }
         ]));
     }
@@ -364,7 +361,7 @@ const onConfrimUpload = (data) => {
                 <HStack style={{backgroundColor:"#b5b5b5", borderRadius:10, padding:10, width:'100%'}}>
                   <IconButton
                     onPress={()=>{
-                      OpenDoc(data.message)
+                      alert('Hello')
                     }}
                     icon={<Icon size='lg' as={MaterialCommunityIcons} name='download-circle' color='#395061'/>}
                   />
@@ -595,9 +592,6 @@ const onConfrimUpload = (data) => {
                   _text={{fontSize:11}}
                   variant="Ghost"
                   onPress={()=>{setRChat(true)}}
-                  // onPress={()=>{
-                  //   navigation.navigate('DemoChat')
-                  // }}
                   >
                     Raise Ticket
                   </Button>

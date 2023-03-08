@@ -7,6 +7,7 @@ import {useDispatch,useSelector} from 'react-redux';
 import LVStarted from './components/LVStarted'
 import PLVStarted from './components/PLVStarted';
 import { setLoading } from '../../Redux/Features/userDataSlice';
+import { setCurrentLiveCourseCode } from '../../Redux/Features/CourseSlice';
 
 const { width, height } = Dimensions.get('window');
 
@@ -44,7 +45,9 @@ const GTList = ({navigation}) => {
         .then(result => {
             if(result.status === 200){
                 setUpcomingData(result.data)
+                dispatch(setCurrentLiveCourseCode(SingleCD.courseCode))
                 console.log("data =========", Object.keys(result.data).length)
+                // console.log("data =========", result.data)
                 dispatch(setLoading(false))
             }else if(result.status > 200){
                 console.log(result.message)

@@ -25,6 +25,7 @@ const GTStart = ({navigation}) => {
   const SingleCD = useSelector(state => state.Course.SingleLiveCourse);
   const email = useSelector(state => state.Login.email);
   const GTD = useSelector(state => state.Course.LiveClassDetails);
+  // console.log('WHat is GTD: ', SingleCD)
   const [GTData, setGTData] = useState(GTD);
 
   const [RName, setRName] = useState();
@@ -39,50 +40,27 @@ const GTStart = ({navigation}) => {
 
   console.log('yet')
   console.log(GTData)
-  // console.log(SingleCD.courseCode)
 
   useEffect(()=>{
-    // console.log(GTData)
-    if(GTData.resourceDetails && GTData.resourceDetails.length !=0){
-      let RDetails = GTData.resourceDetails
-      setResource(RDetails)
-      setRName(RDetails[0].resourceName)
-      setFLink(RDetails[0].resourcePath)
+    console.log(GTData, '+++++++++++++++++++++++++')
+    let dateToday = new Date().toJSON().slice(0, 10)
+    dateToday = dateToday.split('-')
+    const scheduledDate = GTData.scheduledDate.split('-')
+    let startTime = GTData.startTime.split(':')
+    let endTime = GTData.endTime.split(':')
+    const hour = new Date().getHours() 
+    const minute = new Date().getMinutes() 
+    console.log('==========================')
+    console.log(dateToday[0], scheduledDate[0], dateToday[1], scheduledDate[1], parseInt(dateToday[2]), parseInt(scheduledDate[2]))
+    if(dateToday[0] === scheduledDate[0] && dateToday[1] === scheduledDate[1] && parseInt(dateToday[2]) === parseInt(scheduledDate[2])) {
+      if(hour > startTime[0] && hour < endTime[0]){
+        setSLBtn(false)
+      } else if (hour === startTime[0] && minute > startTime[1]){
+        setSLBtn(false)
+      } else if (hour === endTime[0] && minute < endTime[1]){
+        setSLBtn(false)
+      }
     }
-    if(GTData.liveCaption){
-      setLCaption(GTData.liveCaption)
-    }
-    if(GTData.liveClassOrder){
-      setOrder(GTData.liveClassOrder)
-    }
-    let NDate = new Date();
-    let DD = NDate.toLocaleTimeString([],{ hour12: false, 
-      hour: "numeric", 
-      minute: "numeric"});
-    
-    let CDate = NDate.getFullYear()+'-'+(NDate.getMonth()+1)+'-'+NDate.getDate()
-    // let SDD = DD.slice(0,5)
-
-    let GS = GTData.scheduledDate
-    let GSD = GS.slice(0,10)
-    // console.log(typeof GSD)
-    // console.log(typeof CDate)
-
-    let CD = DD.split(':')
-    let CDJ = CD[0]+CD[1]
-    let CurrentDateN = Number(CDJ)
-    console.log(CurrentDateN)
-
-    let STime = GTData.startTime
-    let STJ = STime.split(':').join('')
-    let StartD = Number(STJ)
-    console.log(StartD)
-
-    if(CurrentDateN >= StartD  && GSD === CDate){
-      console.log('Start true')
-      setSLBtn(false)
-    }
-
   },[])
 
   const GetSCC = () =>{
@@ -107,7 +85,7 @@ const GTStart = ({navigation}) => {
             data.map((data, index)=>{
               if(data.liveClassOrder === GTData.liveClassOrder){
                 setGTData(data)
-                dispatch(setLiveClassDetails(data))
+                // dispatch(setLiveClassDetails(data))
               }
             })
             dispatch(setLoading(false))
@@ -253,7 +231,7 @@ const GTStart = ({navigation}) => {
       fetch(BaseURL+"CreateLiveCourseClass", requestOptions)
         .then(response => response.json())
         .then(result => {
-          // console.log(result)
+          console.log(result)
           if(result.status === 200){
             alert(result.message)
             GetSCC()           
@@ -298,9 +276,18 @@ const GTStart = ({navigation}) => {
       // console.log(Resource)
     }
   }
+  console.log(GTData, 'GTData')
 
   const StartLive = () => {
+    let id
+    SingleCD.liveCourseClassList.map((i)=>{
+      if(i.weekDay === GTData.weekDay){
+        id = i._id
+      }
+    })
+
     const API = BaseURL+"startLiveCourseClass"
+    console.log('Whats inside body: ', id, 'and ', SingleCD.courseCode)
 
     var requestOptions = {
       method: 'POST',
@@ -311,7 +298,7 @@ const GTStart = ({navigation}) => {
         'token':email
       },
       body: JSON.stringify({
-        'liveClassId':GTData._id,
+        'liveClassId':id,
         'courseCode':SingleCD.courseCode
       }),
     };
@@ -321,14 +308,15 @@ const GTStart = ({navigation}) => {
       .then(result => {
         if(result.status === 200){
           // alert(result.message)
-          navigation.navigate('LLiveClass')
+          navigation.navigate('GoLive')
         }else{
-          alert(result.message)
+          alert('Start live error: 1 ', result.message)
+          console.log('Start live error: 1 ', result.message)
           // alert('Something went wrong!')
         }
       })
       .catch(error => {
-        console.log('error', error)
+        console.log('Start live error: 2 ', error)
         alert('Something went wrong')
       });
   }

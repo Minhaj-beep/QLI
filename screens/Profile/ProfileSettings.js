@@ -25,7 +25,31 @@ const ProfileSettings = props => {
       <TouchableOpacity
         onPress={() => navigation.navigate('Tabs', {screen: 'Courses'})}>
         <HStack style={styles.ProfileSettings}>
-          <Text style={styles.ProfileText}>My courses</Text>
+          <Text style={styles.ProfileText}>My Courses</Text>
+          <IconButton
+            icon={
+              <Icon size={20} name="chevron-forward-outline" color="#395061" />
+            }
+          />
+        </HStack>
+      </TouchableOpacity>
+      
+      <TouchableOpacity
+        onPress={() => navigation.navigate('DemoClass')}>
+        <HStack style={styles.ProfileSettings}>
+          <Text style={styles.ProfileText}>Demo Class</Text>
+          <IconButton
+            icon={
+              <Icon size={20} name="chevron-forward-outline" color="#395061" />
+            }
+          />
+        </HStack>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={() => navigation.navigate('CourseDiscount')}>
+        <HStack style={styles.ProfileSettings}>
+          <Text style={styles.ProfileText}>Course Discount</Text>
           <IconButton
             icon={
               <Icon size={20} name="chevron-forward-outline" color="#395061" />
@@ -61,7 +85,7 @@ const ProfileSettings = props => {
       <TouchableOpacity
         onPress={() => navigation.navigate('NotificationsManagement')}>
         <HStack style={styles.ProfileSettings}>
-          <Text style={styles.ProfileText}>Notification Management</Text>
+          <Text style={styles.ProfileText}>Notification</Text>
           <IconButton
             icon={
               <Icon size={20} name="chevron-forward-outline" color="#395061" />

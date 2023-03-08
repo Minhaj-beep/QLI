@@ -58,8 +58,6 @@ const LiveVideos = ({navigation}) => {
                   })
         }
     };
-
-    // console.log(CourseCode)
   
     const AppBarContent = {
         title: 'Live Videos',

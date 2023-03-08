@@ -1,10 +1,11 @@
-import { View, StyleSheet,Dimensions,ScrollView, TouchableOpacity,Platform,Linking } from 'react-native';
-import React,{useState,useEffect,useRef, useMemo} from 'react';
+import { View, ActivityIndicator, StyleSheet,Dimensions,ScrollView, TouchableOpacity,Platform,Linking } from 'react-native';
+import React,{useState,useEffect,useRef, useCallback} from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {Text,Image,HStack,VStack,IconButton,Icon,Divider, Container,Select,Input,Modal,Box, Heading, Button,FormControl} from 'native-base';
 import AppBar from '../../components/Navbar';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import Entypo from 'react-native-vector-icons/Entypo';
 import CollapsibleView from '@eliav2/react-native-collapsible-view';
 import RenderHtml from 'react-native-render-html';
 import Video from 'react-native-video';
@@ -15,6 +16,8 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import ClassTime from './components/ClassTime';
 import { setLoading } from '../../Redux/Features/userDataSlice';
 import moment from 'moment';
+import DocumentPicker, { types } from 'react-native-document-picker'
+import { socket } from '../../StaticData/SocketContext';
 // import * as WebBrowser from 'expo-web-browser';
 
 
@@ -29,6 +32,12 @@ const LCourseDetails = ({navigation}) => {
   const [LearnerList, setLearnerList] = useState();
   const [ShowRChat, setRChat] = useState(false);
   const [ChatArray, setChatArray] = useState([]); 
+  const [msgList, setMsgList] = useState([])
+  const [currentMessage, setCurrentMessage] = useState(null)
+  const [readyFile, setReadyFile] = useState(false)
+  const [uploadFile, setUploadFile] = useState({})
+  const [chatLoading, setChatLoading] = useState(false)
+  const [isChatOpen, setIsChatOpen] = useState (false)
   const [ChatText, setChatText] = useState();
   const [currencyType, setCurrencyType] = useState();
   const [fromDate, setFromDate] = useState(new Date(1598051730000));
@@ -41,6 +50,16 @@ const LCourseDetails = ({navigation}) => {
   const [showFromPicker, setShowFromPicker] = useState(false);
   const [showToPicker, setShowToPicker] = useState(false);
   const BaseURL = useSelector(state => state.UserData.BaseURL)
+  const SingleCD = useSelector(state => state.Course.SingleLiveCourse);
+  const email = useSelector(state => state.Login.email);
+  const Name = useSelector(state => state.UserData.profileData.fullName);
+  const [FaqData, setFaqData] = useState()
+  const CTime = SingleCD.classTime;
+  const Overview = useSelector(state => state.UserData.CCOverview);
+  const JWT_token = useSelector(state => state.Login.JWT)
+
+  const OverC = SingleCD.courseOverview
+  const CourseCode = SingleCD.courseCode; 
 
   let tagsStyles = {
     a: {
@@ -74,24 +93,164 @@ const LCourseDetails = ({navigation}) => {
     setShowToPicker(false);
 }
 
+  useEffect(()=>{
+    setIsChatOpen(ShowRChat)
+  },[ShowRChat])
+  
+  useEffect(()=>{
+    if(isChatOpen){
+      setChatLoading(true)
+      // socket.connect()
+      socket.open()
+      socket.on("connection-success", async(response) => {
+        console.log(`Socket connected ${response.socketId}`);
+      })
+      // console.log('courseCode:', CourseCode,  'userId:', JWT_token, 'userName:', Name)
+      socket.emit('join-instructor', { courseCode: CourseCode,  userId: JWT_token, userName: Name }, async res => {
+        console.log(`join-instructor ${res}`);
+        console.log(res)
+      })
+      socket.emit("getPreviousMessage", { courseCode: CourseCode, ticketType: "COURSE" }, (response) => {
+        console.log("getPreviousMessage", response)
+        setMsgList(chatMessages => ([
+          ...response
+        ]));
+        setChatLoading(false)
+      })
+      socket.on("message", receiveMessages)
+    } else {
+      socket.off("message", receiveMessages)
+      socket.disconnect()
+      socket.close();
+      socket.on("disconnect", async () => {
+          console.log("client disconnected from server");
+      })
+    }
+  },[isChatOpen])
 
-  const SingleCD = useSelector(state => state.Course.SingleLiveCourse);
-  const email = useSelector(state => state.Login.email);
-  const [FaqData, setFaqData] = useState()
-  const CTime = SingleCD.classTime;
-  // console.log(SingleCD.courseCode)
+  const receiveMessages = useCallback((response) => {
+    console.log("recev live chat-------->");
+    console.log(response);
+    if (response.type == "FILE") {
+        setMsgList(chatMessages => ([
+            ...chatMessages,
+            {
+                userName: response.userName,
+                time: response.createdAt,
+                message: response.message,
+                type: response.type,
+                fileName: response.fileName,
+            }
+        ]));
+    } else {
+        setMsgList(chatMessages => ([
+            ...chatMessages,
+            {
+                userName: response.userName,
+                time: response.createdAt,
+                message: response.message,
+                type: response.type,
+            }
+        ]));
+    }
+  }, [])
 
-  const OverC = SingleCD.courseOverview
+  const GetFile = async() => {
+    let result = await DocumentPicker.pickSingle({allowMultiSelection: false, type:[types.pdf, types.doc, types.zip, types.docx, types.plainText]});
+    console.log(result)
+    if(result){
+      // onConfrimUpload(result)
+      setUploadFile(result)
+      console.log(result)
+    }
+  }
 
-//   const renderersProps = {a:{onPress: onPress}}
+  // For text msg
+  const sendMsg = (Message) => {
+    setChatLoading(true)
+    console.log('Send Message: ', Message)
+        socket.emit("sendMessage", {
+            message: Message,
+            courseCode: CourseCode,
+            userName: Name,
+            ticketType: "COURSE",
+            courseType: "RECORDED",
+            userId: JWT_token,
+            type: "TEXT"
+        }, () => {
+            console.log("sendMessage callback!")
+            setMsgList(chatMessages => ([
+                ...chatMessages,
+                {
+                    userName: Name,
+                    dt: new Date(),
+                    message: Message,
+                    type: "TEXT"
+                }
+            ]))
+            setChatLoading(false)
+        })
+}
+// For file upload
+const onConfrimUpload = (data) => {
+  setChatLoading(true)
+  console.log('Upload file')
+  socket.emit("upload", {
+    file: data?.uri,
+    fileName: data?.name,
+    courseCode: CourseCode,
+    roomName: CourseCode,
+    userName: Name,// localstorage
+    userId: JWT_token,// localstorage
+    ticketType: "COURSE",
+    courseType: "RECORDED",
+    type: "FILE"
+  }, (res) => {
+      console.log('Upload file')
+        console.log(res)
+        setMsgList(chatMessages => ([
+            ...chatMessages,
+            {
+                userName: Name,
+                dt: new Date(),
+                type: "FILE",
+                fileName: res.fileName,
+                message: res.message
+            }
+        ]))
+        setChatLoading(false)
+    });
+}
 
-//   function onPress(event, href){
-//     OpenLink(href)
-//   }
 
-//   const OpenLink = async(props) =>{
-//     await WebBrowser.openBrowserAsync(props);
-// }
+const getCourseOverview = (courseCode) =>{
+  const API = BaseURL+'getCourseOverview/?courseCode='+courseCode;
+  if( courseCode ===''){
+    console.log('Something went wrong, please Login again');
+  }else{
+    const requestOptions = {
+      method: 'GET',
+      headers:{
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'gmailUserType':'INSTRUCTOR',
+        'token':email
+      },
+    }
+    fetch(API, requestOptions)
+      .then(response => response.json())
+      .then(result => {
+        if(result.status === 200)
+        {
+          console.log(result.data)
+        }else if(result.status > 200){
+          console.log(result.message);
+        }
+      }).catch(error =>{
+        console.log(error)
+      })
+    }
+  };
 
 
   useEffect(()=>{
@@ -103,7 +262,7 @@ const LCourseDetails = ({navigation}) => {
       }
       GetAssessment()
       // getStudentList()
-      getTicket()
+      // getTicket()
       GetFAQ()
       dispatch(setLoading(false));
   },[])
@@ -310,21 +469,6 @@ const LCourseDetails = ({navigation}) => {
     })
   }
 
-  const RenderChat = () => {
-    return ChatArray.map((data,index) =>{
-      const TimeD = moment(data.messageTime).format('DD MMM, YYYY hh:mm')
-      return(
-        <VStack key={index} mt={4} alignSelf='flex-end'>
-          <HStack alignItems="center" space={2}>
-            <Text style={{fontSize:8, color:'#8C8C8C' }}>{TimeD}</Text>
-            <Text style={{fontSize:10,fontWeight:'bold', color:"#000000" }}>ME</Text>
-          </HStack>
-          <Text style={{fontSize:11, color:'#000000', maxWidth:width/3,alignSelf:'flex-end'}}>{data.message}</Text>
-        </VStack>
-      )
-    })
-  }
-
 
   const StudRender = () => {
     return LearnerList.map((data, index) => {
@@ -367,6 +511,62 @@ const LCourseDetails = ({navigation}) => {
      )
     })
    }
+
+   const RenderChat = () => {
+    return msgList.map((data,index) =>{
+      const date = new Date(data.dt).toLocaleString()
+      var alignment = data.userName === Name ? "flex-end" : "flex-start"
+
+      return(
+        <>
+        {
+          data.userName === Name ?
+            <VStack key={index} mt={4} alignSelf='flex-end'>
+              <HStack alignItems="center" alignSelf={'flex-end'} space={2}>
+                <Text style={{fontSize:8, color:'#8C8C8C' }}>{date}</Text>
+                <Text style={{fontSize:10,fontWeight:'bold', color:"#000000",  }}>ME</Text>
+              </HStack>
+              {
+                data.type === 'TEXT' ?
+                <Text style={{fontSize:11, color:'#000000', maxWidth:width/3, alignSelf:'flex-end'}}>{data.message}</Text>
+                :
+                <HStack style={{backgroundColor:"#b5b5b5", borderRadius:10, padding:10, width:'100%'}}>
+                  <IconButton
+                    onPress={()=>{
+                      OpenDoc(data.message)
+                    }}
+                    icon={<Icon size='lg' as={MaterialCommunityIcons} name='download-circle' color='#395061'/>}
+                  />
+                  <Text numberOfLines={4} style={{fontSize:11, color:'#000000', maxWidth:width/3, marginLeft:5, alignSelf:'flex-end'}}>{data.message}</Text>
+                </HStack>
+              }
+            </VStack>
+          :
+            <VStack key={index} mt={4} alignSelf='flex-start'>
+              <HStack alignItems="center" alignSelf={'flex-start'} space={2}>
+                <Text style={{fontSize:10,fontWeight:'bold', color:"#000000",  }}>{data.userName}</Text>
+                <Text style={{fontSize:8, color:'#8C8C8C' }}>{date}</Text>
+              </HStack>
+              {
+                data.type === 'TEXT' ?
+                <Text style={{fontSize:11, color:'#000000', maxWidth:width/3, alignSelf:'flex-start'}}>{data.message}</Text>
+                :
+                <HStack style={{backgroundColor:"#b5b5b5", borderRadius:10, padding:10, width:'100%'}}>
+                  <Text numberOfLines={4} style={{fontSize:11, color:'#000000', maxWidth:width/3, marginLeft:5, alignSelf:'flex-end'}}>{data.message}</Text>
+                  <IconButton
+                    onPress={()=>{
+                      GetFile()
+                    }}
+                    icon={<Icon size='lg' as={MaterialCommunityIcons} name='file' color='#395061'/>}
+                  />
+                </HStack>
+              }
+            </VStack>
+        }
+        </>
+      )
+    })
+  }
 
   return (
       <SafeAreaView keyboardShouldPersistTaps={'always'}>
@@ -411,7 +611,6 @@ const LCourseDetails = ({navigation}) => {
               style={{height:height/3.5}} 
               ref={scrollViewRef}
               onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: true })}
-              keyboardShouldPersistTaps={'always'}
             >
             <VStack space={2} mt={3}>
               <VStack>
@@ -422,36 +621,41 @@ const LCourseDetails = ({navigation}) => {
                 <Text style={{fontSize:11, color:'#000000'}}>Any Queries ?</Text>
               </VStack>
 
-            {ChatArray ? <RenderChat/> : null}
+            {msgList ? <RenderChat/> : null}
 
             </VStack>
             </ScrollView>
 
             <FormControl>
             <Input 
-            variant="filled" 
-            bg="#f3f3f3"
-            value={ChatText} 
-            placeholder="Write a message"
-            InputRightElement={
-            <IconButton
-            onPress={()=>{
-                if(ChatText != '' && ChatText != " "){
-                  let CDate = new Date()
-                  var message = {
-                      "message":ChatText,
-                      "messageTime":CDate
-                    }
-                    // console.log(message)
-                  ChatArray.push(message)
-                  UpdateChat();
-                  setChatText('');
-                }
-            }}
-            icon={<Icon size='lg' as={Ionicons} name='send' color='#395061'/>}
-            />
-        
-        }
+              variant="filled" bg="#f3f3f3" value={ChatText} placeholder="Write a message"
+              InputRightElement={
+              <><IconButton
+                onPress={()=>{
+                  GetFile()
+                  setReadyFile(true)
+                }}
+                icon={<Icon size='lg' as={Entypo} name='attachment' color='#395061'/>}
+              />
+              <IconButton
+                onPress={()=>{
+                  if(ChatText != '' && ChatText != " "){  
+                    let CDate = new Date()
+                    let message = {
+                          "message":ChatText,
+                          "messageTime":CDate
+                        }
+                      console.log(message)
+                    ChatArray.push(message)
+                    // UpdateChat()
+                    setChatText('')
+                    setCurrentMessage(ChatText)
+                    sendMsg(ChatText)
+                  }
+                }}
+                icon={<Icon size='lg' as={Ionicons} name='send' color='#395061'/>}
+              /></>
+            }
             style={{maxWidth:width/1.2}}
             onChangeText={(text)=>{
                 setChatText(text)
@@ -462,6 +666,39 @@ const LCourseDetails = ({navigation}) => {
             </FormControl>
             </VStack>
           </Modal.Body>
+            {
+              readyFile && Object.keys(uploadFile).length ? 
+              <VStack width={'100%'} bottom={0} position={'absolute'} backgroundColor={'blue.300'}>
+                <IconButton
+                    onPress={()=>{
+                      setUploadFile({})
+                      setReadyFile(false)
+                    }}
+                    style={{alignSelf:"flex-start", }}
+                    marginLeft={1}
+                    icon={<Icon size='lg' as={Ionicons} name='close-circle' color='#395061'/>}
+                  />
+                <HStack justifyContent={'space-between'} paddingBottom={5} paddingRight={2} paddingLeft={5} width={'100%'} >
+                  <Text numberOfLines={4} style={{fontSize:11, color:'#000000', maxWidth:width/2, alignSelf:'center'}}>{uploadFile.name}</Text>
+                  <IconButton
+                    onPress={()=>{
+                      onConfrimUpload(uploadFile)
+                      setUploadFile({})
+                      setReadyFile(false)
+                    }}
+                    style={{alignSelf:"flex-end", }}
+                    icon={<Icon size='lg' as={Ionicons} name='send' color='#395061'/>}
+                  />
+                </HStack>
+              </VStack>
+              : null
+            }
+            {
+              chatLoading ? 
+              <View style={{width:"100%", position:"absolute", backgroundColor:"white", height:"100%", alignItems:"center", justifyContent:"center"}}>
+                <ActivityIndicator animating color={'#395061'} size={"large"} />
+              </View> : null
+            }
         </Modal.Content>
       </Modal>
 
@@ -548,8 +785,9 @@ const LCourseDetails = ({navigation}) => {
                 </Text>
             </HStack>
           </TouchableOpacity> : null} */}
+          {/* {console.log(SingleCD.liveCourseStatus, 'SingleCD')} */}
 
-          {SingleCD.liveCourseStatus === 'INREVIEW' ? 
+          {SingleCD.courseStatus === 'INREVIEW' || SingleCD.courseStatus === 'ACTIVE' ? 
           <TouchableOpacity
               onPress={()=>setRChat(true)}
              >
@@ -613,17 +851,17 @@ const LCourseDetails = ({navigation}) => {
           >
       
             <Divider my={1}/>
-            {console.log('====================SingleCD===========', SingleCD)}
+            {console.log('====================Single Live Course===========', SingleCD)}
             <VStack space={2}>
               <Text style={{fontSize: 12,color: '#8C8C8C'}}>Course Title</Text>
               <Text style={{fontSize: 15,color: '#000000',fontWeight: 'bold',maxWidth:width/1.4}}>{SingleCD.courseName}</Text>
               <HStack space={2} mt={2}>
                 <Text style={{fontSize: 12,color: '#8C8C8C'}}>Category</Text>
-                <Text style={{fontSize: 15,color: '#000000',fontWeight: 'bold', maxWidth:width/2}}>{SingleCD.catogory}</Text>
+                <Text style={{fontSize: 15,color: '#000000',fontWeight: 'bold', maxWidth:width/2}}>{Overview.categoryName}</Text>
               </HStack>
               <HStack space={2}>
                 <Text style={{fontSize: 12,color: '#8C8C8C'}}>Sub-Category</Text>
-                <Text style={{fontSize: 15,color: '#000000',fontWeight: 'bold',maxWidth:width/1.8}}>{SingleCD.subCategory}</Text>
+                <Text style={{fontSize: 15,color: '#000000',fontWeight: 'bold',maxWidth:width/1.8}}>{Overview.subCategoryName}</Text>
               </HStack>
 
               <Text style={{fontSize: 12,color: '#8C8C8C'}}>Course Overview</Text>

@@ -1,11 +1,12 @@
-import {View, Dimensions, ScrollView, TouchableWithoutFeedback, StyleSheet,TouchableOpacity,Text} from 'react-native';
-import {useState,useEffect,React} from 'react';
+import {View, Dimensions, ScrollView, Linking, TouchableWithoutFeedback, StyleSheet,TouchableOpacity,Text} from 'react-native';
+import {useState,useEffect, useCallback, React} from 'react';
 import {Image,VStack, HStack,Icon,Divider,Button } from 'native-base';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {useDispatch,useSelector} from 'react-redux';
 import CountDown from 'react-native-countdown-component';
 import CountDownTimer from 'react-native-countdown-timer-hooks'
 import { setLiveClassD } from '../../../Redux/Features/CourseSlice';
+import { Camera, CameraPermissionStatus } from 'react-native-vision-camera';
 // import { setLiveClassData } from '../redux-toolkit/features/courseSlice';
 import moment from 'moment';
 
@@ -17,16 +18,21 @@ const LVideoCard = ({props}) => {
     const dispatch = useDispatch();
 
     const [LStarted, setLStarted] = useState(false);
+    const [cameraPermissionStatus, setCameraPermissionStatus] = useState(null);
+    const [microphonePermissionStatus, setMicrophonePermissionStatus] = useState(null); 
     const [ CDSeconds, setCDSeconds] = useState();
     const BaseURL = useSelector(state => state.UserData.BaseURL)
-    const navigation = props.navigation;
-    const data = props.data;
-    // console.log('yeeet')
     const liveStatus = props.data.liveStatus;
     const Sdate = props.data.date;
-
     const email = useSelector(state => state.Login.email);
     const CourseCode = useSelector(state => state.UserData.SingleCD.courseCode);
+
+    const navigation = props.navigation;
+    const data = props.data;
+    var utc = new Date().toJSON().slice(0,10).replace(/-/g,'-');
+    console.log(utc)
+    // console.log(data, 'data')
+
 
     const [day, setDate] = useState(0);
     const [hour, setHour] = useState(0);
@@ -34,10 +40,6 @@ const LVideoCard = ({props}) => {
     const [sec, setSec] = useState(0);
       
   useEffect(()=>{
-
-    // if(liveStatus === 'INPROGRESS'){
-    //   setLStarted(true)
-    // }
 
     const SEC = 1000;
     const MIN = SEC * 60;
@@ -88,8 +90,8 @@ const LVideoCard = ({props}) => {
           .then((result) => {
             if(result.status === 200){
               dispatch(setLiveClassData(data))
-             navigation.navigate('LiveClass')
-             console.log('Live started')
+              navigation.navigate('LiveClass')
+              console.log('Live started')
             }else{
               alert('something went wrong, please try again later');
             }
@@ -108,27 +110,22 @@ const CJoin = () =>{
       <VStack  space={2} width={width / 1.5}>
           <Text style={{fontWeight:'bold', color: '#395061'}}>{data.topicName}</Text>
           <View style={{backgroundColor:'#F0E1EB',borderRadius:10, alignSelf:'flex-start'}}>
-          <Text style={{fontSize: 9,color: '#395061', paddingLeft:7,paddingRight:7,paddingTop:5,paddingBottom:5}} >Scheduled for {LDate}</Text>
+          <Text style={{fontSize: 9,color: '#395061', paddingLeft:7,paddingRight:7,paddingTop:5,paddingBottom:5}} >Scheduled at {LDate}</Text>
           </View>
       </VStack>
-      {/* {console.log(CDSeconds)} */}
-        <CountDownTimer
+      {/* {console.log(CDSeconds, 'Tine')} */}
+        {
+          CDSeconds > 0 ?
+          <CountDownTimer
           containerStyle={styles.count}
           timestamp={CDSeconds}
-          // until={10}
-          size={10}
           onFinish={() => {
             setLStarted(true)
           }}
-          digitStyle={{backgroundColor: 'White', borderWidth: 0, width: 20, height: 20}}
-          textStyle={{color: '#8C8C8C', fontSize: 12}}
-          timeToShow={['D','H','M','S']}
-          // timeLabels={{d:'D',h:'H',m:'M',s:'S'}}
-          timeLabels={{d:null,h:null,m:null,s:null}}
-          timeLabelStyle={{color:'#8C8C8C', fontSize:11}}
-          showSeparator
+          textStyle={{backgroundColor: 'White', color: '#8C8C8C', fontSize: 12, borderWidth: 0,  }}
           /> 
-          {/* <Text>D : H : M : S</Text> */}
+          : null
+        }
       </HStack>
     <Divider mx={1} ml={0} mt={3} bg="primary.50"/>
 </VStack>
@@ -136,24 +133,32 @@ const CJoin = () =>{
 }
 
 const Join = () => {
+  var date = data.date.split('T')
   return(
     <VStack>
   <HStack justifyContent="space-between" alignItems="center">
-          <VStack  space={2}>
+          <VStack  space={2} width={width / 1.5}>
               <Text style={{fontWeight:'bold', color: '#395061'}}>{data.topicName}</Text>
               <View style={{backgroundColor:'#F0E1EB',borderRadius:10, alignSelf:'flex-start'}}>                      
               </View>
           </VStack>
-          <TouchableOpacity
-            style={{borderWidth:1,borderColor:'#395061',borderRadius:10}}
-            onPress={() => {
-              startClass();
-            }}
-          >
-            <Text style={{fontSize:9,paddingLeft:10,paddingRight:10,paddingTop:3,paddingBottom:3}}>
-              start Live
+          {
+            date[0] === utc ?
+            <TouchableOpacity
+              style={{borderWidth:1,borderColor:'#395061',borderRadius:10}}
+              onPress={() => {
+                startClass();
+              }}
+            >
+              <Text style={{fontSize:10, color:"black", paddingLeft:10,paddingRight:10,paddingTop:3,paddingBottom:3}}>
+                Start Live
+              </Text>
+            </TouchableOpacity>
+            : 
+            <Text style={{fontSize:12, color:"red", paddingLeft:10,paddingRight:10,paddingTop:3,paddingBottom:3}}>
+              Date Expired
             </Text>
-          </TouchableOpacity>
+          }
   </HStack>
   <Divider mx={1} ml={0} mt={3} bg="primary.50"/>
   </VStack>
@@ -168,19 +173,20 @@ const Join = () => {
                         <Text style={{fontWeight:'bold', color: '#395061'}}>{data.topicName}</Text>
                         {/* <Text style={{fontSize: 13,color: '#395061',padding:1}} >{SDdate}</Text> */}
                         
+                    <View style={{backgroundColor:'#F0E1EB', marginTop:5, borderRadius:10, alignSelf:'flex-start'}}>
+                      <Text style={{fontSize: 11,color: '#395061', paddingLeft:7,paddingRight:7,paddingTop:5,paddingBottom:5}} >Completed on {SDdate}</Text>
+                    </View>
                     </VStack>
                     {/* <Icon size="lg" as={Ionicons} name="chevron-forward-outline" color="#000000"/> */}
-                    <View style={{backgroundColor:'#F0E1EB',borderRadius:10, alignSelf:'flex-start'}}>
-                          <Text style={{fontSize: 11,color: '#395061', paddingLeft:7,paddingRight:7,paddingTop:5,paddingBottom:5}} >Completed on {SDdate}</Text>
-                        </View>
             </HStack>
-            <Divider mx={1} ml={0} mt={4} bg="primary.50"/>
+            <Divider mx={1} ml={0} mt={2} bg="primary.50"/>
         </VStack>
       )
     }
 
 
     const SCard = () =>{
+      console.log(LStarted)
        if(liveStatus === 'INPROGRESS'){
         setLStarted(true)
       }
@@ -195,7 +201,8 @@ const Join = () => {
     // console.log(props)
   return (
     <View>
-    {liveStatus === 'SCHEDULED' && <SCard/>}
+    {/* {liveStatus === 'SCHEDULED' && <SCard/>} */}
+    {liveStatus === 'SCHEDULED' && <Join/>}
     {liveStatus === 'COMPLETED' && <USCard/>}
     {liveStatus === 'INPROGRESS' && <Join/>}
     {/* <SCard/> */}

@@ -29,6 +29,12 @@ import Chapters from '../Course/Chapters';
 import Lessons from '../Course/Lessons';
 import LessonDetails from '../Course/LessonDetails';
 import GTStart from '../Course/LiveCourse/GTStart';
+import LiveClass from '../Course/LiveClass/LiveClass';
+import GoLive from '../Course/LiveCourse/GoLive';
+import DemoChat from '../Course/CourseDetails/DemoChat';
+import DemoClass from '../DemoClass/DemoClass';
+import ViewDemoClass from '../DemoClass/ViewDemoClass';
+import CourseDiscount from '../Discount/CourseDiscount';
 
 const Stack = createNativeStackNavigator();
 
@@ -187,6 +193,42 @@ const AuthenticatedStack = () => {
       <Stack.Screen
         name="GTStart"
         component={GTStart}
+        options={{headerShown: false}}
+        screenOptionStyle={screenOptionStyle}
+      />
+      <Stack.Screen
+        name="LiveClass"
+        component={LiveClass}
+        options={{headerShown: false}}
+        screenOptionStyle={screenOptionStyle}
+      />
+      <Stack.Screen
+        name="GoLive"
+        component={GoLive}
+        options={{headerShown: false}}
+        screenOptionStyle={screenOptionStyle}
+      />
+      <Stack.Screen
+        name="DemoChat"
+        component={DemoChat}
+        options={{headerShown: false}}
+        screenOptionStyle={screenOptionStyle}
+      />
+      <Stack.Screen
+        name="DemoClass"
+        component={DemoClass}
+        options={{headerShown: false}}
+        screenOptionStyle={screenOptionStyle}
+      />
+      <Stack.Screen
+        name="ViewDemoClass"
+        component={ViewDemoClass}
+        options={{headerShown: false}}
+        screenOptionStyle={screenOptionStyle}
+      />
+      <Stack.Screen
+        name="CourseDiscount"
+        component={CourseDiscount}
         options={{headerShown: false}}
         screenOptionStyle={screenOptionStyle}
       />

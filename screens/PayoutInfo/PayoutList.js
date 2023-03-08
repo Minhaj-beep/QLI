@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import AppBar from '../components/Navbar';
 import {useDispatch,useSelector} from 'react-redux';
 import { Icon,Modal,Text, Box,VStack,HStack,Input,FormControl,Button,Link,Heading,Image,Center, IconButton } from 'native-base';
-import { setLoading, setSingleBD } from '../Redux/Features/userDataSlice';
+import { setLoading, setSingleBD, setBankData } from '../Redux/Features/userDataSlice';
 import { Ionicons } from 'react-native-vector-icons/Ionicons';
 
 const { width, height } = Dimensions.get('window')
@@ -14,7 +14,8 @@ const PayoutList = ({navigation}) => {
     const dispatch = useDispatch();
     const email = useSelector(state => state.Login.email);
     const BaseURL = useSelector(state => state.UserData.BaseURL)
-    const [BData, setBData] = useState(null);
+    // const [BData, setBData] = useState([]);
+    const BData = useSelector(state => state.UserData.BankData)
     const [Dac, setDac] = useState();
 
     const [UPIID, setUPIID] = useState('payprabakaran@dbs');
@@ -55,7 +56,8 @@ const PayoutList = ({navigation}) => {
             // var LArr = result.data[LastElement]
             console.log(arr)
             if(arr.length != 0){
-              setBData(arr)
+              // setBData(arr)
+              dispatch(setBankData(arr))
               let acno = arr[0].accountNumber
               let Lac = acno.length
               let dac = acno.slice(Lac-3, Lac)
@@ -77,6 +79,7 @@ const PayoutList = ({navigation}) => {
 
     const RenderBDetails = () => {
         return BData.map((data, index) =>{
+          console.log('Hello', index)
           let acno = data.accountNumber
           let Lac = acno.length
           let dac = acno.slice(Lac-3, Lac)
@@ -116,47 +119,24 @@ const PayoutList = ({navigation}) => {
     <AppBar props={AppBarContent}/>
     <ScrollView contentContainerStyle={styles.container}>
         <VStack style={{marginBottom:100}}>
-            <FormControl alignSelf="center">
-                <Input
-                placeholder='UPI ID'
-                width={width/1.1}
-                borderColor="#F3F3F3"
-                backgroundColor='#FFFFFF'
-                borderRadius={10}
-                value={UPIID}
-                onChangeText={(text) => setUPIID(text)}
-                InputLeftElement={<Text color="primary.100" style={{padding:12, borderRadius:5, fontWeight:'bold'}}>UPI</Text>}
-                InputRightElement={<IconButton icon={<Icon as={Ionicons} name="cloud-upload-outline" size="md" />}/>}
-                />
-            </FormControl>
             {BData && <RenderBDetails/>}
-            {console.log(BData)}
 
-            {BData != null ?  <TouchableOpacity
-                  onPress={()=>{ 
-                    dispatch(setSingleBD(BData[0]))
+                <Button bg="primary.50" rounded={6} mt={3} 
+                _pressed={{bg: "#fcfcfc",
+                  _text:{color: "#3e5160"}
+                  }}
+                  onPress={() => {
+                    dispatch(setSingleBD([]))
                     navigation.navigate('PayoutInfo')
                   }}
                 >
-                  <VStack style={styles.BCard} p={4} space={1} mt={3}>
-                    <HStack justifyContent="space-between">
-                        <Text style={styles.BText}>Account name</Text>
-                        <Text style={styles.BText2}>{BData[0].accountHolderName}</Text>
-                    </HStack>
-                    <HStack justifyContent="space-between">
-                        <Text style={styles.BText}>Account no.</Text>
-                        <Text style={styles.BText2}>*******{Dac}</Text>
-                    </HStack>
-                    <HStack justifyContent="space-between">
-                        <Text style={styles.BText}>Bank name</Text>
-                        <Text style={styles.BText2}>{BData[0].bankName}</Text>
-                    </HStack>
-                    <HStack justifyContent="space-between">
-                        <Text style={styles.BText}>IFSC</Text>
-                        <Text style={styles.BText2}>*****</Text>
-                    </HStack>
-                </VStack>
-                </TouchableOpacity> : null}
+                  {
+                    Object.keys(BData).length > 0 ?
+                    <Text color="white.100">+ Add Another Payment Info</Text>
+                    :
+                    <Text color="white.100">+ Add Payment Info</Text>
+                  }
+                </Button>
         </VStack>
     </ScrollView>
     </SafeAreaView>

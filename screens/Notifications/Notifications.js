@@ -10,6 +10,7 @@ import {setNCount} from '../Redux/Features/loginSlice';
 import { useEffect } from 'react';
 import { useState } from 'react';
 import moment from 'moment';
+import { MarkAllAsRead } from '../Functions/API/MarkAllAsSeen';
 // import { Ionicons } from "@expo/vector-icons";
 
 const { width, height } = Dimensions.get('window')
@@ -19,7 +20,9 @@ const Notifications = ({navigation}) => {
   const dispatch = useDispatch();
 
   const email = useSelector(state => state.Login.email);
+  const NCount = useSelector(state => state.Login.NCount);
   console.log('Email : ',email)
+  console.log('NCount : ',NCount)
   const BaseURL = useSelector(state => state.UserData.BaseURL)
   console.log(BaseURL)
   const [NData, setNData] = useState();
@@ -35,6 +38,18 @@ const Notifications = ({navigation}) => {
   useEffect(()=>{
     GetNotification()
   },[])
+
+  const markAllAsRead = async (id) => {
+    try {
+      let response = await MarkAllAsRead(email, id);
+      if (response.status === 200) {
+        console.log('Success')
+        dispatch(setNCount(null))
+      }
+    } catch (e) {
+      console.log(`Maked all read didn't worked out`)
+    }
+  }
 
   const GetNotification = () =>{
     dispatch(setLoading(true))
@@ -55,13 +70,12 @@ const Notifications = ({navigation}) => {
     .then(result => {
       if(result.status === 200)
       {
-        console.log(result.data.result.notificationList)
-        console.log('Heloooooooooo ....')
+        markAllAsRead(result.data.result.userId)
         let re = result.data;
         let res = re.result
-        dispatch(setNCount(re.count))
+        // dispatch(setNCount(re.count))
         // console.log(re.count)
-        // console.log(res.notificationList)
+        console.log(res)
         setNData(res.notificationList)
         dispatch(setLoading(false))
         // console.log(NData)
@@ -81,18 +95,18 @@ const Notifications = ({navigation}) => {
     return NData.map((data, index)=>{
       const TimeD = moment(data.notificationDate).format('DD MMM, YYYY hh:mm a')
       return(
-        <View key={index} style={{marginTop:10}}>
+        <View key={index} style={{marginTop:10, flex:1}}>
           <HStack style={styles.card} space={3} maxWidth={width/0.5}>
             <View>
-              <View style={{backgroundColor:"#F0E1EB", padding:10, borderRadius:10}}>
-                <Icon as={<MaterialIcons name="notifications-active"/>} size={7}/>
+              <View style={{backgroundColor:data.isRead ? "#f9f2f6" : "#F0E1EB", padding:10, borderRadius:10}}>
+                <Icon color= {data.isRead ? "#a6a6a6" : "grey"} as={<MaterialIcons name="notifications-active"/>} size={7}/>
               </View>
             </View>
             <VStack style={{maxWidth:width/1.2}} justifyContent="center">
-                <Text style={{color:"#395061", fontWeight:'bold', fontSize:16, maxWidth:width/1.5}}>{data.subject}</Text>
+                <Text style={{color:data.isRead ? "#c3cacf" : "#395061", fontWeight:'bold', fontSize:16, maxWidth:width/1.5}}>{data.subject}</Text>
                 {/* <Text style={{color:"#395061", fontSize:13,maxWidth:width/1.45}}>{data.content}</Text> */}
                 {/* <Text style={{color:"#8C8C8C", fontSize:11}}>22 February, 2022</Text> */}
-                <Text style={{color:"#8C8C8C", fontSize:10}}>{TimeD}</Text>
+                <Text style={{color:data.isRead ? "#979797" : "#8C8C8C", fontSize:10}}>{TimeD}</Text>
             </VStack>
           </HStack>
         </View>
@@ -100,14 +114,14 @@ const Notifications = ({navigation}) => {
     })
   }
   return (
-    <SafeAreaView>
+    <View style={{flex:1}}>
       <AppBar props={AppBarContent}/>
-      <ScrollView nestedScrollEnabled={true} style={{marginBottom:100}}>
+      <ScrollView nestedScrollEnabled={true} >
       <VStack space={3} style={styles.Container}>
       {NData && <Render/>}
       </VStack>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   )
 }
 

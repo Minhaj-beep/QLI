@@ -13,14 +13,6 @@ const PayoutInfo = ({navigation}) => {
 
   const dispatch = useDispatch();
 
-  const AppBarContent = {
-    title: 'Payout Update',
-    navigation: navigation,
-    ArrowVisibility: true,
-    RightIcon1:'notifications-outline',
-    RightIcon2:'person',
-  } 
-
   const BankList = [
         { value: "Bank of Baroda", label: "Bank of Baroda" },
         { value: "Bank of India", label: "Bank of India" },
@@ -112,13 +104,19 @@ const PayoutInfo = ({navigation}) => {
   const [BNFocus, setBNFocus] = useState();
   const [AccountNo, setAccountNo] = useState();
   const [IFSCNo, setIFSCNo] = useState();
-
   const [BDID, setBDID] = useState();
-
   const [ErrAC, setErrAC] = useState(false);
   const [ErrIFSC, setErrIFSC] = useState(false);
   const [ErrAN, setErrAN] = useState(false);
   const [ErrBN, setErrBN] = useState(false);
+
+  const AppBarContent = {
+    title: Object.keys(SingleBD).length > 0 ? 'Payout Update' : 'Payout Create',
+    navigation: navigation,
+    ArrowVisibility: true,
+    RightIcon1:'notifications-outline',
+    RightIcon2:'person',
+  } 
 
   useEffect(()=>{
    if(SingleBD){
@@ -130,11 +128,61 @@ const PayoutInfo = ({navigation}) => {
    }
   },[])
 
+  const varifyUpdate = () => {
+    if(AccountName === SingleBD.accountHolderName &&
+      BankName === SingleBD.bankName &&
+      AccountNo === SingleBD.accountNumber &&
+      IFSCNo === SingleBD.IFSCcode
+      ) {
+        alert('Please make any change and update!')
+      } else {
+        UpdateInfo()
+      }
+  }
+
 
   const SelectBank = () => {
     return BankList.map((Data,index)=>{
       return (<Select.Item label={Data.label} value={Data.value} key={index}/>)
     })
+  }
+
+  const DeleteInfo = () =>{
+    dispatch(setLoading(true))
+        const API = BaseURL+'deletePaymentInfo'
+        var requestOptions = {
+          method:'POST',
+          headers:{
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'gmailUserType':'INSTRUCTOR',
+            'token':email
+          },
+          body: JSON.stringify({
+            paymentInfoId: SingleBD._id
+          })
+        }
+        console.log(requestOptions)
+        fetch(API, requestOptions)
+        .then(response => response.json())
+        .then(result => {
+          if(result.status === 200)
+          {
+            alert('Payout Info Deleted Successfully!')
+            GetAccountInfo()
+            navigation.goBack()
+            dispatch(setLoading(false))
+          }else if(result.status > 200){
+            dispatch(setLoading(false))
+            alert('Error DeleteInfo1: ' + result.message);
+            console.log(result.message);
+          }
+        }).catch(error =>{
+          dispatch(setLoading(false))
+          console.log(error)
+          alert('Error DeleteInfo2: ' + error);
+        })
+      // }
   }
 
   const UpdateInfo = () =>{
@@ -157,7 +205,7 @@ const PayoutInfo = ({navigation}) => {
             accountNumber:AccountNo,
             bankName:BankName,
             IFSCcode:IFSCNo,
-            paymentInfoId:BDID
+            paymentInfoId:SingleBD._id
           })
         }
         console.log(requestOptions)
@@ -168,17 +216,62 @@ const PayoutInfo = ({navigation}) => {
           {
             alert('Payout Info Updated Successfully!')
             GetAccountInfo()
-            navigation.navigate('ProfileDash')
+            navigation.goBack()
             dispatch(setLoading(false))
           }else if(result.status > 200){
             dispatch(setLoading(false))
-            alert('Error: ' + result.message);
+            alert('ErrorUpdateInfo1: ' + result.message);
             console.log(result.message);
           }
         }).catch(error =>{
           dispatch(setLoading(false))
           console.log(error)
-          alert('Error: ' + error);
+          alert('Error UpdateInfo2: ' + error);
+        })
+      }
+  }
+
+  const createBankAcInfo = () =>{
+    dispatch(setLoading(true))
+    if(ErrAC === true || ErrIFSC === true || ErrBN === true || ErrAN === true){
+      alert('Please enter the details correctly!')
+      dispatch(setLoading(false))
+      }else{
+        const API = BaseURL+'createupdatePaymentInfo'
+        var requestOptions = {
+          method:'POST',
+          headers:{
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'gmailUserType':'INSTRUCTOR',
+            'token':email
+          },
+          body: JSON.stringify({
+            accountHolderName:AccountName,
+            accountNumber:AccountNo,
+            bankName:BankName,
+            IFSCcode:IFSCNo,
+          })
+        }
+        console.log(requestOptions)
+        fetch(API, requestOptions)
+        .then(response => response.json())
+        .then(result => {
+          if(result.status === 200)
+          {
+            alert('Payout Info Created Successfully!')
+            GetAccountInfo()
+            navigation.goBack()
+            dispatch(setLoading(false))
+          }else if(result.status > 200){
+            dispatch(setLoading(false))
+            alert('ErrorUpdateInfo1: ' + result.message);
+            console.log(result.message);
+          }
+        }).catch(error =>{
+          dispatch(setLoading(false))
+          console.log(error)
+          alert('Error UpdateInfo2: ' + error);
         })
       }
   }
@@ -209,13 +302,13 @@ const PayoutInfo = ({navigation}) => {
         dispatch(setLoading(false))
       }else if(result.status > 200){
         dispatch(setLoading(false))
-        alert('Error: ' + result.message);
+        alert('Error GetAccountInfo1: ' + result.message);
         console.log(result.message);
       }
     }).catch(error =>{
       dispatch(setLoading(false))
       console.log(error)
-      alert('Error: ' + error);
+      alert('Error GetAccountInfo2: ' + error);
     })
   }
 
@@ -303,12 +396,11 @@ const PayoutInfo = ({navigation}) => {
           /> */}
 
       <Dropdown
-        style={styles.dropdown}
-        // containerStyle={styles.containerStyle}
-        placeholderStyle={styles.placeholderStyle}
-        selectedTextStyle={styles.selectedTextStyle}
-        inputSearchStyle={styles.inputSearchStyle}
-        // iconStyle={styles.iconStyle}
+        itemTextStyle={{fontSize: 12, color:"black" }}
+        style={{height: 50, borderRadius: 7, padding: 12, borderColor:'#3e5160', borderWidth:1, color:"back",}}
+        placeholderStyle={{fontSize: 12, color:"black" }}
+        selectedTextStyle={{fontSize: 12, color:"black" }}
+        inputSearchStyle={{fontSize: 12, color:"black" }}
         data={BankList}
         keyboardAvoiding={true}
         search
@@ -391,11 +483,29 @@ const PayoutInfo = ({navigation}) => {
            }}
            mt={5}
            onPress={()=>{
-            UpdateInfo()
+            Object.keys(SingleBD).length > 0 ? varifyUpdate() : createBankAcInfo()
           }}
         >
-          Save
+          {Object.keys(SingleBD).length > 0 ? 'Update' : 'Save'}
         </Button>
+        {
+          Object.keys(SingleBD).length > 0 ?
+            <Button
+            bg="#F65656"
+            colorScheme="blueGray"
+            style={styles.cbutton}
+            _pressed={{bg: "#fcfcfc",
+              _text:{color: "#3e5160"}
+              }}
+              mt={3}
+              onPress={()=>{
+                DeleteInfo()
+              }}
+            >
+              Delete
+            </Button>
+          : null
+        }
 
       </VStack>
     </ScrollView>
@@ -413,9 +523,11 @@ const styles = StyleSheet.create({
 },
 placeholderStyle: {
   fontSize: 12,
+  color:"black"
 },
 selectedTextStyle: {
   fontSize: 12,
+  color:"black"
 },
 inputSearchStyle: {
   height: 40,
@@ -423,19 +535,11 @@ inputSearchStyle: {
 },
 dropdown: {
   height: 50,
-  // backgroundColor: 'white',
   borderRadius: 7,
   padding: 12,
   borderColor:'#3e5160',
-  borderWidth:1
-  // shadowColor: '#000',
-  // shadowOffset: {
-  //   width: 0,
-  //   height: 1,
-  // },
-  // shadowOpacity: 0.2,
-  // shadowRadius: 1.41,
-  // elevation: 2,
+  borderWidth:1,
+  color:"back", 
 },
 containerStyle:{
   borderWidth:2,

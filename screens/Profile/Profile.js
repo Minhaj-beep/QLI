@@ -571,45 +571,22 @@ const Profile = ({navigation}) => {
                 </FormControl.Label>
                 <View style={{width:'100%',}}>
                 <PhoneInput
-                  // defaultValue={MobileN}
-                  // value={MobileN}
-                  
-                  // ref={mobileRef}
-                  // textInputProps={{
-                  //   autoFocus:numberFocus,
-                  //   ref:{mobileRef}
-                  // }}
-   
                   withDarkTheme={true}
-                  
                   defaultCode={`${contryCode}`}
                   layout="first"
-                  // onChangeText={(text) => {
-                  //   if(text.length != 10){
-                  //     setMobileN(text)
-                  //     setErrMN(true)
-                  //     setErrorMessage({name: ''})
-                  //   }else{
-                  //     setMobileN(text)
-                  //     setErrMN(false)
-                  //     setErrorMessage({name: ''})
-                  //   }
-                  // }}
                   onChangeCountry={(res)=>setCountryCode(res.cca2)}
-                  textInputStyle={{height:50, color:"black", }}
-                  textContainerStyle={{height:50, backgroundColor:"#f3f3f3",}}
-                  codeTextStyle={{height:"150%",}}
-                  containerStyle={{width:"100%", backgroundColor:"#f3f3f3", color:"black", height:50, }}
+                  textContainerStyle={{ height:50,  backgroundColor:"#f3f3f3",}}
+                  codeTextStyle={{height:"175%", marginTop:5, alignSelf:"center"}}
+                  containerStyle={{width:"100%", backgroundColor:"#f3f3f3", color:"black",  }}
                 />
                 <View style={{width:"100%",  flexDirection:"row", position:"absolute"}}>
                 <View style={{width:"65%",  marginLeft:'35%'}}>
-
                 <Input 
                 variant="filled" 
                 width={"100%"}
+                height={50}
                 justifyContent={"flex-end"}
                 bg="#f3f3f3"
-                mt={0.5}
                 value={MobileN} 
                 ref={mobileRef}
                 placeholder="Enter Mobile No."
@@ -627,11 +604,10 @@ const Profile = ({navigation}) => {
                 borderRadius={5}
                 keyboardType="numeric" 
                 p={2}
-                style={{justifyContent:"flex-end"}}
+                style={{justifyContent:"flex-end", }}
                 />
                 </View>
                 </View>
-
                 </View>
             </FormControl>
             {errorMessage.inputField === 'Mobile' ? <Text style={{color:'red', fontSize:11}}>{errorMessage.error}</Text> : <></> }
