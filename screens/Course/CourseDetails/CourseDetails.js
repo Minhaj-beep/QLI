@@ -1,9 +1,10 @@
-import { View, ActivityIndicator, Text, StyleSheet,Dimensions,ScrollView, TouchableOpacity,KeyboardAvoidingView,Platform,Linking } from 'react-native';
+import { View, ActivityIndicator, StyleSheet,Dimensions,ScrollView, TouchableOpacity,KeyboardAvoidingView,Platform,Linking, Pressable } from 'react-native';
 import React,{useState,useEffect,useRef, useCallback } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import {Image,HStack,VStack,IconButton,Icon,Divider,Modal,Button, Input,FormControl} from 'native-base';
+import {Image, Text, HStack,VStack,IconButton,Icon,Divider,Modal,Button, Input,FormControl} from 'native-base';
 import AppBar from '../../components/Navbar';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Entypo from 'react-native-vector-icons/Entypo';
 import CollapsibleView from '@eliav2/react-native-collapsible-view';
@@ -15,6 +16,8 @@ import { setAssessment } from '../../Redux/Features/CourseSlice';
 import moment from 'moment';
 import { socket } from '../../StaticData/SocketContext';
 import DocumentPicker, { types } from 'react-native-document-picker'
+import { EnableDemoClass } from '../../Functions/API/EnableDemoClass';
+import VideoPlayer from 'react-native-video-controls';
 const { width, height } = Dimensions.get('window');
 
 const CourseDetails = ({navigation}) => {
@@ -45,7 +48,12 @@ const CourseDetails = ({navigation}) => {
   const email = useSelector(state => state.Login.email)
   const BaseURL = useSelector(state => state.UserData.BaseURL)
   const JWT_token = useSelector(state => state.Login.JWT)
+  const [isDemoActive, setIsDemoActive] = useState(SingleCD.isDemo)
   const OverC = Overview.courseOverview 
+  console.log(`
+    ${OverC}
+    This is over C
+  `)
   const OverviewSource ={
     html:`<head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -194,6 +202,22 @@ const onConfrimUpload = (data) => {
         ]))
         setChatLoading(false)
     });
+}
+
+
+const requestDemoClass = async () => {
+  try{
+    const result = await EnableDemoClass(email, CourseCode)
+    if(result.message === 'Successfully demo class enabled'){
+      setIsDemoActive(true)
+    } else {
+      alert('Please try again!')
+      console.log('requestDemoClass 1 :', result)
+    }
+  } catch (e) {
+    alert('Please try again!')
+    console.log('requestDemoClass 2 :', e)
+  }
 }
 
 
@@ -444,13 +468,13 @@ const onConfrimUpload = (data) => {
               onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: true })}
             >
             <VStack space={2} mt={3}>
-              <VStack>
+              {/* <VStack>
                 <HStack alignItems="center" space={2}>
                 <Text style={{fontSize:10,fontWeight:'bold', color:"#000000" }}>Moderator</Text>
                 <Text style={{fontSize:8, color:'#8C8C8C' }}>15, Feb, 2022 10:00 AM</Text>
                 </HStack>
                 <Text style={{fontSize:11, color:'#000000'}}>Any Queries ?</Text>
-              </VStack>
+              </VStack> */}
 
             {msgList ? <RenderChat/> : null}
 
@@ -584,27 +608,84 @@ const onConfrimUpload = (data) => {
 
        
         <HStack space={2} mt='3' mb='4' alignItems="center">
-            { SingleCD.courseStatus === 'INREVIEW' || SingleCD.courseStatus === 'ACTIVE' ?
-             <TouchableOpacity
-              onPress={()=>setRChat(true)}
-             >
-             <HStack alignItems="center">
-              <Icon size='md' as={Ionicons} name='information-circle-outline' color='#8C8C8C'/>
-                <Button
-                  colorScheme='primary'
-                  _text={{fontSize:11}}
-                  variant="Ghost"
-                  onPress={()=>{setRChat(true)}}
-                  // onPress={()=>{
-                  //   navigation.navigate('DemoChat')
-                  // }}
+              <View style={{flexDirection:"row", width:width*0.95, alignItems:"center", justifyContent:"space-between"}}>
+                {SingleCD.courseStatus === 'INREVIEW' || SingleCD.courseStatus === 'ACTIVE' || SingleCD.courseStatus === 'BANNED' ? 
+                <>
+                  <TouchableOpacity
+                    onPress={()=>setRChat(true)}
                   >
-                    Raise Ticket
-                  </Button>
-              </HStack>
-             </TouchableOpacity>:null}
+                  <HStack bg={'gray.300'} space={1} padding={2} borderRadius={5} alignItems="center">
+                    <Icon size='sm' as={FontAwesome5} name='envelope' color='primary.50'/>
+                    <Text color={'primary.50'} bold onPress={()=>{
+                        setRChat(true)
+                    }} style={{fontSize:11, borderRadius:3}}>Raise a Ticket</Text>
+                  </HStack>
+                  </TouchableOpacity>
+                </>
+                :null}
+             </View>
           </HStack>
+
+          {
+            SingleCD.courseStatus === 'BANNED' || SingleCD.courseStatus === 'REJECTED' ?
+              <CollapsibleView 
+                title={
+                  <HStack 
+                    style={{
+                      flex:1,    
+                      flexDirection: 'row',
+                      alignItems: 'flex-start',
+                      paddingTop:10,
+                      paddingLeft:15,
+                      paddingRight:15,
+                      paddingBottom:10,
+                      position: 'relative'
+                    }}
+                  >
+                  <VStack>
+                    <Text style={{fontSize: 15,color: '#000000',fontWeight: 'bold'}}>
+                      Rejected
+                    </Text>
+                  </VStack>
+                </HStack>  
+                }
+                style={{
+                  borderRadius: 5,
+                  backgroundColor: "#FFFFFF",
+                  shadowColor: "rgba(0, 0, 0, 0.03)",
+                  shadowOffset: {
+                    width: 0,
+                    height: 0.5
+                  },
+                  shadowRadius: 22,
+                  shadowOpacity: 1,
+                  borderWidth: 0,
+                }}
+                arrowStyling={{ size: 20,thickness: 3, color: "#364b5b"}}
+                isRTL={true}
+                collapsibleContainerStyle={{
+                  paddingTop: 5,
+                  paddingBottom:10,
+                  paddingLeft:15,
+                  paddingRight:15
+                }}
+              >
           
+                <Divider my={1}/>
+                <VStack space={2}>
+                  <Text style={{fontSize: 12,color: '#ff0000'}}>Reason for rejection</Text>
+                  {
+                    SingleCD.rejectionComments.map((data, index)=> {
+                      console.log(index)
+                      return(
+                        <Text style={{fontSize: 15,color: '#000000', maxWidth:width/2}}>{index + 1}. {data.comment}</Text>
+                      )
+                    })
+                  }
+                </VStack>
+              </CollapsibleView>
+            : null
+          }
           <CollapsibleView 
             title={
               <HStack 
@@ -674,6 +755,7 @@ const onConfrimUpload = (data) => {
                 <RenderHtml
                   contentWidth={width/3}
                   source={OverviewSource}
+                  baseStyle={{color:'#000'}}
                 //   renderersProps={renderersProps}
                   // onLinkPress={(evt, href) => { Linking.openURL(href) }}
                 />
@@ -685,6 +767,7 @@ const onConfrimUpload = (data) => {
                   style={{minHeight:height/5,zIndex:100}}
                 /> */}
           </CollapsibleView>
+          
           <CollapsibleView 
             title={
               <HStack 
@@ -803,22 +886,39 @@ const onConfrimUpload = (data) => {
                 />
               </VStack>
 
-              <VStack space={1}>
+              {/* <Pressable space={1} zIndex={1000}> */}
                 <Text style={{color:'#000000', fontSize: 12,fontWeight:'bold'}}>Intro Video</Text>
                 <Text style={{fontSize: 11,color: '#8C8C8C'}}>Width 600 px, Height 350px. Format will be MP4</Text>
-                <Video 
+                {/* <Video 
                 // source={{uri:'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'}}
                 source={{uri:IntroVideo}}
                 rate={1.0}
                 volume={1.0}
                 isMuted={false}
                 resizeMode="cover"
+                controls={true}
+                paused={true}
                 // shouldPlay
                 isLooping
-                style={{ width: 360, height: 220, alignSelf: 'center',borderRadius: 10  }}
+                style={{ width: 360, height: 220, alignSelf: 'center',borderRadius: 10 }}
                 useNativeControls
-                />
-              </VStack>
+                /> */}
+                <View style={{width: '100%', height: 220,}}>
+                  <VideoPlayer
+                    source={{uri: IntroVideo}}
+                    style={{ width: 360, height: 220, zIndex:1000, elevation:1000, alignSelf: 'center',borderRadius: 10 }}
+                    onError={()=>{
+                      console.log('Something went wrong...');
+                    }}
+                    pictureInPicture={true}
+                    navigator={navigation}
+                    isFullscreen={false}
+                    tapAnywhereToPause = {false}
+                    onPlay = {() => {}}
+                    paused={true}
+                  />
+                </View>
+              {/* </Pressable> */}
               {/* <HStack>
               <HStack style={{ flex:1,justifyContent:'flex-end',alignItems:'center'}}>
                 <Text style={{color:'#000000', fontWeight: 'bold',fontSize:15,padding:10}}>Save Changes</Text>

@@ -13,7 +13,7 @@ const PaymentVerification = async (email, oi, pi,sign) => {
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
-      gmailUserType: 'STUDENT',
+      gmailUserType: 'INSTRUCTOR',
       token: email,
     },
     body: JSON.stringify({

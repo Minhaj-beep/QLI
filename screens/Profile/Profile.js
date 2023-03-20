@@ -107,8 +107,8 @@ const Profile = ({navigation}) => {
       setfromTime(selectedDate);
       console.log(selectedDate);
       let time = selectedDate.toLocaleTimeString()
-      console.log(time.slice(0,5))
-      setDFromTime(time.slice(0,5))
+      console.log(time.slice(0,4))
+      setDFromTime(time.slice(0,4))
     }
     setShowFromPicker(false);
   }
@@ -121,7 +121,7 @@ const Profile = ({navigation}) => {
     }else{
       settoTime(selectedDate);
       let time = selectedDate.toLocaleTimeString()
-      setDToTime(time.slice(0,5))
+      setDToTime(time.slice(0,4))
     }
     setShowToPicker(false);
 }

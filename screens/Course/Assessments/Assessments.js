@@ -36,7 +36,7 @@ const Assessments = ({navigation}) => {
     <SafeAreaView>
       <AppBar props={AppBarContent}/>
       <ScrollView style={styles.container}>
-        <VStack mt={5} style={{marginBottom:150}}>
+        <VStack style={{marginBottom:150}}>
           <RenderAssessment/>
         </VStack>
       </ScrollView>
@@ -48,6 +48,6 @@ export default Assessments
 
 const styles = StyleSheet.create({
   container:{
-    padding:20
+    paddingHorizontal:20
   }
 })

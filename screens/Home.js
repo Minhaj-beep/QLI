@@ -4,11 +4,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Icon,Text,VStack,HStack,Button,Image,Center,IconButton} from 'native-base';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AppBar from './components/Navbar';
-import { SetCourseData,setLoading,setProfileData,setTHistory, } from './Redux/Features/userDataSlice';
+import { SetCourseData,setLoading,setProfileData,setTHistory, setTransactionHistory } from './Redux/Features/userDataSlice';
 import { setLogin_Status, setProfileImg,setUserImage,setName,setEmail,setJWT,setNCount } from './Redux/Features/loginSlice';
 import {useDispatch,useSelector} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {setLiveCourses} from './Redux/Features/CourseSlice';
+import { GetWithdrawDashboardData } from './Functions/API/GetWithdrawDashboardData';
 
 const { width, height } = Dimensions.get('window')
 
@@ -19,6 +20,7 @@ const Home = ({navigation}) => {
   const GUser = useSelector(state => state.Auth.GUser);
   const BaseURL = useSelector(state => state.UserData.BaseURL);
   const Name = useSelector(state => state.UserData.profileData);
+  const transactionData = useSelector(state => state.UserData.TransactionHistory);
   console.log(Name, 'Name is this')
   const [NMCount, setNMCount] = useState();
   const [DashData, setDashData] = useState();
@@ -184,12 +186,26 @@ const Home = ({navigation}) => {
         getLiveCourse(REmail);
         GetNotification(REmail);
         GetDData(REmail);
-        
+        getWithdrawDashboardData(REmail)
         dispatch(setLoading(false));
       }      
     } catch(e) {
       dispatch(setLoading(false));
       console.log('Something went wrong with the local storage')
+    }
+  }
+
+  const getWithdrawDashboardData = async (email) => {
+    try {
+      const result = await GetWithdrawDashboardData(email)
+      if(result.status === 200){
+        dispatch(setTransactionHistory(result.data))
+        console.log(result)
+      } else {
+        console.log('getWithdrawDashboardData failed!', result)
+      }
+    } catch (e) {
+      console.log('getWithdrawDashboardData failed2 :', e)
     }
   }
 
@@ -360,7 +376,7 @@ const Home = ({navigation}) => {
            <VStack space={3}>
             <VStack style={styles.DCard} p={5} space={1}>
               <Text fontSize="sm" style={{fontWeight:'bold'}}>Current Balance</Text>
-              <Text fontSize="lg" style={{fontWeight:'bold'}}>{DashData && DashData[0].data}</Text>
+              <Text fontSize="lg" style={{fontWeight:'bold'}}>₹{transactionData.TotalRevenue}</Text>
               <Button bg="primary.50" rounded={6} mt={3} 
               _pressed={{bg: "#fcfcfc",
                 _text:{color: "#3e5160"}
@@ -373,27 +389,27 @@ const Home = ({navigation}) => {
 
             <VStack style={styles.DCard} p={5} space={1}>
               <Text fontSize="sm" style={{fontWeight:'bold'}}>Total Revenue</Text>
-              <Text fontSize="lg" style={{fontWeight:'bold'}}>{DashData && DashData[1].data.revenue}</Text>
+              <Text fontSize="lg" style={{fontWeight:'bold'}}>₹{transactionData.TotalRevenue}</Text>
               <HStack justifyContent='space-between' mt={2}>
                 <Text fontWeight='500' color="#8C8C8C">This Month</Text>
-                <Text fontWeight='500' color="#8C8C8C">{DashData && DashData[1].data.thisMonth}</Text>
+                <Text fontWeight='500' color="#8C8C8C">₹{transactionData.currentMonthRevenue}</Text>
               </HStack>
               <HStack justifyContent='space-between' mt={1}>
                 <Text color="#8C8C8C">Last Month</Text>
-                <Text color="#8C8C8C">{DashData && DashData[1].data.lastMonth}</Text>
+                <Text color="#8C8C8C">₹{transactionData.lastMonthRevenue}</Text>
               </HStack> 
             </VStack>
             
             <VStack style={styles.DCard} p={5} space={1}>
               <Text fontSize="sm" style={{fontWeight:'bold'}}>Total Enrollments</Text>
-              <Text fontSize="lg" style={{fontWeight:'bold'}}>{DashData && DashData[2].data.count}</Text>
+              <Text fontSize="lg" style={{fontWeight:'bold'}}>{transactionData.totalEnrollment}</Text>
               <HStack justifyContent='space-between' mt={2}>
                 <Text fontWeight='500' color="#8C8C8C">This Month</Text>
-                <Text fontWeight='500' color="#8C8C8C">{DashData && DashData[2].data.thisMonth}</Text>
+                <Text fontWeight='500' color="#8C8C8C">{transactionData.currentMonthEnrollment}</Text>
               </HStack>
               <HStack justifyContent='space-between' mt={1}>
                 <Text color="#8C8C8C">Last Month</Text>
-                <Text color="#8C8C8C">{DashData && DashData[2].data.lastMonth}</Text>
+                <Text color="#8C8C8C">{transactionData.lastMonthEnrollment}</Text>
               </HStack> 
             </VStack>
 

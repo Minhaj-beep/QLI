@@ -8,9 +8,16 @@ const { width, height } = Dimensions.get('window')
 const LcCard = ({props}) => {
   const navigation = props.navigation;
   const data = props.data;
-  // console.log(data)
+  console.log('=======<', data)
   // console.log(data.toTime)
   var cName = data.courseName;
+  var options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }
+  let fromDate = new Date(data.fromTime)
+  let toDate = new Date(data.toTime)
+  console.log(`{
+    What is this: ${fromDate}
+    What is this: ${data.fromTime}
+  }`)
   
 
   const [courseTitle, setCourseTitle] = useState()
@@ -56,31 +63,41 @@ const LcCard = ({props}) => {
           {/* {data.courseTitle} */}
           {courseTitle}
           </Text>
-          { data.liveCourseStatus === 'INREVIEW' ? <Text style={{fontSize:9,color: '#FFFFFF',backgroundColor:'#ffc107',padding:3, borderRadius:3, marginBottom:10}}>In Review</Text> : null }
-          { data.liveCourseStatus === 'REJECTED' ? <Text style={{fontSize:9,color: '#FFFFFF',backgroundColor:'#ff0000',padding:3, borderRadius:3, marginBottom:10}}>Rejected</Text> : null }
-          {/* { data.liveCourseStatus === 'BANNED' ? <Text style={{fontSize:9,color: '#FFFFFF',backgroundColor:'#ff0000',padding:3, borderRadius:3, marginBottom:10}}>Banned</Text> : null }
-          { data.liveCourseStatus === 'DELETED' ? <Text style={{fontSize:9,color: '#FFFFFF',backgroundColor:'#ff0000',padding:3, borderRadius:3, marginBottom:10}}>Deleted</Text> : null } */}
+          { data.courseStatus === 'INREVIEW' ? <Text style={{fontSize:9,color: '#FFFFFF',backgroundColor:'#ffc107',padding:5, borderRadius:3}}>In Review</Text> : null }
+            { data.courseStatus === 'REJECTED' ? <Text style={{fontSize:9,color: '#FFFFFF',backgroundColor:'#ff0000',padding:5, borderRadius:3}}>Rejected</Text> : null }
+            { data.courseStatus === 'ACTIVE' ? <Text style={{fontSize:9,color: '#FFFFFF',backgroundColor:'#29d363',padding:5, borderRadius:3}}>Active</Text> : null }
+           { data.courseStatus === 'BANNED' ? <Text style={{fontSize:9,color: '#FFFFFF',backgroundColor:'#ff0000',padding:3, borderRadius:3, marginBottom:10}}>Banned</Text> : null } 
+          {/* { data.liveCourseStatus === 'DELETED' ? <Text style={{fontSize:9,color: '#FFFFFF',backgroundColor:'#ff0000',padding:3, borderRadius:3, marginBottom:10}}>Deleted</Text> : null } */}
          </HStack>
 
-          <HStack space={4} alignItems="center"> 
-          <Text style={{fontSize:12, fontWeight: 'bold',color: '#000000'}}>{currencyType} {data.fee}</Text>
-          <Text style={{fontSize:9, fontWeight: 'bold',color: '#fcbc40'}}>502 Learners Requested For Demo Class</Text>
+          <HStack space={3} alignItems="center"> 
+            <Text style={{fontSize:12, fontWeight: 'bold',color: '#000000'}}>{currencyType} {data.fee}</Text>
+            {/* <Text style={{fontSize:9, fontWeight: 'bold',color: '#fcbc40'}}>502 Learners Requested For Demo Class</Text> */}
+            <HStack space={1}> 
+                  <Image
+                  alt="graduate icon"
+                  source={require('../../assets/graduate_student.png')}
+                  size="3" 
+                  />
+                  <Text style={{fontSize: 10,color:"#091B12",fontWeight: 'bold'}}>
+                      {data.learnersCount} Learners
+                  </Text>
+            </HStack>
           </HStack>
 
-          <HStack space={2} mt="2">
-            <Text style={{fontSize: 10,color: '#091B12',fontWeight: 'bold'}}> {fromTime} To {toTime}</Text>
-            {/* {data.liveCourseStatus != 'INREVIEW' ? 
-            <HStack space={1}> 
-                <Image
-                alt="graduate icon"
-                source={require('../assets/graduate_student.png')}
-                size="3" 
-                />
-                <Text style={{fontSize: 10,color:"#091B12",fontWeight: 'bold'}}>
-                    7 Learners
-                </Text>
-          </HStack> : null} */}
-        </HStack>
+          <HStack justifyContent={'space-between'} alignItems={'center'}>
+            <HStack space={2} mt="2">
+              <Text style={{fontSize: 10,color: '#091B12',fontWeight: 'bold'}}> {fromTime} To {toTime} ({data.courseDuration})</Text>
+              {/* <Text style={{fontSize: 10,color: '#091B12',fontWeight: 'bold'}}> {fromDate.toDateString()} To {toDate.toLocaleDateString("en-US", options)} ({data.courseDuration})</Text> */}
+                {/* {data.liveCourseStatus != 'INREVIEW' ?  */}
+                
+            </HStack>
+              {
+                data.isDemo ?
+                <Text style={{fontSize:9,color: '#FFFFFF',backgroundColor:'grey',padding:5, borderRadius:3}}>Demo enabled</Text>
+                : null
+              }
+          </HStack>
         </VStack>
       </HStack>
       </View>
@@ -90,7 +107,7 @@ export default LcCard
 
 const styles = StyleSheet.create({
   CourseCard: {
-    height: height/8.5,
+    maxHeight: height/8.5,
     borderRadius: 10,
     backgroundColor: "#FFFFFF",
     shadowColor: "rgba(0, 0, 0, 0.03)",
@@ -103,11 +120,11 @@ const styles = StyleSheet.create({
     padding:10,
   },
   cardImg: {
-    height:height/11.5,
+    height:height/11,
     width: width/5,
     borderRadius: 5,
   },
   CardContent:{
-    maxWidth: width/1.5
+    minWidth:width/1.7
   }
 })

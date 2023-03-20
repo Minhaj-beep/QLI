@@ -108,7 +108,7 @@ export default function RCourse({navigation}) {
         data:data,
         navigation:navigation,
       }
-      // console.log(data)
+      console.log(data.isDemo)
       return(
         <View key={index} style={styles.RCList}>
           <TouchableOpacity onPress={() => {
@@ -136,12 +136,12 @@ export default function RCourse({navigation}) {
     )
   }
 
-  const DCRender = () => {
+  const DCRender = ({navigation}) => {
     return(
       <TouchableOpacity 
       onPress={() => navigation.navigate('DemoDetails')}
       >
-        <DemoCard/>
+        <DemoCard navigation={navigation}/>
       </TouchableOpacity>
     )
   }

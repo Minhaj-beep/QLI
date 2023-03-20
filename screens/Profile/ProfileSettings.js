@@ -15,6 +15,7 @@ const ProfileSettings = props => {
         <HStack style={styles.ProfileSettings}>
           <Text style={styles.ProfileText}>Profile</Text>
           <IconButton
+            onPress={() => navigation.navigate('Profile')}
             icon={
               <Icon size={20} name="chevron-forward-outline" color="#395061" />
             }
@@ -27,6 +28,7 @@ const ProfileSettings = props => {
         <HStack style={styles.ProfileSettings}>
           <Text style={styles.ProfileText}>My Courses</Text>
           <IconButton
+            onPress={() => navigation.navigate('Tabs', {screen: 'Courses'})}
             icon={
               <Icon size={20} name="chevron-forward-outline" color="#395061" />
             }
@@ -39,6 +41,7 @@ const ProfileSettings = props => {
         <HStack style={styles.ProfileSettings}>
           <Text style={styles.ProfileText}>Demo Class</Text>
           <IconButton
+            onPress={() => navigation.navigate('DemoClass')}
             icon={
               <Icon size={20} name="chevron-forward-outline" color="#395061" />
             }
@@ -49,8 +52,9 @@ const ProfileSettings = props => {
       <TouchableOpacity
         onPress={() => navigation.navigate('CourseDiscount')}>
         <HStack style={styles.ProfileSettings}>
-          <Text style={styles.ProfileText}>Course Discount</Text>
+          <Text style={styles.ProfileText}>Coupon</Text>
           <IconButton
+            onPress={() => navigation.navigate('CourseDiscount')}
             icon={
               <Icon size={20} name="chevron-forward-outline" color="#395061" />
             }
@@ -63,6 +67,7 @@ const ProfileSettings = props => {
         <HStack style={styles.ProfileSettings}>
           <Text style={styles.ProfileText}>My Assessments</Text>
           <IconButton
+            onPress={() => navigation.navigate('Tabs', {screen: 'Home'})}
             icon={
               <Icon size={20} name="chevron-forward-outline" color="#395061" />
             }
@@ -75,6 +80,7 @@ const ProfileSettings = props => {
         <HStack style={styles.ProfileSettings}>
           <Text style={styles.ProfileText}>Messages</Text>
           <IconButton
+            onPress={() => navigation.navigate('Tabs', {screen: 'Messages'})}
             icon={
               <Icon size={20} name="chevron-forward-outline" color="#395061" />
             }
@@ -87,6 +93,7 @@ const ProfileSettings = props => {
         <HStack style={styles.ProfileSettings}>
           <Text style={styles.ProfileText}>Notification</Text>
           <IconButton
+            onPress={() => navigation.navigate('NotificationsManagement')}
             icon={
               <Icon size={20} name="chevron-forward-outline" color="#395061" />
             }
@@ -98,6 +105,7 @@ const ProfileSettings = props => {
         <HStack style={styles.ProfileSettings}>
           <Text style={styles.ProfileText}>Account Settings</Text>
           <IconButton
+            onPress={() => navigation.navigate('AccountSettings')}
             icon={
               <Icon size={20} name="chevron-forward-outline" color="#395061" />
             }
@@ -128,6 +136,7 @@ const ProfileSettings = props => {
         <HStack style={styles.ProfileSettings}>
           <Text style={styles.ProfileText}>Payment Info</Text>
           <IconButton
+            onPress={()=>navigation.navigate('PayoutList')}
             icon={
               <Icon size={20} name="chevron-forward-outline" color="#395061" />
             }
@@ -140,6 +149,7 @@ const ProfileSettings = props => {
         <HStack style={styles.ProfileSettings}>
           <Text style={styles.ProfileText}>Help & Support</Text>
           <IconButton
+            onPress={() => navigation.navigate('Tabs', {screen: 'Home'})}
             icon={
               <Icon size={20} name="chevron-forward-outline" color="#395061" />
             }

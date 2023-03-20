@@ -15,6 +15,7 @@ LData:null,
 BankData:[],
 SingleBD:'',
 THistory:'',
+TransactionHistory: {},
 BaseURL:'https://api.dev.qlearning.academy/'
 }
 
@@ -63,9 +64,12 @@ export const userDataSlice = createSlice ({
         },
         setSingleBD:(state, action) => {
           state.SingleBD = action.payload
+        },
+        setTransactionHistory:(state, action) => {
+          state.TransactionHistory = action.payload
         }
     }
 });
 
-export const {setSingleBD,setTHistory,setBankData,setLData,setLessonData,setProfileData,SetCourseData,SetCourseCodes,setCCThumbImg,setCCIntroVideo,setCCOverview,setCCFAQ,setLoading,setSingleCD} = userDataSlice.actions;
+export const {setSingleBD,setTHistory,setBankData,setLData,setLessonData,setProfileData,SetCourseData,SetCourseCodes,setCCThumbImg,setCCIntroVideo,setCCOverview,setCCFAQ,setLoading,setSingleCD, setTransactionHistory} = userDataSlice.actions;
 export default userDataSlice.reducer;

@@ -1,15 +1,45 @@
 import { StyleSheet, View,Dimensions,ScrollView,TouchableOpacity } from 'react-native';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {VStack,Text,Image,HStack,Modal,Box,Button,FormControl,Input, Select,Heading,Center} from 'native-base';
 import AppBar from '../components/Navbar';
 import { useState } from 'react';
+import {useDispatch,useSelector} from 'react-redux';
+import { RaiseWithdrawRequest } from '../Functions/API/RaiseWithdrawRequest';
 
 const WithdrawFund = ({navigation}) => {
-
-
+    const transactionData = useSelector(state => state.UserData.TransactionHistory);
+    const email = useSelector(state => state.Login.email);
     const [PaymentMethod, setPaymentMethod] = useState('1');
     const [Withdrawal, setWithdrawal] = useState(false);
+    const [amount, setAmount] = useState(0)
+
+    const raiseWithdrawRequest = async () => {
+      try {
+        console.log('hello')
+        const result = await RaiseWithdrawRequest(email, amount)
+        if(result.status === 200) {
+          setWithdrawal(true)
+        } else {
+          console.log('raiseWithdrawRequest failed 1', result)
+          alert(result.message)
+        }
+      } catch (e) {
+        console.log('raiseWithdrawRequest failed 2', e)
+      }
+    }
+
+    const processWithdraw = () => {
+      if(amount > 0){
+        if(amount > transactionData.TotalRevenue){
+          alert(`You don't have ₹${amount} in your account.`)
+        } else {
+          raiseWithdrawRequest()
+        }
+      } else {
+        alert('Please enter a valid amount to withdraw.')
+      }
+    }
     
     const AppBarContent = {
         title: 'Withdraw Fund',
@@ -63,7 +93,7 @@ const WithdrawFund = ({navigation}) => {
 
             <VStack m={7} space={10}>
                 <VStack space={6}>
-                <FormControl>
+                {/* <FormControl>
                         <FormControl.Label
                             _text={{
                                 color: "muted.700",
@@ -87,7 +117,7 @@ const WithdrawFund = ({navigation}) => {
                         <Select.Item value='3' label="Bank Account"/>
                         <Select.Item value='4' label="Gift Voucher"/>
                         </Select> 
-                    </FormControl>
+                    </FormControl> */}
 
                     <VStack>
                         <FormControl>
@@ -104,13 +134,17 @@ const WithdrawFund = ({navigation}) => {
                                 <Input 
                                     variant="filled" 
                                     bg="#f3f3f3" 
-                                    placeholder="Enter Account Name"
+                                    keyboardType='numeric'
+                                    placeholder="i.e 5000"
                                     borderColor='primary.100'
                                     borderRadius={7}
+                                    onChangeText={(num)=>{
+                                      setAmount(num)
+                                    }}
                                 />
                         </FormControl>
                         <Text color="primary.100" fontWeight='bold' fontSize={11} alignSelf='flex-end' m={2} >
-                            Available Balance:  $506.00
+                            Available Balance:  ₹{transactionData.TotalRevenue}
                         </Text>
                     </VStack>
                 </VStack>
@@ -121,7 +155,7 @@ const WithdrawFund = ({navigation}) => {
              _pressed={{bg: "#fcfcfc",
                _text:{color: "#3e5160", fontSize:'13'}
                }}
-            onPress={() => setWithdrawal(true)}
+            onPress={() => processWithdraw()}
             >
                 Withdraw
             </Button>

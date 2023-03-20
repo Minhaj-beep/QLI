@@ -113,6 +113,9 @@ const AccountSettings = ({navigation}) => {
   const [newPhNo, setNewPhNo] = useState('')
   const [countryCode, setCountryCode] = useState('')
   const [time, setTime] = useState(60);
+  const currentPassRef = useRef()
+  const newPassRef = useRef()
+  const confirmPassRef = useRef()
 
   const emailAbstract = (mail) => {
     let email = mail;
@@ -403,52 +406,62 @@ const MatchPassword = (mail) =>{
   };
 
   const ChangePassword = () => {
-    dispatch(setLoading(true))
-    if(CPmatch === true || ErrNPass === true || ErrCNPass === true || CPass === ''){
-      alert('Please enter the details properly');
-    }else{
-      const requestOptions = {
-        method: 'POST',
-        headers: { 
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'token':CEmail,
-          'gmailusertype':'INSTRUCTOR',
-      },
-      body: JSON.stringify({
-        'currentPassword':CPass,
-        'newPassword':NPass,
-        'confirmPassword':CNPass
-      })
-       }
-       fetch(BaseURL+'resetInstructorPassword', requestOptions)
-       .then(response => response.json())
-       .then(result => {
-         if(result.status === 200)
-         {
-            setShowCP(false)
-            setSuccessCP(true)
-            // dispatch(setLoading(false))
-            console.log(result)
-            alert('Kindly login with your new credentials.')
-            try {
-              LogOut()
-            } catch (e) {
-              console.log('What is happening', e)
+    if(CPass === '' || NPass === '' || CNPass === '') {
+      if(CPass === '') currentPassRef.current.focus()
+      else if(NPass === '') newPassRef.current.focus()
+      else if(CNPass === '') confirmPassRef.current.focus()
+    } else {
+      dispatch(setLoading(true))
+      if(CPmatch === true || ErrNPass === true || ErrCNPass === true || CPass === ''){
+        alert('Please enter the details properly');
+      }else{
+        const requestOptions = {
+          method: 'POST',
+          headers: { 
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'token':CEmail,
+            'gmailusertype':'INSTRUCTOR',
+        },
+        body: JSON.stringify({
+          'currentPassword':CPass,
+          'newPassword':NPass,
+          'confirmPassword':CNPass
+        })
+        }
+        fetch(BaseURL+'resetInstructorPassword', requestOptions)
+        .then(response => response.json())
+        .then(result => {
+          if(result.status === 200)
+          {
+              setShowCP(false)
+              setSuccessCP(true)
+              // dispatch(setLoading(false))
+              console.log(result)
+              alert('Kindly login with your new credentials.')
+              try {
+                LogOut()
+              } catch (e) {
+                console.log('What is happening', e)
+              }
+              
+          }else if(result.status > 200){
+            if(result.message === 'Current Password entered is invalid.'){
+              currentPassRef.current.focus()
+              alert(result.message)
             }
-            
-         }else if(result.status > 200){
+            dispatch(setLoading(false))
+            //  alert('Error: ' + result.message);
+            console.log(result);
+          }
+        }).catch(error =>{
           dispatch(setLoading(false))
-          //  alert('Error: ' + result.message);
-           console.log(result);
-         }
-       }).catch(error =>{
-         dispatch(setLoading(false))
-         console.log(error)
-        //  alert('Error: ' + error);
-       })
+          console.log(error)
+          //  alert('Error: ' + error);
+        })
+      }
+      dispatch(setLoading(false));
     }
-    dispatch(setLoading(false));
   }
 
   const DeleteAccount = () => {
@@ -792,6 +805,7 @@ const MatchPassword = (mail) =>{
 
                           <FormControl  style={{Width:width/1}}>
                             <Input 
+                            ref={currentPassRef}
                             variant="filled" 
                             bg="#f3f3f3"
                             type= {showCPass ? "text":"password"}
@@ -814,6 +828,7 @@ const MatchPassword = (mail) =>{
                           }
                           <FormControl  style={{Width:width/1}}>
                             <Input 
+                            ref={newPassRef}
                             variant="filled" 
                             bg="#f3f3f3"
                             type= {showNPass ? "text":"password"} 
@@ -836,6 +851,7 @@ const MatchPassword = (mail) =>{
                           }
                           <FormControl  style={{Width:width/1}}>
                             <Input 
+                            ref={confirmPassRef}
                             variant="filled" 
                             bg="#f3f3f3"
                             type= {showCNPass ? "text":"password"}   
@@ -850,7 +866,8 @@ const MatchPassword = (mail) =>{
                                 setErrCNPass(false);
                               }
                             }}
-                            InputRightElement={<Icon as={<Ionicons name={showCNPass ? "eye" : "eye-off"} />} size={6} mr="2" bg="muted.400" onPress={() => setShowCNPass(!showCNPass)} />}
+                            InputRightElement={<Icon as={<Ionicons name={showCNPass ? "eye" : "eye-off"} />} size={6} mr="2" color="muted.400" onPress={() => setShowCNPass(!showCNPass)} />}
+                            // InputRightElement={<Icon as={<Ionicons name={showCNPass ? "eye" : "eye-off"} />} size={6} mr="2" bg="muted.400" onPress={() => setShowCNPass(!showCNPass)} />}
                             />
                           </FormControl>
                           { 

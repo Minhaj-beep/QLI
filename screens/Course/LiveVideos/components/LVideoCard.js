@@ -31,7 +31,9 @@ const LVideoCard = ({props}) => {
     const data = props.data;
     var utc = new Date().toJSON().slice(0,10).replace(/-/g,'-');
     console.log(utc)
-    // console.log(data, 'data')
+    let dateString = new Date(data.date)
+    const options = { month: 'short', day: 'numeric', year: 'numeric' }
+    console.log(dateString.toLocaleDateString('en-US', options))
 
 
     const [day, setDate] = useState(0);
@@ -54,7 +56,9 @@ const LVideoCard = ({props}) => {
     setSec(Math.floor((time / SEC) % 60));
     const CDsec = ToSeconds(time);
     setCDSeconds(CDsec);
-    console.log(CDSeconds)
+    console.log(`{
+      CDSeconds: ${CDSeconds}
+    }`)
      
   },[])
 
@@ -98,7 +102,8 @@ const LVideoCard = ({props}) => {
           })
       }
     }
-    
+
+    // today.toLocaleDateString("en-US", options)
 
 const CJoin = () =>{
   // console.log(data.date);
@@ -110,10 +115,9 @@ const CJoin = () =>{
       <VStack  space={2} width={width / 1.5}>
           <Text style={{fontWeight:'bold', color: '#395061'}}>{data.topicName}</Text>
           <View style={{backgroundColor:'#F0E1EB',borderRadius:10, alignSelf:'flex-start'}}>
-          <Text style={{fontSize: 9,color: '#395061', paddingLeft:7,paddingRight:7,paddingTop:5,paddingBottom:5}} >Scheduled at {LDate}</Text>
+          <Text style={{fontSize: 9,color: '#395061', paddingLeft:7,paddingRight:7,paddingTop:5,paddingBottom:5}} >Scheduled at {dateString.toLocaleDateString('en-US', options) + ' ' + dateString.toLocaleTimeString('en-US')}</Text>
           </View>
       </VStack>
-      {/* {console.log(CDSeconds, 'Tine')} */}
         {
           CDSeconds > 0 ?
           <CountDownTimer
@@ -139,7 +143,8 @@ const Join = () => {
   <HStack justifyContent="space-between" alignItems="center">
           <VStack  space={2} width={width / 1.5}>
               <Text style={{fontWeight:'bold', color: '#395061'}}>{data.topicName}</Text>
-              <View style={{backgroundColor:'#F0E1EB',borderRadius:10, alignSelf:'flex-start'}}>                      
+              <View style={{backgroundColor:'#F0E1EB', marginTop:5, borderRadius:10, alignSelf:'flex-start'}}>
+                <Text style={{fontSize: 11,color: '#395061', paddingLeft:7,paddingRight:7,paddingTop:5,paddingBottom:5}} >Scheduled at {dateString.toLocaleDateString('en-US', options) + ' ' + dateString.toLocaleTimeString('en-US')}</Text>
               </View>
           </VStack>
           {
@@ -155,9 +160,22 @@ const Join = () => {
               </Text>
             </TouchableOpacity>
             : 
-            <Text style={{fontSize:12, color:"red", paddingLeft:10,paddingRight:10,paddingTop:3,paddingBottom:3}}>
-              Date Expired
-            </Text>
+            <>
+              { CDSeconds > 0 ?
+                <CountDownTimer
+                containerStyle={styles.count}
+                timestamp={CDSeconds}
+                onFinish={() => {
+                  setLStarted(true)
+                }}
+                textStyle={{backgroundColor: 'White', color: '#8C8C8C', fontSize: 12, borderWidth: 0,  }}
+                /> 
+                :
+                <Text style={{fontSize:12, color:"red", paddingLeft:10,paddingRight:10,paddingTop:3,paddingBottom:3}}>
+                  Date Expired
+                </Text>
+              }
+            </>
           }
   </HStack>
   <Divider mx={1} ml={0} mt={3} bg="primary.50"/>
@@ -174,7 +192,7 @@ const Join = () => {
                         {/* <Text style={{fontSize: 13,color: '#395061',padding:1}} >{SDdate}</Text> */}
                         
                     <View style={{backgroundColor:'#F0E1EB', marginTop:5, borderRadius:10, alignSelf:'flex-start'}}>
-                      <Text style={{fontSize: 11,color: '#395061', paddingLeft:7,paddingRight:7,paddingTop:5,paddingBottom:5}} >Completed on {SDdate}</Text>
+                      <Text style={{fontSize: 11,color: '#395061', paddingLeft:7,paddingRight:7,paddingTop:5,paddingBottom:5}} >Completed on {dateString.toLocaleDateString('en-US', options) + ' ' + dateString.toLocaleTimeString('en-US')}</Text>
                     </View>
                     </VStack>
                     {/* <Icon size="lg" as={Ionicons} name="chevron-forward-outline" color="#000000"/> */}

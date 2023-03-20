@@ -7,7 +7,7 @@ import {
   Dimensions,
   TouchableOpacity,
 } from 'react-native';
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {
   Center,
   Text,
@@ -17,11 +17,10 @@ import {
   Input,
   FormControl,
   Button,
-  Link,
   Heading,
   Image,
   Modal,
-  IconButton, Divider,
+  IconButton, Divider, Link
 } from 'native-base';
 import Icon from 'react-native-vector-icons/Ionicons';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
@@ -53,6 +52,7 @@ import {
 import { GetAccountDetailsbyMobileNum } from '../Functions/API/GetAccountDetailsbyMobileNum';
 import PhoneInput from 'react-native-phone-number-input'
 import { LoginWithMobileNum } from '../Functions/API/LoginWithMobileNum';
+import Countdown from './components/Countdown';
 
 const {width, height} = Dimensions.get('window');
 
@@ -160,8 +160,10 @@ const Login = ({navigation}) => {
     }
   };
 
-  const [Email, setEmail] = useState();
-  const [Pass, setPass] = useState();
+  const [Email, setEmail] = useState('');
+  const [Pass, setPass] = useState('');
+  const emailRef = useRef()
+  const passRef = useRef()
   const [ForgotVOtp, setForgotVOtp] = useState();
 
   const [NewPassword, setNewPassword] = useState();
@@ -183,7 +185,7 @@ const Login = ({navigation}) => {
   const [resend, setresend] = useState(true);
   const [emailAbs, setemailAbs] = useState('');
 
-  const [time, setTime] = useState(60);
+  const [time, setTime] = useState(10);
   const timerRef = useRef(time);
 
   const [showForgot, setForgot] = useState(false);
@@ -200,6 +202,34 @@ const Login = ({navigation}) => {
   const [selectMobileAccount, setSelectMobileAccount] = useState(false)
   // const [mobileAccount, setMobileAccount] = useState({})
   const [mobileAccounts, setMobileAccounts] = useState([])
+  const [seconds, setSeconds] = useState(0)
+
+  useEffect(() => {
+    if (parseInt(seconds) === 0) {
+      setresend(false)
+      return;
+    }
+
+    if(seconds > 0){
+      setresend(true)
+    }
+    let intervalId
+    // console.log(String(seconds).length)
+
+    if(String(parseInt(seconds)).length < 2 || parseInt(seconds)-1 === 9){
+      intervalId = setInterval(() => {
+        setSeconds((prevSeconds) => '0' + (parseInt(prevSeconds) - 1));
+      }, 1000);
+    } else {
+      intervalId = setInterval(() => {
+        setSeconds((prevSeconds) => prevSeconds - 1);
+      }, 1000);
+    }
+
+    
+
+    return () => clearInterval(intervalId);
+  }, [seconds]);
 
   const loginWithMobileNum = async(mobileAccount) => {
     try {
@@ -228,6 +258,7 @@ const Login = ({navigation}) => {
       if (phNo.length === 10) {
         var v = parseFloat(phNo)
         if(Number.isInteger(v)){
+          setOTPTimer();
           getAccountDetailsbyMobileNum(v)
         } else {
           alert('Please insert only numbers.')
@@ -249,6 +280,7 @@ const Login = ({navigation}) => {
         if(Object.keys(response.data).length > 0) {
           // Account exit, sending OTP to mobile no
           sendOtp(num)
+          setSeconds(60)
           setLoginWithNumOtp(true)
           setMobileAccounts(response.data)
         } else {
@@ -377,6 +409,16 @@ const Login = ({navigation}) => {
         });
     }
   };
+
+  const validateFeild = () => {
+    if(Email === ''){
+      emailRef.current.focus()
+    } else if (Pass === ''){
+      passRef.current.focus()
+    } else {
+      handleLogin()
+    }
+  }
 
   const handleLogin = async () => {
     dispatch(setLoading(true));
@@ -569,6 +611,20 @@ const Login = ({navigation}) => {
                       </Text>
                     ) : null}
 
+                    <HStack style={styles.otpcount} alignItems={'center'} space={2} mt={2}>
+                      <View style={styles.count}>
+                        <Text style={{fontSize: 12, color: '#3e5160'}}>
+                          00 : {seconds}
+                        </Text>
+                      </View>
+                      <Button bg={'transparent'} _pressed={{bg: "transparent"}} isDisabled={resend} padding={0} onPress={()=>{
+                        setSeconds(60)
+                        sendOtp('+91' + phNo)
+                      }}>
+                        <Text disabled={resend} color={'primary.50'} style={styles.resendtext}>Resend</Text>
+                      </Button>
+                    </HStack>
+
                     <TouchableOpacity>
                       <Button
                         bg="#3e5160"
@@ -644,13 +700,17 @@ const Login = ({navigation}) => {
                       </Text>
                     ) : null}
 
-                    <TouchableOpacity>
+                    <TouchableOpacity disabled={resend}>
                       <Button
                         bg="#3e5160"
                         colorScheme="blueGray"
                         style={styles.cbutton}
                         _pressed={{bg: '#fcfcfc', _text: {color: '#3e5160'}}}
-                        onPress={() => phoneNoSubmit()}>
+                        onPress={() => {
+                          phoneNoSubmit()
+                          // setSeconds(10)
+                          // setOTPTimer()
+                        }}>
                         Submit
                       </Button>
                     </TouchableOpacity>
@@ -1003,6 +1063,7 @@ const Login = ({navigation}) => {
                   Email
                 </FormControl.Label>
                 <Input
+                  ref={emailRef}
                   variant="filled"
                   bg="#f3f3f3"
                   placeholder="Enter your email"
@@ -1034,6 +1095,7 @@ const Login = ({navigation}) => {
                   Password
                 </FormControl.Label>
                 <Input
+                  ref={passRef}
                   onChangeText={text => {
                     let PVal = PassVal(text);
                     if (PVal === true) {
@@ -1081,7 +1143,7 @@ const Login = ({navigation}) => {
                 <Button
                   mt="2"
                   colorScheme="primary"
-                  onPress={() => handleLogin()}>
+                  onPress={() => validateFeild()}>
                   Login
                 </Button>
                 <TouchableOpacity>
@@ -1193,7 +1255,6 @@ const styles = StyleSheet.create({
   },
   resendtext: {
     fontSize: 12,
-    color: '#bdbdbd',
     fontWeight: 'bold',
   },
 });

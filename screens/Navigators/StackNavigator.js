@@ -35,6 +35,7 @@ import DemoChat from '../Course/CourseDetails/DemoChat';
 import DemoClass from '../DemoClass/DemoClass';
 import ViewDemoClass from '../DemoClass/ViewDemoClass';
 import CourseDiscount from '../Discount/CourseDiscount';
+import GoDemoLive from '../DemoClass/GoDemoLive';
 
 const Stack = createNativeStackNavigator();
 
@@ -229,6 +230,12 @@ const AuthenticatedStack = () => {
       <Stack.Screen
         name="CourseDiscount"
         component={CourseDiscount}
+        options={{headerShown: false}}
+        screenOptionStyle={screenOptionStyle}
+      />
+      <Stack.Screen
+        name="GoDemoLive"
+        component={GoDemoLive}
         options={{headerShown: false}}
         screenOptionStyle={screenOptionStyle}
       />

@@ -1,7 +1,7 @@
 /* eslint-disable no-alert */
 import {BaseURL} from '../../StaticData/Variables';
 
-const MarkAllAsRead = async (email, id) => {
+const EnableDemoClass = async (email, code) => {
   const requestOptions = {
     method: 'POST',
     headers: {
@@ -11,14 +11,15 @@ const MarkAllAsRead = async (email, id) => {
       token: email,
     },
     body: JSON.stringify({
-        userID: id,
+        courseCode: code,
+        isDemo: true,
     }),
   };
   const response = await fetch(
-    BaseURL + '/v1/notifications/markAllAsRead',
+    BaseURL + '/v1/live/course/enableDemo',
     requestOptions,
   )
   return response.json();
 };
 
-export {MarkAllAsRead};
+export {EnableDemoClass};

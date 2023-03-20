@@ -1,24 +1,21 @@
 /* eslint-disable no-alert */
 import {BaseURL} from '../../StaticData/Variables';
 
-const MarkAllAsRead = async (email, id) => {
+const GetAllDiscountRequest = async (email) => {
   const requestOptions = {
-    method: 'POST',
+    method: 'GET',
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
       gmailUserType: 'INSTRUCTOR',
       token: email,
     },
-    body: JSON.stringify({
-        userID: id,
-    }),
   };
   const response = await fetch(
-    BaseURL + '/v1/notifications/markAllAsRead',
+    BaseURL + '/v1/courseDiscount/getAllDiscountRequest',
     requestOptions,
-  )
+  );
   return response.json();
 };
 
-export {MarkAllAsRead};
+export {GetAllDiscountRequest};
