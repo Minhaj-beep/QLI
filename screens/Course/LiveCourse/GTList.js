@@ -8,6 +8,7 @@ import LVStarted from './components/LVStarted'
 import PLVStarted from './components/PLVStarted';
 import { setLoading } from '../../Redux/Features/userDataSlice';
 import { setCurrentLiveCourseCode } from '../../Redux/Features/CourseSlice';
+import { setUpcomingClassData } from '../../Redux/Features/CourseSlice';
 
 const { width, height } = Dimensions.get('window');
 
@@ -17,6 +18,7 @@ const GTList = ({navigation}) => {
 
     const BaseURL = useSelector(state => state.UserData.BaseURL);
     const SingleCD = useSelector(state => state.Course.SingleLiveCourse);
+    const UpcomingClassData = useSelector(state => state.Course.UpcomingClassData);
     const email = useSelector(state => state.Login.email);
     
     const [PreviousData, setPreviousData] = useState();
@@ -45,9 +47,9 @@ const GTList = ({navigation}) => {
         .then(result => {
             if(result.status === 200){
                 setUpcomingData(result.data)
+                dispatch(setUpcomingClassData(result.data))
                 dispatch(setCurrentLiveCourseCode(SingleCD.courseCode))
-                console.log("data =========", Object.keys(result.data).length)
-                // console.log("data =========", result.data)
+                console.log("data =========================", result.data)
                 dispatch(setLoading(false))
             }else if(result.status > 200){
                 console.log(result.message)
@@ -60,7 +62,7 @@ const GTList = ({navigation}) => {
             dispatch(setLoading(false))
         })
       } 
-      console.log('Single couse data: ' +SingleCD.courseCode)
+    //   console.log('Single couse data: ' +SingleCD.courseCode)
     //   SingleCD.map((i)=>console.log(i))
 
     const GetPreviousData = () =>{
@@ -81,7 +83,7 @@ const GTList = ({navigation}) => {
         .then(result => {
             if(result.status === 200){
                 setPreviousData(result.data)
-                console.log('hello data : ', Object.keys(result.data).length)
+                console.log('hello data : ', result.data)
                 dispatch(setLoading(false))
             }else if(result.status > 200){
                 console.log(result.message)
@@ -127,15 +129,17 @@ const GTList = ({navigation}) => {
     }
 
     const UCRender = () => {
-        if(Object.keys(UpcomingData).length > 0){
-            return UpcomingData.map((data, index)=>{
+        if(Object.keys(UpcomingClassData).length > 0){
+            return UpcomingClassData.map((data, index)=>{
+                // console.log('Data :', data)
                 const LVdata = {
+                    index: index,
                     data:data,
                     navigation: navigation
                 }
                 return(
                     <View key={index}>
-                    <LVStarted props={LVdata} />
+                        <LVStarted props={LVdata} />
                     </View>
                 )
             })

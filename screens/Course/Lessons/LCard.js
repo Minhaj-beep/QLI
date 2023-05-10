@@ -80,7 +80,7 @@ const LCard = ({props}) => {
                             /> */}
                                 <Text style={{fontWeight:'bold', color:"#364b5b", maxWidth:width/1.5}}>{data.lessonName}</Text>
                             </HStack>
-                            <Ionicons  as={Ionicons} name="chevron-forward-outline" color="#000000"/>
+                            <Ionicons  as={Ionicons} size={30} name="ios-arrow-forward-circle-outline" color="#000000"/>
                         </HStack>
                     </VStack>
                 </TouchableOpacity>}

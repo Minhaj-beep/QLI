@@ -1,42 +1,93 @@
 {
   "project_info": {
-    "project_number": "408533616894",
-    "project_id": "ql-instructor",
-    "storage_bucket": "ql-instructor.appspot.com"
+    "project_number": "855618612359",
+    "project_id": "qlearning-4ec55",
+    "storage_bucket": "qlearning-4ec55.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:408533616894:android:f3a26aa224e2f85a90bdaf",
+        "mobilesdk_app_id": "1:855618612359:android:3a7f47e5c34a4e83b95c22",
         "android_client_info": {
           "package_name": "com.ql.instructor"
         }
       },
       "oauth_client": [
         {
-          "client_id": "408533616894-osgnbhh8uv65ir881sv726tt1lr2q9k1.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.ql.instructor",
-            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
-          }
-        },
-        {
-          "client_id": "408533616894-ls53dphrdi4747bcgicoshb1bbdjjhdf.apps.googleusercontent.com",
+          "client_id": "855618612359-gvf660jb4h9q42d0umjnpmj4va9s3moa.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCdFXej0Cgiz-IH-o21n6qY05vbhvq759w"
+          "current_key": "AIzaSyAnH8JFFeT5sZ9UVb8DQW_Rdfxar-SZYbo"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "408533616894-ls53dphrdi4747bcgicoshb1bbdjjhdf.apps.googleusercontent.com",
+              "client_id": "855618612359-gvf660jb4h9q42d0umjnpmj4va9s3moa.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "855618612359-q1u13i3du97tru5mi6ca69dhp7o1fbqn.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.qlearningstudent"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:855618612359:android:fc3503e3bb9d65feb95c22",
+        "android_client_info": {
+          "package_name": "com.qlearningstudent"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "855618612359-hplhhvucgcie2m1rehkmuvplfuoe275n.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.qlearningstudent",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "855618612359-l8odtq0lgqlf92ohcgvupg0u3us0i8ar.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.qlearningstudent",
+            "certificate_hash": "b7c7063ed9096f55f8f8fe97af4198606624bcc1"
+          }
+        },
+        {
+          "client_id": "855618612359-gvf660jb4h9q42d0umjnpmj4va9s3moa.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAnH8JFFeT5sZ9UVb8DQW_Rdfxar-SZYbo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "855618612359-gvf660jb4h9q42d0umjnpmj4va9s3moa.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "855618612359-q1u13i3du97tru5mi6ca69dhp7o1fbqn.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.qlearningstudent"
+              }
             }
           ]
         }

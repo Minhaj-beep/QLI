@@ -31,7 +31,7 @@ const WithdrawFund = ({navigation}) => {
 
     const processWithdraw = () => {
       if(amount > 0){
-        if(amount > transactionData.TotalRevenue){
+        if(parseFloat(amount) > transactionData.currentBalance){
           alert(`You don't have ₹${amount} in your account.`)
         } else {
           raiseWithdrawRequest()
@@ -68,7 +68,7 @@ const WithdrawFund = ({navigation}) => {
                 <Heading size="lg"
                 fontSize="lg"
                 >
-                <Text>Your Fund is in way</Text>
+                <Text>Your fund is on the way</Text>
                   </Heading>
 
                 <Button 
@@ -144,7 +144,7 @@ const WithdrawFund = ({navigation}) => {
                                 />
                         </FormControl>
                         <Text color="primary.100" fontWeight='bold' fontSize={11} alignSelf='flex-end' m={2} >
-                            Available Balance:  ₹{transactionData.TotalRevenue}
+                            Available Balance:  ₹{transactionData.currentBalance}
                         </Text>
                     </VStack>
                 </VStack>

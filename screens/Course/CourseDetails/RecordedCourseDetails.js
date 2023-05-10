@@ -1,9 +1,10 @@
-import { View, ActivityIndicator, Text, StyleSheet,Dimensions,ScrollView, TouchableOpacity,KeyboardAvoidingView,Platform,Linking } from 'react-native';
+import { View, ActivityIndicator, StyleSheet,Dimensions,ScrollView, TouchableOpacity,KeyboardAvoidingView,Platform,Linking, Pressable } from 'react-native';
 import React,{useState,useEffect,useRef, useCallback } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import {Image,HStack,VStack,IconButton,Icon,Divider,Modal,Button, Input,FormControl} from 'native-base';
+import {Image, Text, HStack,VStack,IconButton,Icon,Divider,Modal, Badge, Container, Input,FormControl} from 'native-base';
 import AppBar from '../../components/Navbar';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Entypo from 'react-native-vector-icons/Entypo';
 import CollapsibleView from '@eliav2/react-native-collapsible-view';
@@ -13,40 +14,53 @@ import {useDispatch,useSelector} from 'react-redux';
 import FAQContent from './components/FAQContent';
 import { setAssessment } from '../../Redux/Features/CourseSlice';
 import moment from 'moment';
-import { io } from 'socket.io-client'
+import { socket } from '../../StaticData/SocketContext';
 import DocumentPicker, { types } from 'react-native-document-picker'
+import { EnableDemoClass } from '../../Functions/API/EnableDemoClass';
+import VideoPlayer from 'react-native-video-controls';
 const { width, height } = Dimensions.get('window');
+import RNFetchBlob from 'rn-fetch-blob';
+import { GetLearnersList } from '../../Functions/API/GetLearnersList';
+import { GetReview } from '../../Functions/API/GetReview';
+import { useNavigation } from '@react-navigation/native';
 
-const CourseDetails = ({navigation}) => {
-  let socket = io("wss://api.dev.qlearning.academy/ticket")
+const RecordedCorseDetails = ({props}) => {
   const dispatch = useDispatch()
+  const navigation = useNavigation()
   const scrollViewRef = useRef()
   const [ChatArray, setChatArray] = useState([]); 
   const [msgList, setMsgList] = useState([])
   const [currentMessage, setCurrentMessage] = useState(null)
   const [readyFile, setReadyFile] = useState(false)
   const [uploadFile, setUploadFile] = useState({})
+  const [isChatOpen, setIsChatOpen] = useState (false)
   const [chatLoading, setChatLoading] = useState(false)
+  const [fileToBinary, setFileToBinary] = useState(null);
   const [ChatText, setChatText] = useState();
   const [ShowRChat, setRChat] = useState(false);
   const [ShowStudList, setStudList] = useState(false);
-  const [LearnerList, setLearnerList] = useState();
+  const [reviewList, setReviewList] = useState([]);
   const [currencyType, setCurrencyType] = useState()
   const ThumbnailImgPath = useSelector(state => state.UserData.CCThumbImg);
   const IntroVideoPath = useSelector(state => state.UserData.CCIntroVideo);
   const Overview = useSelector(state => state.UserData.CCOverview);
-  // console.log('This is the overview ============>', Overview)
   const FaqData = useSelector(state => state.UserData.CCFAQ);
   const SingleCD = useSelector(state => state.UserData.SingleCD);
   const Name = useSelector(state => state.UserData.profileData.fullName);
   const CFee = SingleCD.fee;  
   const CourseCode = SingleCD.courseCode;  
+  console.log(  `
+    Course code = ${CourseCode}
+  `)
   const ThumbnailImg = ThumbnailImgPath
   const IntroVideo = IntroVideoPath
   const email = useSelector(state => state.Login.email)
   const BaseURL = useSelector(state => state.UserData.BaseURL)
   const JWT_token = useSelector(state => state.Login.JWT)
+  console.log('_____________________________________________JWT__________________________________________', JWT_token)
+  const [isDemoActive, setIsDemoActive] = useState(SingleCD.isDemo)
   const OverC = Overview.courseOverview 
+  // console.log(SingleCD)
   const OverviewSource ={
     html:`<head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -54,7 +68,9 @@ const CourseDetails = ({navigation}) => {
     <body>${OverC}</body>`
   }
 
-  const [isChatOpen, setIsChatOpen] = useState (false)
+  const OpenDoc = async(props) =>{
+    await Linking.openURL(props)
+  }
 
   useEffect(()=>{
     setIsChatOpen(ShowRChat)
@@ -68,10 +84,14 @@ const CourseDetails = ({navigation}) => {
       socket.on("connection-success", async(response) => {
         console.log(`Socket connected ${response.socketId}`);
       })
+      // console.log('courseCode:', CourseCode,  'userId:', JWT_token, 'userName:', Name)
       socket.emit('join-instructor', { courseCode: CourseCode,  userId: JWT_token, userName: Name }, async res => {
         console.log(`join-instructor ${res}`);
         console.log(res)
       })
+      socket.emit("resetMessageCount", { courseCode: CourseCode, userType: JWT_token }, (response) => {
+        console.log("Reset Message Count Ran!!!!!!!!!!!!!!!!!!!!!", response)
+      });
       socket.emit("getPreviousMessage", { courseCode: CourseCode, ticketType: "COURSE" }, (response) => {
         console.log("getPreviousMessage", response)
         setMsgList(chatMessages => ([
@@ -110,21 +130,36 @@ const CourseDetails = ({navigation}) => {
             {
                 userName: response.userName,
                 time: response.createdAt,
-                message: response.message
+                message: response.message,
+                type: response.type,
             }
         ]));
     }
   }, [])
 
   const GetFile = async() => {
-    let result = await DocumentPicker.pickSingle({allowMultiSelection: false, type:[types.pdf, types.doc, types.zip, types.docx, types.plainText]});
+    let result = await DocumentPicker.pickSingle({allowMultiSelection: false, type:[types.pdf, types.doc, types.zip, types.docx, types.plainText, DocumentPicker.types.images], copyTo:"documentDirectory"});
     console.log(result)
+    // console.log(RNFetchBlob.wrap(result.fileCopyUri))
+    let fileLocation = result.uri.replace("content://", "file://")
+    // fileLocation = "file://"+fileLocation
+    RNFetchBlob.fs.readFile(result.uri, 'base64')
+    .then((data) => {
+      const binaryData = RNFetchBlob.wrap(`data:${result.type};base64,${data}`);
+      // use binaryData in any method that requires binary data
+      let binaryDataReplace = binaryData.replace("RNFetchBlob-file://", "")
+      setFileToBinary(binaryDataReplace)
+      console.log('Binary data: ', binaryData)
+    })
+    .catch((error) => {
+      console.log('Error reading file:', error);
+    });
     if(result){
       // onConfrimUpload(result)
       setUploadFile(result)
       console.log(result)
     }
-  }
+}
 
   // For text msg
   const sendMsg = (Message) => {
@@ -167,7 +202,7 @@ const onConfrimUpload = (data) => {
   setChatLoading(true)
   console.log('Upload file')
   socket.emit("upload", {
-    file: data?.uri,
+    file: fileToBinary,
     fileName: data?.name,
     courseCode: CourseCode,
     roomName: CourseCode,
@@ -175,7 +210,8 @@ const onConfrimUpload = (data) => {
     userId: JWT_token,// localstorage
     ticketType: "COURSE",
     courseType: "RECORDED",
-    type: "FILE"
+    type: "FILE",
+    app: true
   }, (res) => {
       console.log('Upload file')
         console.log(res)
@@ -194,7 +230,28 @@ const onConfrimUpload = (data) => {
 }
 
 
+const requestDemoClass = async () => {
+  try{
+    const result = await EnableDemoClass(email, CourseCode)
+    if(result.message === 'Successfully demo class enabled'){
+      setIsDemoActive(true)
+    } else {
+      alert('Please try again!')
+      console.log('requestDemoClass 1 :', result)
+    }
+  } catch (e) {
+    alert('Please try again!')
+    console.log('requestDemoClass 2 :', e)
+  }
+}
+
+  const getNewMessageCount = (courseCode) => {
+    const course = props.find(c => c.courseCode === courseCode);
+    return course && course.newMessageCount !== 0 ? course.newMessageCount : null;
+  }
+
   useEffect(()=>{
+    getAllReviews()
     if(SingleCD.currency === 'USD'){
         setCurrencyType('$')
       }else{
@@ -266,6 +323,23 @@ const onConfrimUpload = (data) => {
     })
   }
 
+  const getAllReviews = async () => {
+    try {
+      const result = await GetReview(email, CourseCode)
+      if(result.status === 200) {
+        console.log('--------------ALL REVIWES------------------', result)
+        setReviewList(result.data)
+        // setLearnerList(result.data)
+      } else {
+        console.log('--------------getAllReviews error 1------------------', result)
+        alert('Server down! Kindly check afetr sometime.')
+      }
+    } catch (e) {
+      console.log('--------------getAllReviews error 2------------------', e)
+      alert('Server down! Kindly check afetr sometime.')
+    }
+  }
+
   const getStudentList = () =>{
     const API = BaseURL+'eachCourseLearnersList/?courseCode='+SingleCD.courseCode
     const requestOptions ={
@@ -299,41 +373,38 @@ const onConfrimUpload = (data) => {
   }
 
   const StudRender = () => {
-   return LearnerList.map((data, index) => {
-    let imgPath = data.learnerImgPath
-    let Spatch = imgPath.slice(1)
-    // console.log(Spatch)
-    const imageURI = 'https://api.dev.qlearning.academy'+Spatch
-    // console.log(imageURI)
+   return reviewList.map((RD, index) => {
+    const date = new Date(RD.createdTime)
     return (
-      <VStack key={index} mt={2}>
-      <HStack space={2} style={styles.chatTile}>
-        <HStack space={2}>
-          <Image 
-            source={{uri: imageURI}}
-            alt="learner"
-            style={styles.learner_img}
-            rounded={50}
-            size='sm'
-            resizeMode='cover'
-          />
-          <VStack style={{ justifyContent: 'center'}}>
-            <Text style={{color:'#000000',fontWeight:'bold',fontSize:12}}>{data.learnerEmail}</Text>
-            <Text style={{color:'#8C8C8C',fontSize:10}}>{data.learnerName}</Text>
-           <HStack alignItems="center" space={1}>
-           <Icon as={<MaterialCommunityIcons name="cash-multiple" />} size={4} color="#364b5b" />
-           <Text style={{color:'#364b5b',fontWeight:'bold',fontSize:11}}>{data.coursePrice}</Text>
-           </HStack>
+      <VStack key={index} mt={4}>
+        <HStack space={2} style={styles.chatTile}>
+          <Container>
+            <Image source={require('../../../assets/profile.png')} alt="profile" size={10} rounded={20}/>
+          </Container>
+          <VStack space={1}>
+            <HStack justifyContent={'space-between'} width={width / 1.4}>
+              <Text color={'#000'} fontSize={14} fontWeight={'bold'} maxWidth={width / 3}>{RD.studentName}</Text>
+              <Text color={'#000'} fontSize={9} fontWeight={'bold'} alignSelf={'flex-end'}>{date.toLocaleDateString('en-US')}</Text>
+            </HStack>
+            <HStack space={1} alignSelf={"flex-start"}>
+              {
+                [...Array(RD.rating)].map((e, i) =>{
+                    return (
+                      <Image
+                        key={i}
+                        source={require('../../../assets/star.png')}
+                        alt="rating"
+                        size="3"
+                      />
+                    );
+                  }
+                )
+              }
+            </HStack>
+            <Text color={'greyScale.800'} fontSize={12} fontWeight={500} maxW={width / 1.3}>
+            “ {RD.reviewContent} "
+            </Text>
           </VStack>
-        </HStack>
-        <View style={{ justifyContent: 'center'}}>
-          <Image 
-              source={require('../../../assets/chatting.png')}
-              alt="learner"
-              style={styles.learner_chat}
-              rounded={5}
-          />
-        </View>
         </HStack>
       </VStack>
     )
@@ -358,14 +429,16 @@ const onConfrimUpload = (data) => {
                 data.type === 'TEXT' ?
                 <Text style={{fontSize:11, color:'#000000', maxWidth:width/3, alignSelf:'flex-end'}}>{data.message}</Text>
                 :
-                <HStack style={{backgroundColor:"#b5b5b5", borderRadius:10, padding:10, width:'100%'}}>
+                <HStack alignItems={"center"} bg={'#b5b5b5'} borderRadius={10} padding={2} width={'100%'}>
                   <IconButton
                     onPress={()=>{
-                      alert('Hello')
+                      OpenDoc(data.message)
                     }}
                     icon={<Icon size='lg' as={MaterialCommunityIcons} name='download-circle' color='#395061'/>}
                   />
-                  <Text numberOfLines={4} style={{fontSize:11, color:'#000000', maxWidth:width/3, marginLeft:5, alignSelf:'flex-end'}}>{data.message}</Text>
+                  <View>
+                    <Text numberOfLines={2} style={{fontSize:11, color:'#000000', maxWidth:width/3, marginLeft:5, alignSelf:'flex-end'}}>{data.message.replace('https://ql-files.s3.ap-south-1.amazonaws.com/ticket-files/', '').slice(14).split('%20').join(' ')}</Text>
+                  </View>
                 </HStack>
               }
             </VStack>
@@ -379,14 +452,16 @@ const onConfrimUpload = (data) => {
                 data.type === 'TEXT' ?
                 <Text style={{fontSize:11, color:'#000000', maxWidth:width/3, alignSelf:'flex-start'}}>{data.message}</Text>
                 :
-                <HStack style={{backgroundColor:"#b5b5b5", borderRadius:10, padding:10, width:'100%'}}>
-                  <Text numberOfLines={4} style={{fontSize:11, color:'#000000', maxWidth:width/3, marginLeft:5, alignSelf:'flex-end'}}>{data.message}</Text>
+                <HStack alignItems={"center"} bg={'#b5b5b5'} borderRadius={10} padding={2} width={'100%'}>
                   <IconButton
                     onPress={()=>{
-                      GetFile()
+                      OpenDoc(data.message)
                     }}
-                    icon={<Icon size='lg' as={MaterialCommunityIcons} name='file' color='#395061'/>}
+                    icon={<Icon size='lg' as={MaterialCommunityIcons} name='download-circle' color='#395061'/>}
                   />
+                  <View>
+                    <Text numberOfLines={2} style={{fontSize:11, color:'#000000', maxWidth:width/3, marginLeft:5, alignSelf:'flex-end'}}>{data.message.replace('https://ql-files.s3.ap-south-1.amazonaws.com/ticket-files/', '').slice(14).split('%20').join(' ')}</Text>
+                  </View>
                 </HStack>
               }
             </VStack>
@@ -418,7 +493,7 @@ const onConfrimUpload = (data) => {
             /> */}
 
             <VStack space={2}>
-           {LearnerList ? <StudRender/> : null}
+           {Object.keys(reviewList).length > 0 ? <StudRender/> : <Text>No review found!</Text>}
       
             </VStack>
 
@@ -441,13 +516,13 @@ const onConfrimUpload = (data) => {
               onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: true })}
             >
             <VStack space={2} mt={3}>
-              <VStack>
+              {/* <VStack>
                 <HStack alignItems="center" space={2}>
                 <Text style={{fontSize:10,fontWeight:'bold', color:"#000000" }}>Moderator</Text>
                 <Text style={{fontSize:8, color:'#8C8C8C' }}>15, Feb, 2022 10:00 AM</Text>
                 </HStack>
                 <Text style={{fontSize:11, color:'#000000'}}>Any Queries ?</Text>
-              </VStack>
+              </VStack> */}
 
             {msgList ? <RenderChat/> : null}
 
@@ -541,7 +616,7 @@ const onConfrimUpload = (data) => {
           />
           <Text style={{fontSize: 15,color: '#000000',fontWeight: 'bold'}}>{SingleCD.courseName}</Text>
           <Text style={{fontSize: 15,color: '#000000',fontWeight: 'bold'}}>{currencyType} {SingleCD.fee}</Text>
-          <HStack space={2} mt="2" alignItems="center">
+          <HStack space={2} justifyContent={'space-between'} mt="2" alignItems="center">
             <HStack space={2} alignItems="center">
                 <HStack space={1}>
                 <Image
@@ -573,32 +648,128 @@ const onConfrimUpload = (data) => {
             <Text style={{fontSize: 15,color: '#364b5b'}}>
               5.0(150)
             </Text>
-            <Text style={{fontSize: 15,color: '#364b5b',fontWeight: 'bold',paddingLeft:15}}>
+            <Text onPress={()=>setStudList(true)} style={{fontSize: 15,color: '#364b5b',fontWeight: 'bold',paddingLeft:1}}>
               View Reviews
             </Text>
             </HStack>
+            {/* {SingleCD.courseStatus === 'ACTIVE' ? <TouchableOpacity
+            onPress={()=>setStudList(true)}
+            >
+            <HStack space={2}> 
+                <Image
+                alt="graduate icon"
+                source={require('../../../assets/graduate_student.png')}
+                size="4" 
+                />
+                  <Text style={{fontSize: 15,color: '#364b5b',fontWeight: 'bold',}}>
+                      {SingleCD.learnersCount} Learners
+                  </Text>
+              </HStack>
+            </TouchableOpacity> : null} */}
           </HStack>
 
        
         <HStack space={2} mt='3' mb='4' alignItems="center">
-            { SingleCD.courseStatus === 'INREVIEW' || SingleCD.courseStatus === 'ACTIVE' ?
-             <TouchableOpacity
-              onPress={()=>setRChat(true)}
-             >
-             <HStack alignItems="center">
-              <Icon size='md' as={Ionicons} name='information-circle-outline' color='#8C8C8C'/>
-                <Button
-                  colorScheme='primary'
-                  _text={{fontSize:11}}
-                  variant="Ghost"
-                  onPress={()=>{setRChat(true)}}
+              <View style={{flexDirection:"row", width:width*0.95, alignItems:"center", justifyContent:"space-between"}}>
+                {SingleCD.courseStatus === 'INREVIEW' || SingleCD.courseStatus === 'ACTIVE' || SingleCD.courseStatus === 'BANNED' ? 
+                <>
+                  <TouchableOpacity
+                    onPress={()=>setRChat(true)}
                   >
-                    Raise Ticket
-                  </Button>
-              </HStack>
-             </TouchableOpacity>:null}
+                    <HStack>
+                      <HStack bg={'gray.300'} space={1} padding={2} borderRadius={5} alignItems="center">
+                      <Icon size='sm' as={FontAwesome5} name='envelope' color='primary.50'/>
+                      <Text color={'primary.50'} bold onPress={()=>{
+                        setRChat(true)
+                      }} style={{fontSize:11, borderRadius:3}}>Raise a Ticket</Text>
+                    </HStack>
+                      {
+                        getNewMessageCount(CourseCode) !== null ?
+                        <Badge  bg={'amber.500'} rounded={'lg'} right={4} top={-6} zIndex={1} variant="solid"
+                            alignSelf="flex-start"  _text={{ fontSize: 7,}}>
+                            {getNewMessageCount(CourseCode)}
+                        </Badge>
+                        : null
+                      }
+                    </HStack>
+                  </TouchableOpacity>
+                </>
+                :null}
+                <>
+                  <TouchableOpacity
+                    onPress={()=>navigation.navigate('StudentPreview', {type: 'recorded'})}
+                  >
+                  <HStack bg={'gray.300'} space={1} padding={2} borderRadius={5} alignItems="center">
+                    {/* <Icon size='sm' as={FontAwesome5} name='envelope' color='primary.50'/> */}
+                    <Text color={'primary.50'} bold onPress={()=>{
+                        navigation.navigate('StudentPreview', {type: 'recorded'})
+                    }} style={{fontSize:11, borderRadius:3}}>Student Preview</Text>
+                  </HStack>
+                  </TouchableOpacity>
+                </>
+             </View>
           </HStack>
+
+          {
+            SingleCD.courseStatus === 'BANNED' || SingleCD.courseStatus === 'REJECTED' ?
+              <CollapsibleView 
+                title={
+                  <HStack 
+                    style={{
+                      flex:1,    
+                      flexDirection: 'row',
+                      alignItems: 'flex-start',
+                      paddingTop:10,
+                      paddingLeft:15,
+                      paddingRight:15,
+                      paddingBottom:10,
+                      position: 'relative'
+                    }}
+                  >
+                  <VStack>
+                    <Text style={{fontSize: 15,color: '#000000',fontWeight: 'bold'}}>
+                      Rejected
+                    </Text>
+                  </VStack>
+                </HStack>  
+                }
+                style={{
+                  borderRadius: 5,
+                  backgroundColor: "#FFFFFF",
+                  shadowColor: "rgba(0, 0, 0, 0.03)",
+                  shadowOffset: {
+                    width: 0,
+                    height: 0.5
+                  },
+                  shadowRadius: 22,
+                  shadowOpacity: 1,
+                  borderWidth: 0,
+                }}
+                arrowStyling={{ size: 20,thickness: 3, color: "#364b5b"}}
+                isRTL={true}
+                collapsibleContainerStyle={{
+                  paddingTop: 5,
+                  paddingBottom:10,
+                  paddingLeft:15,
+                  paddingRight:15
+                }}
+              >
           
+                <Divider my={1}/>
+                <VStack space={2}>
+                  <Text style={{fontSize: 12,color: '#ff0000'}}>Reason for rejection</Text>
+                  {
+                    SingleCD.rejectionComments.map((data, index)=> {
+                      console.log(index)
+                      return(
+                        <Text style={{fontSize: 15,color: '#000000', maxWidth:width/2}}>{index + 1}. {data.comment}</Text>
+                      )
+                    })
+                  }
+                </VStack>
+              </CollapsibleView>
+            : null
+          }
           <CollapsibleView 
             title={
               <HStack 
@@ -668,6 +839,7 @@ const onConfrimUpload = (data) => {
                 <RenderHtml
                   contentWidth={width/3}
                   source={OverviewSource}
+                  baseStyle={{color:'#000'}}
                 //   renderersProps={renderersProps}
                   // onLinkPress={(evt, href) => { Linking.openURL(href) }}
                 />
@@ -679,6 +851,7 @@ const onConfrimUpload = (data) => {
                   style={{minHeight:height/5,zIndex:100}}
                 /> */}
           </CollapsibleView>
+          
           <CollapsibleView 
             title={
               <HStack 
@@ -797,22 +970,39 @@ const onConfrimUpload = (data) => {
                 />
               </VStack>
 
-              <VStack space={1}>
+              {/* <Pressable space={1} zIndex={1000}> */}
                 <Text style={{color:'#000000', fontSize: 12,fontWeight:'bold'}}>Intro Video</Text>
                 <Text style={{fontSize: 11,color: '#8C8C8C'}}>Width 600 px, Height 350px. Format will be MP4</Text>
-                <Video 
+                {/* <Video 
                 // source={{uri:'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'}}
                 source={{uri:IntroVideo}}
                 rate={1.0}
                 volume={1.0}
                 isMuted={false}
                 resizeMode="cover"
+                controls={true}
+                paused={true}
                 // shouldPlay
                 isLooping
-                style={{ width: 360, height: 220, alignSelf: 'center',borderRadius: 10  }}
+                style={{ width: 360, height: 220, alignSelf: 'center',borderRadius: 10 }}
                 useNativeControls
-                />
-              </VStack>
+                /> */}
+                <View style={{width: '100%', height: 220,}}>
+                  <VideoPlayer
+                    source={{uri: IntroVideo}}
+                    style={{ width: 360, height: 220, zIndex:1000, elevation:1000, alignSelf: 'center',borderRadius: 10 }}
+                    onError={()=>{
+                      console.log('Something went wrong...');
+                    }}
+                    pictureInPicture={true}
+                    navigator={navigation}
+                    isFullscreen={false}
+                    tapAnywhereToPause = {false}
+                    onPlay = {() => {}}
+                    paused={true}
+                  />
+                </View>
+              {/* </Pressable> */}
               {/* <HStack>
               <HStack style={{ flex:1,justifyContent:'flex-end',alignItems:'center'}}>
                 <Text style={{color:'#000000', fontWeight: 'bold',fontSize:15,padding:10}}>Save Changes</Text>
@@ -966,8 +1156,6 @@ const onConfrimUpload = (data) => {
 
             </VStack>
           </CollapsibleView>
-
-          
           
           <CollapsibleView 
             title={
@@ -1030,7 +1218,7 @@ const onConfrimUpload = (data) => {
   )
 }
 
-export default CourseDetails
+export default RecordedCorseDetails
 
 const styles = StyleSheet.create({
   container: {

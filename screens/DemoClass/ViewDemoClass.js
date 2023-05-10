@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react"
 import AppBar from "../components/Navbar"
 import { StyleSheet, Dimensions, TouchableOpacity, ScrollView, Linking} from 'react-native';
-import {HStack, VStack, Image, Center, View, Text, Icon, Button, Divider, IconButton, Pressable } from 'native-base';
+import {HStack, VStack, Image, Center, View, Text, Icon, Button, Divider, IconButton, Modal, Pressable } from 'native-base';
 import {useDispatch,useSelector} from 'react-redux';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -17,12 +17,17 @@ const ViewDemoClass = ({navigation}) => {
     const dispatch = useDispatch()
     const email = useSelector(state => state.Login.email);
     const [allData, setAllData] = useState([])
+    const [showModal, setShowModal] = useState(false)
     const courseCode = useSelector(state => state.Course.CurrentDemoClassCourseCode);
     const courseData = useSelector(state => state.Course.CurrentDemoClassObject);
+    console.log(courseData)
 
     useEffect(()=>{
-        getDemoClassListbyCourseCode()
-    },[])
+        const unsubscribe = navigation.addListener('focus', () => {
+            getDemoClassListbyCourseCode()
+        });
+        return unsubscribe;
+    },[navigation])
 
     const ToSeconds = (time) =>{
         const sec = Math.floor((time) / 1000);
@@ -35,6 +40,7 @@ const ViewDemoClass = ({navigation}) => {
             const result = await GetDemoClassListbyCourseCode(email, courseCode)
             if(result.status === 200) {
                 setAllData(result.data)
+                console.log('___________________VIEW DEMO CLASS DATA____________________', result.data)
             } else {
                 console.log('Server error getDemoClassListbyCourseCode : ', result)
             }
@@ -73,7 +79,7 @@ const ViewDemoClass = ({navigation}) => {
 
     const handleGoLive = (data) => {
         dispatch(setGoLiveDemoObject(data))
-        navigation.navigate('GoDemoLive')
+        setShowModal(true)
     }
 
     const AppBarContent = {
@@ -84,9 +90,65 @@ const ViewDemoClass = ({navigation}) => {
         RightIcon2:'person'                  
     }
 
+    const convertTo12HourFormat = (time) => {
+        const [hours, minutes] = time.split(':');
+        const date = new Date();
+        date.setHours(hours);
+        date.setMinutes(minutes);
+      
+        const options = { hour: 'numeric', minute: 'numeric', hour12: true };
+        const formattedTime = date.toLocaleTimeString('en-US', options);
+        return formattedTime;
+    }
+
+    const secondsLeftToDate = (dateString, timeString) => {
+        const givenDateTime = new Date(`${dateString}T${timeString}:00`);
+        const currentTime = new Date();
+        const secondsLeft = (givenDateTime - currentTime) / 1000;
+        return secondsLeft > 0 ? secondsLeft : 0;
+    }
+
+    const secondsLeftToEndClass = (dateString, timeString) => {
+        const givenDateTime = new Date(`${dateString}T${timeString}:00`);
+        const currentTime = new Date();
+        const secondsLeft = ((givenDateTime - currentTime) / 1000) + 3600;
+        return secondsLeft > 0 ? secondsLeft : 0;
+    }
+
     return (
         <View>
             <AppBar props={AppBarContent} />
+
+            {/* Modal for showing warning: not to recive calls during the class */}
+            <Modal isOpen={showModal}>
+            <Modal.Content maxWidth="700px">
+                <Modal.Body>
+                <VStack safeArea flex={1} p={2} w="90%" mx="auto" justifyContent="center" alignItems="center">
+                    <Image source={require('../../assets/warning.png')} resizeMode="contain" size={40} alt="successful" />
+                    <Text fontWeight="bold" color={'orange.400'} fontSize="17">Warning!</Text> 
+                    <Text marginY={5} fontWeight="bold" textAlign={'center'} style={{color:"#000"}} fontSize="14">Please do not recive any kind calls during the class. If the screen get stuck/freeze try re-installing the app again.</Text> 
+                    <HStack space={2}>
+                    <Button  bg={'orange.400'} colorScheme="blueGray" style={{paddingTop:10,paddingBottom:10,paddingLeft:40, paddingRight:40}}
+                        _pressed={{bg: "#fcfcfc", _text:{color: "#3e5160"}}}
+                        onPress={()=> setShowModal(false)}
+                        >
+                        Cancel
+                    </Button>
+                    <Button  bg={'primary.900'} colorScheme="blueGray" style={{paddingTop:10,paddingBottom:10,paddingLeft:40, paddingRight:40}}
+                        _pressed={{bg: "#fcfcfc", _text:{color: "#3e5160"}}}
+                        onPress={()=> {
+                            setShowModal(false)
+                            navigation.navigate('GoDemoLive')
+                        }}
+                        >
+                        Continue
+                    </Button>
+                    </HStack>
+                </VStack>
+                </Modal.Body>
+            </Modal.Content>
+            </Modal>
+            
             <ScrollView>
             <View style={styles.TopContainer}>
                 <Image 
@@ -140,7 +202,7 @@ const ViewDemoClass = ({navigation}) => {
             
                 <HStack space={2} mt='3' mb='4' alignItems="center">
                     <TouchableOpacity
-                    onPress={()=>setRChat(true)}
+                    // onPress={()=>setRChat(true)}
                     >
                         <HStack alignItems="center">
                             <Image
@@ -282,51 +344,37 @@ const ViewDemoClass = ({navigation}) => {
                                         const val = validateDate(data.demoDate, data.demoTime)
                                         var options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }
                                         var today  = new Date(data.demoDate)
-                                        const time = data.demoTime.split(':')
-                                        const timeToSec = Date.parse(data.demoDate) - Date.now();
-                                        const sec = ToSeconds(timeToSec)
+                                        
                                         let demoDate = data.demoDate.split('T')
                                         let dateToday = new Date().toJSON().slice(0, 10)
+                                        const sec = parseInt(secondsLeftToDate(demoDate[0], data.demoTime))
+                                        const timeLeft = parseInt(secondsLeftToEndClass(demoDate[0], data.demoTime))
                                         return (                                            
                                             <View key={index}>
                                                 <HStack width={'95%'} alignSelf={'center'} justifyContent={'space-between'} alignItems={'center'}>
                                                     <VStack>
                                                         <Text style={{fontSize:12, fontWeight:"bold"}}>{today.toLocaleDateString("en-US", options)}</Text>
-                                                        {
+                                                        {/* {
                                                             parseInt(time) >= 12 ?
                                                             <Text style={{fontSize:10, fontWeight:"bold"}}>{data.demoTime} PM</Text>
                                                             :
                                                             <Text style={{fontSize:10, fontWeight:"bold"}}>{data.demoTime} AM</Text>
-                                                        }
+                                                        } */}
+                                                        <Text style={{fontSize:10, fontWeight:"bold"}}>{convertTo12HourFormat(data.demoTime)}</Text>
                                                     </VStack>
                                                     <VStack alignItems={'center'}>
                                                         <Text style={{fontSize:10, color:"#8C8C8C", fontWeight:"bold"}}>No of Booked</Text>
-                                                        <Text style={{fontSize:12, fontWeight:"bold"}}>{courseData.learnersCount} Learners</Text>
+                                                        <Text style={{fontSize:12, fontWeight:"bold"}}>{courseData.requestCount} Slot Booked</Text>
                                                     </VStack>
                                                     <VStack  alignItems={'center'}>
                                                         <Text style={{fontSize:10, color:"#8C8C8C", fontWeight:"bold"}}>Status</Text>
-                                                        <>
-                                                            {
-                                                                demoDate[0] === dateToday ?
-                                                                <Text onPress={()=>alert('hello')} color={'primary.900'} style={{fontSize:12, fontWeight:"bold"}}>Start class</Text>
-                                                                :
-                                                                <>
-                                                                    {
-                                                                        sec > 0 ?
-                                                                        <CountDownTimer
-                                                                            containerStyle={styles.count}
-                                                                            timestamp={sec}
-                                                                            onFinish={() => {
-                                                                                navigation.replace('ViewDemoClass')
-                                                                            }}
-                                                                            textStyle={{backgroundColor: 'White', fontSize:12, fontWeight:"bold", color:"#000"  }}
-                                                                        /> 
-                                                                        :
-                                                                        <Text style={{fontSize:12, color:"red", fontWeight:"bold"}}>  Expired  </Text>
-                                                                    }
-                                                                </>
-                                                            }
-                                                        </>
+                                                        {
+                                                            // status will be expired, scheduled
+                                                            timeLeft > 0 ?
+                                                            <Text color={"primary.100"} style={{fontSize:12, fontWeight:"bold"}}>{data.status}</Text>
+                                                            :
+                                                            <Text style={{fontSize:12, color:"red", fontWeight:"bold"}}>  Expired  </Text>
+                                                        }
                                                     </VStack>
                                                     {/* <Icon as={<AntDesign name="rightcircleo"/>} color={'#395061'} size={5}/> */}
                                                 </HStack>
@@ -399,71 +447,80 @@ const ViewDemoClass = ({navigation}) => {
                                         const val = validateDate(data.demoDate, data.demoTime)
                                         var options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }
                                         var today  = new Date(data.demoDate)
+
+                                        // finding out start and end time in sec 
                                         let demoDate = data.demoDate.split('T')
-                                        let dateToday = new Date().toJSON().slice(0, 10)
-                                        const time = data.demoTime.split(':')
-                                        const timeToSec = Date.parse(data.demoDate) - Date.now();
-                                        const sec = ToSeconds(timeToSec)
-                                        console.log(demoDate[0], dateToday)
+                                        const sec = parseInt(secondsLeftToDate(demoDate[0], data.demoTime))
+                                        const timeLeft = parseInt(secondsLeftToEndClass(demoDate[0], data.demoTime))
+
                                         return (
-                                            <TouchableOpacity onPress={()=>handleGoLive(data)}>
+                                            <Pressable>
                                                 {
-                                                    demoDate[0] === dateToday ?
-                                                    <>
-                                                        <HStack key={index} alignItems={'center'} justifyContent={'space-between'} alignSelf={'center'} width={width*0.8}>
-                                                            <Text numberOfLines={5} style={{fontSize: 16, color: '#000000', fontWeight: 'bold', maxWidth:width*0.58}}>{data.topicName}</Text>
-                                                            <TouchableOpacity onPress={()=>alert('hello')}>
-                                                                <Text style={{backgroundColor:"#395061", marginBottom:15, paddingVertical:5, paddingHorizontal:10, color:"#fff", borderRadius:5}}>Start Class</Text>
-                                                            </TouchableOpacity>
+                                                    // possible status: expired, start live, time left
+                                                    // if strat and end time in sec are 0 
+                                                    sec === 0 && timeLeft === 0 ?
+                                                        // expired
+                                                        <HStack key={index} width={'100%'} alignItems={'center'} justifyContent={'space-between'} alignSelf={'flex-start'} >
+                                                            <VStack key={index} alignSelf={'flex-start'} >
+                                                                <Text numberOfLines={5} style={{fontSize: 16, color: '#000000', fontWeight: 'bold', maxWidth:'75%'}}>{data.topicName}</Text>
+                                                                <View style={{backgroundColor:'#F0E1EB', marginTop:5, borderRadius:10, alignSelf:'flex-start'}}>
+                                                                    <Text style={{fontSize: 11,color: '#395061', paddingLeft:7,paddingRight:7,paddingTop:5,paddingBottom:5}} >Scheduled at {today.toLocaleDateString("en-US", options)} / {convertTo12HourFormat(data.demoTime)}</Text>
+                                                                </View>
+                                                            </VStack>
+                                                            {
+                                                                data.status === 'SCHEDULED' ?
+                                                                <Text style={{fontSize:12, color:"red", fontWeight:"bold"}}>  Expired  </Text>
+                                                                :
+                                                                <Text color={"primary.100"} style={{fontSize:12, fontWeight:"bold"}}>{data.status}</Text>
+                                                            }
                                                         </HStack>
-                                                        <Divider my={1}/>
-                                                    </>
+                                                    // else 
                                                     :
                                                     <>
                                                         {
-                                                            sec > 0 && demoDate[0] === dateToday ?
-                                                            <>
-                                                                <HStack key={index} alignItems={'center'} justifyContent={'space-between'} alignSelf={'center'} width={width*0.8}>
-                                                                    <Text numberOfLines={5} style={{fontSize: 16, color: '#000000', fontWeight: 'bold', maxWidth:width*0.58}}>{data.topicName}</Text>
-                                                                    <TouchableOpacity onPress={()=>alert('hello')}>
-                                                                        <Text style={{backgroundColor:"#395061", marginBottom:15, paddingVertical:5, paddingHorizontal:10, color:"#fff", borderRadius:5}}>Start Class</Text>
-                                                                    </TouchableOpacity>
+                                                            // if start time in seconds is greater than 0
+                                                            sec > 0 ?
+                                                                // show timer
+                                                                <HStack key={index} width={'100%'} alignItems={'center'} justifyContent={'space-between'} alignSelf={'flex-start'} >
+                                                                    <VStack key={index} alignSelf={'flex-start'} >
+                                                                        <Text numberOfLines={5} style={{fontSize: 16, color: '#000000', fontWeight: 'bold', maxWidth:'75%' }}>{data.topicName}</Text>
+                                                                        <View style={{backgroundColor:'#F0E1EB', marginTop:5, borderRadius:10, alignSelf:'flex-start'}}>
+                                                                            <Text style={{fontSize: 11,color: '#395061', paddingLeft:7,paddingRight:7,paddingTop:5,paddingBottom:5}} >Scheduled at {today.toLocaleDateString("en-US", options)} / {convertTo12HourFormat(data.demoTime)}</Text>
+                                                                        </View>
+                                                                    </VStack>
+                                                                    <CountDownTimer
+                                                                        containerStyle={styles.count}
+                                                                        timestamp={sec}
+                                                                        timerCallback={() => {
+                                                                            navigation.replace('ViewDemoClass')
+                                                                        }}
+                                                                        textStyle={{backgroundColor: 'White', fontSize:12, fontWeight:"bold", color:"#000"  }}
+                                                                    /> 
                                                                 </HStack>
-                                                                <Divider my={1}/>
-                                                            </>
-                                                            : 
-                                                            <>
-                                                                <VStack key={index} alignSelf={'center'} width={width*0.8}>
-                                                                    <Text numberOfLines={5} style={{fontSize: 16, color: '#000000', fontWeight: 'bold', }}>{data.topicName}</Text>
-                                                                    <View style={{backgroundColor:'#F0E1EB', marginTop:5, borderRadius:10, alignSelf:'flex-start'}}>
-                                                                        {
-                                                                            parseInt(time) >= 12 ?
-                                                                            <>
-                                                                                {
-                                                                                    sec > 0 ?
-                                                                                    <Text style={{fontSize: 11,color: '#395061', paddingLeft:7,paddingRight:7,paddingTop:5,paddingBottom:5}} >Scheduled for {data.demoTime} PM {today.toLocaleDateString("en-US", options)}</Text>
-                                                                                    :
-                                                                                    <Text style={{fontSize: 11,color: '#395061', paddingLeft:7,paddingRight:7,paddingTop:5,paddingBottom:5}} >Scheduled on {data.demoTime} PM {today.toLocaleDateString("en-US", options)}</Text>
-                                                                                }
-                                                                            </>
-                                                                            :
-                                                                            <>
-                                                                                {
-                                                                                    sec > 0 ?
-                                                                                    <Text style={{fontSize: 11,color: '#395061', paddingLeft:7,paddingRight:7,paddingTop:5,paddingBottom:5}} >Scheduled for {data.demoTime} AM {today.toLocaleDateString("en-US", options)}</Text>
-                                                                                    :
-                                                                                    <Text style={{fontSize: 11,color: '#395061', paddingLeft:7,paddingRight:7,paddingTop:5,paddingBottom:5}} >Scheduled on {data.demoTime} AM {today.toLocaleDateString("en-US", options)}</Text>
-                                                                                }
-                                                                            </>
-                                                                        }
-                                                                    </View>
-                                                                </VStack>
-                                                                <Divider my={1}/>
-                                                            </>
+                                                            // else if end time in seconds is greater than 0
+                                                            :
+                                                                // start class
+                                                                <HStack key={index} width={'100%'} alignItems={'center'} justifyContent={'space-between'} alignSelf={'flex-start'} >
+                                                                    <VStack key={index} alignSelf={'flex-start'} >
+                                                                        <Text numberOfLines={5} style={{fontSize: 16, color: '#000000', fontWeight: 'bold', maxWidth:'75%' }}>{data.topicName}</Text>
+                                                                        <View style={{backgroundColor:'#F0E1EB', marginTop:5, borderRadius:10, alignSelf:'flex-start'}}>
+                                                                            <Text style={{fontSize: 11,color: '#395061', paddingLeft:7,paddingRight:7,paddingTop:5,paddingBottom:5}} >Scheduled at {today.toLocaleDateString("en-US", options)} / {convertTo12HourFormat(data.demoTime)}</Text>
+                                                                        </View>
+                                                                    </VStack>
+                                                                    {
+                                                                        data.status === 'SCHEDULED' ?
+                                                                        <TouchableOpacity onPress={()=>handleGoLive(data)}>
+                                                                            <Text style={{backgroundColor:"#395061", marginBottom:15, paddingVertical:5, paddingHorizontal:10, color:"#fff", borderRadius:5}}>Start Class</Text>
+                                                                        </TouchableOpacity>
+                                                                        :
+                                                                        <Text color={"primary.100"} style={{fontSize:12, fontWeight:"bold"}}>{data.status}</Text>
+                                                                    }
+                                                                </HStack>
                                                         }
                                                     </>
                                                 }
-                                            </TouchableOpacity>
+                                                <Divider my={2}/>
+                                            </Pressable>
                                         )
                                     })
                                 }
@@ -471,7 +528,7 @@ const ViewDemoClass = ({navigation}) => {
                         </CollapsibleView>
                     </>
                     : 
-                    <Text onPress={()=>{Linking.openURL('https://dev.qlearning.academy/demo-class')}} style={{fontSize: 15,color: '#364b5b',fontWeight: 'bold', alignSelf:"center"}}>Kindly schedule the demo class in website</Text>
+                    <Text style={{fontSize: 15,color: '#364b5b',fontWeight: 'bold', alignSelf:"center"}}>Kindly schedule the demo class in the website.</Text>
                 }
             </View>
             </ScrollView>

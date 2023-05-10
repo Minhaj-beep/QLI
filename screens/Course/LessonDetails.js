@@ -5,6 +5,7 @@ import { ScrollView,VStack, Image,HStack,IconButton,Icon,Link,Text } from 'nativ
 import AppBar from '../components/Navbar';
 import ResoucreFile from './Lessons/ResoucreFile';
 import Video from 'react-native-video';
+import VideoPlayer from 'react-native-video-controls';
 import {useDispatch,useSelector} from 'react-redux';
 import { useEffect,useState } from 'react';
 
@@ -83,7 +84,7 @@ const LessonDetails = ({navigation}) => {
         <SafeAreaView>
             <AppBar props={AppBarContent}/>
                 <VStack mt={5}>
-                { LDData && <Video 
+                {/* { LDData && <Video 
                 // source={{uri:'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'}}
                 source={{uri:LDData.lesson.lessonVideoPath}}
                 rate={1.0}
@@ -93,7 +94,22 @@ const LessonDetails = ({navigation}) => {
                 isLooping
                 style={{ width: 360, height: 220, alignSelf: 'center',borderRadius: 10 }}
                 useNativeControls
-                />}
+                />} */}
+                {
+                    LDData && <VideoPlayer
+                    source={{uri: LDData.lesson.lessonVideoPath}}
+                    style={{ width: 360, height: 220, alignSelf: 'center',borderRadius: 10 }}
+                    onError={()=>{
+                      console.log('Something went wrong...');
+                    }}
+                    pictureInPicture={true}
+                    navigator={navigation}
+                    isFullscreen={false}
+                    tapAnywhereToPause = {false}
+                    onPlay = {() => {}}
+                    paused={true}
+                  />
+                }
 
                     <VStack justifyContent='center' space={2} ml={4} mt={6}>
                         <Text style={{fontSize: 12,color: '#8C8C8C',fontWeight: 'bold',maxWidth:width/1.5}}>{LDData && SingleCD.courseName}</Text>

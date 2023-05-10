@@ -13,7 +13,7 @@ const GetFAQ = async (email, code) => {
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
-      gmailUserType: 'STUDENT',
+      gmailUserType: 'INSTRUCTOR',
       token: email,
     },
   };

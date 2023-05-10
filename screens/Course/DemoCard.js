@@ -10,7 +10,7 @@ const { width, height } = Dimensions.get('window')
 const DemoCard = () => {
   const navigation = useNavigation()
   return (
-    <View style={{flex:1}}>
+    <View style={{flex:1, width:width}}>
         <Demo navigation={navigation} />
     </View>
   )

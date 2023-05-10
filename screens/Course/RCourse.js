@@ -163,7 +163,7 @@ export default function RCourse({navigation}) {
               setDTab(true)
             }}
           >
-            <Text style={DTab ? styles.TAButton : styles.TButton}>Demo Courses</Text>
+            <Text style={DTab ? styles.TAButton : styles.TButton}>Demo Class</Text>
           </TouchableOpacity>
           </HStack>
         <ScrollView style={{ marginBottom:150, marginTop:20}} nestedScrollEnabled={true}>

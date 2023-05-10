@@ -71,17 +71,17 @@ useEffect(() => {
               <HStack space={2} mt="2">
                   <HStack space={1}>
                       <Image
-                          source={require('../../assets/star.png')}
+                          source={require('../../assets/unstar.png')}
                           alt="rating"
                           size="3"
                       />
                         <Image
-                          source={require('../../assets/star.png')}
+                          source={require('../../assets/unstar.png')}
                           alt="rating"
                           size="3"
                       />
                         <Image
-                          source={require('../../assets/star.png')}
+                          source={require('../../assets/unstar.png')}
                           alt="rating"
                           size="3"
                       />
@@ -98,13 +98,13 @@ useEffect(() => {
                   </HStack>
 
                   <Text style={{fontSize: 10,color: '#000000',fontWeight: '900'}}>
-                  5.0 (150)
+                    ({data.rating}/{data.ratingCount})
                   </Text>
 
-                  {/* {data.courseStatus != 'INREVIEW' ? <HStack space={1}> 
+                  {/* {data.courseStatus === 'ACTIVE' ? <HStack space={1}> 
                       <Image
                       alt="graduate icon"
-                      source={require('../assets/graduate_student.png')}
+                      source={require('../../assets/graduate_student.png')}
                       size="3" 
                       />
                       <Text style={{fontSize: 10,color:"#000000",fontWeight: '900'}}>

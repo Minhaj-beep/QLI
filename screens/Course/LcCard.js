@@ -2,6 +2,7 @@ import { View, Text, StyleSheet,Dimensions,TouchableOpacity} from 'react-native'
 import React,{useState,useEffect} from 'react';
 import {HStack, VStack, Image,Center} from 'native-base';
 import {useDispatch,useSelector} from 'react-redux';
+import Icon from 'react-native-vector-icons/AntDesign';
 
 const { width, height } = Dimensions.get('window')
 
@@ -63,12 +64,25 @@ const LcCard = ({props}) => {
           {/* {data.courseTitle} */}
           {courseTitle}
           </Text>
-          { data.courseStatus === 'INREVIEW' ? <Text style={{fontSize:9,color: '#FFFFFF',backgroundColor:'#ffc107',padding:5, borderRadius:3}}>In Review</Text> : null }
-            { data.courseStatus === 'REJECTED' ? <Text style={{fontSize:9,color: '#FFFFFF',backgroundColor:'#ff0000',padding:5, borderRadius:3}}>Rejected</Text> : null }
-            { data.courseStatus === 'ACTIVE' ? <Text style={{fontSize:9,color: '#FFFFFF',backgroundColor:'#29d363',padding:5, borderRadius:3}}>Active</Text> : null }
-           { data.courseStatus === 'BANNED' ? <Text style={{fontSize:9,color: '#FFFFFF',backgroundColor:'#ff0000',padding:3, borderRadius:3, marginBottom:10}}>Banned</Text> : null } 
+          {
+            data.isExpired ?
+            <HStack bg={'rgba(41,211,99, 0.2)'} alignItems={'center'} paddingX={1} borderRadius={3}>
+              <Icon size={13} name="checkcircle" color="#29d363" />
+              <Text style={{fontSize:9,color: '#29d363', fontWeight:"bold", padding:5, borderRadius:3}}>Completed</Text>
+            </HStack>
+            :
+            <>
+              { data.courseStatus === 'INREVIEW' ? <Text style={{fontSize:9,color: '#FFFFFF',backgroundColor:'#ffc107',padding:5, borderRadius:3}}>In Review</Text> : null }
+              { data.courseStatus === 'REJECTED' ? <Text style={{fontSize:9,color: '#FFFFFF',backgroundColor:'#ff0000',padding:5, borderRadius:3}}>Rejected</Text> : null }
+              { data.courseStatus === 'ACTIVE' ? <Text style={{fontSize:9,color: '#FFFFFF',backgroundColor:'#29d363',padding:5, borderRadius:3}}>Active</Text> : null }
+              { data.courseStatus === 'BANNED' ? <Text style={{fontSize:9,color: '#FFFFFF',backgroundColor:'#ff0000',padding:3, borderRadius:3, marginBottom:10}}>Rejected</Text> : null } 
+            </>
+          }
           {/* { data.liveCourseStatus === 'DELETED' ? <Text style={{fontSize:9,color: '#FFFFFF',backgroundColor:'#ff0000',padding:3, borderRadius:3, marginBottom:10}}>Deleted</Text> : null } */}
          </HStack>
+         {console.log(`{
+          ${data.courseStatus}
+         }`)}
 
           <HStack space={3} alignItems="center"> 
             <Text style={{fontSize:12, fontWeight: 'bold',color: '#000000'}}>{currencyType} {data.fee}</Text>

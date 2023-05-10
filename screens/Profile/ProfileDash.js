@@ -6,7 +6,7 @@ import AppBar from '../components/Navbar';
 import ProfileImg from './DashImg';
 import ProfileSettings from './ProfileSettings';
 import {useDispatch,useSelector} from 'react-redux';
-import {setLoading, setLoggedIn} from '../Redux/Features/authSlice';
+import {setLoading, setLoggedIn, setIsLoggedInBefore} from '../Redux/Features/authSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
     GoogleSignin,
@@ -129,6 +129,7 @@ const ProfileDash = ({navigation}) => {
   const LogOut = () => {
     dispatch(setLoading(true));
     dispatch(setLoggedIn(false));
+    dispatch(setIsLoggedInBefore(true));
     ClearLocalStorage();
     GSignOut();
     dispatch(setLoading(false));

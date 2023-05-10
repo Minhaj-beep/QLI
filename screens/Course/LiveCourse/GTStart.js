@@ -1,6 +1,6 @@
 import {View, Dimensions, ScrollView, TouchableWithoutFeedback, StyleSheet,TouchableOpacity} from 'react-native';
-import {useState,useEffect,React} from 'react';
-import {FormControl,Input,Icon,Text,HStack, VStack,Button} from 'native-base';
+import {useState,useEffect,React, useRef} from 'react';
+import {FormControl,Input,Icon,Text,HStack, Image, VStack,Button, Modal} from 'native-base';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppBar from '../../components/Navbar';
 import {useDispatch,useSelector} from 'react-redux';
@@ -8,6 +8,7 @@ import DocumentPicker from 'react-native-document-picker'
 import { setLoading } from '../../Redux/Features/userDataSlice';
 import ResoucreFile from './components/ResoucreFile';
 import { setLiveClassDetails } from '../../Redux/Features/CourseSlice';
+import { setUpcomingClassData } from '../../Redux/Features/CourseSlice';
 
 
 const { width, height } = Dimensions.get('window')
@@ -15,31 +16,43 @@ const { width, height } = Dimensions.get('window')
 const GTStart = ({navigation}) => {
 
   const dispatch = useDispatch()
-
-  const [LCaption, setLCaption] = useState('');
-  const [Resource, setResource] = useState([]);
-  const [updateResource, setUpdateResource] = useState();
-  const [RView, setRView] = useState('auto');
-
   const BaseURL = useSelector(state => state.UserData.BaseURL);
   const SingleCD = useSelector(state => state.Course.SingleLiveCourse);
   const email = useSelector(state => state.Login.email);
   const GTD = useSelector(state => state.Course.LiveClassDetails);
-  // console.log('WHat is GTD: ', SingleCD)
+  console.log('WHat is GTD: ', GTD)
+  const captionRef = useRef()
+  const [captionErr, setCaptionErr] = useState(false)
+
+  const [LCaption, setLCaption] = useState(GTD.liveCaption);
+  const [Resource, setResource] = useState(GTD.resourceDetails);
+  const [updateResource, setUpdateResource] = useState();
+  const [RView, setRView] = useState('auto');
+  const [showModal, setShowModal] = useState(false)
+
   const [GTData, setGTData] = useState(GTD);
 
   const [RName, setRName] = useState();
   const [FLink, setFLink] = useState();
   const [RType,setRType] = useState();
-  const [Order, setOrder] = useState();
+  const [Order, setOrder] = useState(GTD.liveClassOrder);
 
   const [CurrentDate,setCurrentDate] = useState();
   const [CurrentTime,setCurrentTime] = useState();
 
   const [SLBtn, setSLBtn] = useState(true);
 
-  console.log('yet')
-  console.log(GTData)
+  // console.log('yet')
+  // console.log(GTData)
+
+  const handleStartLive = () => {
+    if(GTD.hasOwnProperty("joinLiveLink")){
+      // console.log(GTD.joinLiveLink, 'console.log')
+      setShowModal(true)
+    } else {
+      alert('Kindly save the class name and retry!')
+    }
+  }
 
   useEffect(()=>{
     console.log(GTData, '+++++++++++++++++++++++++')
@@ -53,13 +66,24 @@ const GTStart = ({navigation}) => {
     console.log('==========================')
     console.log(dateToday[0], scheduledDate[0], dateToday[1], scheduledDate[1], parseInt(dateToday[2]), parseInt(scheduledDate[2]))
     if(dateToday[0] === scheduledDate[0] && dateToday[1] === scheduledDate[1] && parseInt(dateToday[2]) === parseInt(scheduledDate[2])) {
-      if(hour > startTime[0] && hour < endTime[0]){
+      // console.log('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
+      // console.log(`
+      //   hour: ${typeof(hour)}
+      //   minute: ${minute}
+      //   startTime: ${startTime}
+      //   endTime: ${typeof(endTime[0])}
+      // `)
+      if(hour > parseInt(startTime[0]) && hour < parseInt(endTime[0])){
+        // console.log('1111111111111111111111111111111111')
         setSLBtn(false)
-      } else if (hour === startTime[0] && minute > startTime[1]){
+      } else if (hour === parseInt(startTime[0]) && minute > parseInt(startTime[1])){
+        // console.log('2222222222222222222222222222222222')
         setSLBtn(false)
-      } else if (hour === endTime[0] && minute < endTime[1]){
+      } else if (hour === parseInt(endTime[0]) && minute < parseInt(endTime[1])){
+        // console.log('3333333333333333333333333333333333')
         setSLBtn(false)
       }
+      // console.log('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
     }
   },[])
 
@@ -196,6 +220,37 @@ const GTStart = ({navigation}) => {
         dispatch(setLoading(false))
     })
   }
+
+  const GetUpcomingData = () =>{
+    dispatch(setLoading(true))
+    const API = BaseURL+'getScheduledLiveCourseClass?courseCode='+SingleCD.courseCode;
+    let requestOptions ={
+        method:'GET',
+        headers:{
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'gmailUserType':'INSTRUCTOR',
+          'token':email
+        }
+      }
+    
+    fetch(API, requestOptions)
+    .then(res => res.json())
+    .then(result => {
+        if(result.status === 200){
+            dispatch(setUpcomingClassData(result.data))
+            dispatch(setLoading(false))
+        }else if(result.status > 200){
+            console.log(result.message)
+            dispatch(setLoading(false))
+        }
+    })
+    .catch(error => {
+        // alert('Error: '+error)
+        console.log(error)
+        dispatch(setLoading(false))
+    })
+  } 
   
   const CreateLC = () =>{
     if(LCaption != ''){
@@ -234,10 +289,13 @@ const GTStart = ({navigation}) => {
           console.log(result)
           if(result.status === 200){
             alert(result.message)
+            GetUpcomingData()
             GetSCC()           
             dispatch(setLoading(false))
+            navigation.goBack()
           }else{
-            GetSCC()           
+            GetSCC()     
+            console.log(result)      
             alert(result.message)
             dispatch(setLoading(false))
           }
@@ -248,7 +306,8 @@ const GTStart = ({navigation}) => {
           dispatch(setLoading(false))
         });
     }else{
-      alert('Please provide all the information needed to proceed.')
+      setCaptionErr(true)
+      captionRef.current.focus()
     }
   }
 
@@ -310,8 +369,8 @@ const GTStart = ({navigation}) => {
           // alert(result.message)
           navigation.navigate('GoLive')
         }else{
-          alert('Start live error: 1 ', result.message)
-          console.log('Start live error: 1 ', result.message)
+          alert(result.message)
+          console.log('Start live error: 1 ', result)
           // alert('Something went wrong!')
         }
       })
@@ -332,6 +391,37 @@ const GTStart = ({navigation}) => {
   return (
       <SafeAreaView>
         <AppBar props={AppBarContent}/>
+
+        {/* Modal for showing warning: not to recive calls during the class */}
+        <Modal isOpen={showModal}>
+          <Modal.Content maxWidth="700px">
+            <Modal.Body>
+              <VStack safeArea flex={1} p={2} w="90%" mx="auto" justifyContent="center" alignItems="center">
+                <Image source={require('../../../assets/warning.png')} resizeMode="contain" size={40} alt="successful" />
+                <Text fontWeight="bold" color={'orange.400'} fontSize="17">Warning!</Text> 
+                <Text marginY={5} fontWeight="bold" textAlign={'center'} style={{color:"#000"}} fontSize="14">Please do not recive any kind calls during the class. If the screen get stuck/freeze try re-installing the app again.</Text> 
+                <HStack space={2}>
+                  <Button  bg={'orange.400'} colorScheme="blueGray" style={{paddingTop:10,paddingBottom:10,paddingLeft:40, paddingRight:40}}
+                    _pressed={{bg: "#fcfcfc", _text:{color: "#3e5160"}}}
+                      onPress={()=> setShowModal(false)}
+                      >
+                    Cancel
+                  </Button>
+                  <Button  bg={'primary.900'} colorScheme="blueGray" style={{paddingTop:10,paddingBottom:10,paddingLeft:40, paddingRight:40}}
+                    _pressed={{bg: "#fcfcfc", _text:{color: "#3e5160"}}}
+                      onPress={()=> {
+                        setShowModal(false)
+                        navigation.navigate('GoLive')
+                      }}
+                      >
+                    Continue
+                  </Button>
+                </HStack>
+              </VStack>
+            </Modal.Body>
+          </Modal.Content>
+        </Modal>
+
         <ScrollView style={styles.TopContainer}>
          <VStack space={10} justifyContent='space-evenly'>
             <VStack space={2}>
@@ -345,7 +435,8 @@ const GTStart = ({navigation}) => {
               >
                   Live Caption
                 </FormControl.Label>
-                <Input 
+                <Input
+                  ref={captionRef} 
                   variant="outline"
                   borderColor='primary.100'
                   value={LCaption} 
@@ -354,10 +445,12 @@ const GTStart = ({navigation}) => {
                   onChangeText={(text) => 
                     {
                       setLCaption(text)
+                      setCaptionErr(false)
                       console.log(text)
                   }
                   }
                 />
+                {captionErr ? <Text style={{color: '#FF0000', fontSize: 9}}>Please insert the live class caption.</Text> : null}
               </FormControl>
 
               <HStack space={3} ml={4}>
@@ -375,7 +468,6 @@ const GTStart = ({navigation}) => {
             style={{width:width/2.5}}
             onPress={()=>{
               CreateLC()
-              // setSLBtn(false)
             }}
             >
               Save
@@ -384,7 +476,7 @@ const GTStart = ({navigation}) => {
               isDisabled={SLBtn}
               _text={{fontSize:14}}
               onPress={()=> {
-                StartLive()
+                handleStartLive()
               }}
               // p={2} pl={10} pr={10}
               style={{width:width/2.5}}

@@ -1,10 +1,14 @@
-import { StyleSheet, View,Dimensions,ScrollView } from 'react-native';
+import { StyleSheet, View,Dimensions, Linking, TouchableOpacity } from 'react-native';
 import React from 'react';
 import { Icon,Modal,Text, Box,VStack,HStack,Input,FormControl,Button,Link,Heading,Image,Container,Center,Spacer,FlatList,IconButton} from 'native-base';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from "@expo/vector-icons";
 
-const LearnerCard = () => {
+const LearnerCard = ({data}) => {
+  const sendMailToStudent = async () => {
+    await Linking.openURL(`mailto:${data.studentEmail}`)
+  }
+
   return (
     <View>
     <HStack space={2} style={styles.chatTile}>
@@ -17,18 +21,18 @@ const LearnerCard = () => {
           size='sm'
         />
         <VStack style={{ justifyContent: 'center'}}>
-          <Text style={{color:'#000000',fontWeight:'bold',fontSize:12}}>MN Nahid</Text>
-          <Text style={{color:'#8C8C8C',fontSize:10}}>mnnahid32584@gmail.com</Text>
+          <Text style={{color:'#000000',fontWeight:'bold',fontSize:12}}>{data.studentName}</Text>
+          <Text style={{color:'#8C8C8C',fontSize:10}}>{data.studentEmail}</Text>
         </VStack>
       </HStack>
-      <View style={{ justifyContent: 'center'}}>
+      <TouchableOpacity onPress={sendMailToStudent} style={{ justifyContent: 'center'}}>
         <Image 
             source={require('../../assets/chatting.png')}
             alt="learner"
             style={styles.learner_chat}
             rounded={5}
         />
-      </View>
+      </TouchableOpacity>
       </HStack>
     </View>
   )

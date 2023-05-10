@@ -64,10 +64,12 @@ const LVStarted = ({props}) => {
           >
         <HStack justifyContent="space-between" alignItems="center" mt={4}>
             <VStack  space={2}>
-                <Text style={{fontWeight:'bold', color:"black", fontSize:12, maxWidth:width/1.5}}>{Title}</Text>
+                {/* <Text style={{fontWeight:'bold', color:"black", fontSize:12, maxWidth:width/1.5}}>{Title}</Text> */}
+                <Text style={{fontWeight:'bold', color:"black", fontSize:12, maxWidth:width/1.5}}>{data.weekDay}: {Date}{', '}{data.startTime}{' to '}{data.endTime}</Text>
                 {/* <View style={{backgroundColor:'#F0E1EB',borderRadius:10, alignSelf:'flex-start'}}>                      
                 </View> */}
-                <Text style={{fontSize:10,color:'#8C8C8C' }}>{Date}{', '}{data.startTime}{' to '}{data.endTime}</Text>
+                {/* <Text style={{fontSize:10,color:'#8C8C8C' }}>{Date}{', '}{data.startTime}{' to '}{data.endTime}</Text> */}
+                <Text style={{fontSize:10,color:'#8C8C8C' }}>{data.liveCaption}</Text>
             </VStack>
             {/* <TouchableOpacity
             style={{borderWidth:1,borderColor:'#395061',borderRadius:10}}
@@ -82,7 +84,9 @@ const LVStarted = ({props}) => {
 
             <TouchableOpacity
                 onPress={() => {
+                  dispatch(setLiveCourseLiveObject(props))
                   props.navigation.navigate('GTStart')
+                  dispatch(setLiveClassDetails(data))
                 }}
             >
             <Icon as={Ionicons} name='chevron-forward-outline' color='#000000' size={5}/>

@@ -4,15 +4,10 @@ import {BaseURL} from '../../StaticData/Variables';
 const GetCourseByCode = async (email, code) => {
   const requestOptions = {
     method: 'GET',
-    // headers:{
-    //   'Accept': 'application/json',
-    //   'Content-Type': 'application/json',
-    //   'x-auth-token':UserD.JWT,
-    // },
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
-      gmailUserType: 'STUDENT',
+      gmailUserType: 'INSTRUCTOR',
       token: email,
     },
   };

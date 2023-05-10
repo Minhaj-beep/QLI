@@ -3,8 +3,8 @@ import React,{useState,useEffect, useRef} from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Icon,Modal,Text, Box,VStack,HStack,Input,FormControl,Button,Link,Heading,Image,Container,Spinner,Spacer,IconButton} from 'native-base';
 import { setLoading } from '../Redux/Features/userDataSlice';
-import { setLoggedIn } from '../Redux/Features/authSlice';
-import { setLogin_Status, setEmail } from '../Redux/Features/loginSlice';
+import { setLoggedIn, setIsLoggedInBefore } from '../Redux/Features/authSlice';
+import { setLogin_Status, setEmail, setIsNotificationReady } from '../Redux/Features/loginSlice';
 import {useDispatch,useSelector} from 'react-redux';
 import CountDown from 'react-native-countdown-component';
 import CountDownTimer from 'react-native-countdown-timer-hooks'
@@ -21,6 +21,7 @@ const AccountSettings = ({navigation}) => {
 
   const GUser = useSelector(state => state.Login.GUser);
   const ProfileD = useSelector(state => state.UserData.profileData);
+  // console.log(ProfileD, '______________Profile Data______________')
   const dispatch = useDispatch();
   const JWT = useSelector(state => state.Login.JWT);
   const OEmail = useSelector(state => state.Login.email);
@@ -397,8 +398,10 @@ const MatchPassword = (mail) =>{
   };
 
   const LogOut = () => {
+    // dispatch(setIsNotificationReady(false))
     dispatch(setLoading(true));
     dispatch(setLoggedIn(false));
+    dispatch(setIsLoggedInBefore(true));
     ClearLocalStorage();
     GSignOut();
     dispatch(setLoading(false));
@@ -1396,7 +1399,11 @@ const MatchPassword = (mail) =>{
                     />
                     <VStack>
                       <Text fontSize="md" style={{fontWeight:'bold'}}>Mobile Number</Text>
-                      <Text fontWeight='500' color="#8C8C8C" style={{maxWidth:width/2.5}}>+919113918441</Text>
+                      {
+                        ProfileD.hasOwnProperty('mobileNumber') ?
+                        <Text fontWeight='500' color="#8C8C8C" style={{maxWidth:width/2.5}}>{ProfileD.mobileNumber}</Text>
+                        : null
+                      }
                     </VStack>
                   </HStack>
 

@@ -1,15 +1,10 @@
 /* eslint-disable no-alert */
 import {BaseURL} from '../../StaticData/Variables';
 
-const GetDemoEnabledCourses = async (email) => {
+const GetDemoEnabledCourses = async (header) => {
   const requestOptions = {
     method: 'GET',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-      gmailUserType: 'INSTRUCTOR',
-      token: email,
-    },
+    headers: header,
   };
   const response = await fetch(
     BaseURL + '/v1/live/course/getDemoEnabledCourses',

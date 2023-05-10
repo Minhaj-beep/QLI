@@ -78,7 +78,7 @@ const AccountActivity = ({navigation}) => {
                 </View>
                 <VStack maxWidth={width*0.76}>
                     <Text style={{color:"#000000", fontWeight:'bold', fontSize:16}}>{act.header}</Text>
-                    <Text style={{color:"#395061", fontSize:13}}>{act.data}</Text>
+                    <Text style={{color:"#395061", fontSize:13}}>{act.data} {act.time ? new Date(act.time).toLocaleString() : null}</Text>
                     {/* <Text style={{color:"#8C8C8C", fontSize:10}}>04 Oct 2021 at 5:01 PM</Text> */}
                 </VStack>
             </HStack>

@@ -10,7 +10,8 @@ const initialState = {
     GUser:false,
     login_Status:false,
     JWT: '',
-    NCount:null
+    NCount:null,
+    isNotificationReady: false,
 }
 
 export const loginSlice = createSlice({
@@ -46,11 +47,14 @@ export const loginSlice = createSlice({
         },
         setNCount:(state, action) => {
             state.NCount = action.payload;
-        }
+        },
+        setIsNotificationReady:(state, action) => {
+            state.isNotificationReady = action.payload;
+        },
     }
 });
 
 
 
-export const { setNCount,setProfileImg,setUserImage,setGUser,setName,setEmail, setPassword, setLogin_Status, resetLoginData, setJWT} = loginSlice.actions;
+export const { setNCount,setProfileImg,setUserImage,setGUser,setName,setEmail, setIsNotificationReady, setPassword, setLogin_Status, resetLoginData, setJWT} = loginSlice.actions;
 export default loginSlice.reducer;

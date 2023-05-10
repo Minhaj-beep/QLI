@@ -40,7 +40,7 @@ const LiveClass = ({navigation}) => {
 
   useEffect(()=>{
     if(endClass !== null){
-      navigation.navigate('Home')
+      navigation.navigate('Tabs', {screen: 'Courses'})
     }
   },[endClass])
 
@@ -76,6 +76,7 @@ const LiveClass = ({navigation}) => {
   }
 
   const onMessage = (data) => {
+    console.log('End class date recived:', data)
     setEndClass(data.nativeEvent.data);
   }
 
@@ -85,7 +86,7 @@ const LiveClass = ({navigation}) => {
           {
             url !== null ?
                 <WebView 
-                  style={{height:'100%', width:'100%', backgroundColor:"red"}} 
+                  style={{height:'100%', width:'100%'}} 
                   source={{ uri: url }} 
                   allowsInlineMediaPlayback={true} 
                   mediaPlaybackRequiresUserAction={false}

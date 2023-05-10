@@ -36,6 +36,11 @@ import DemoClass from '../DemoClass/DemoClass';
 import ViewDemoClass from '../DemoClass/ViewDemoClass';
 import CourseDiscount from '../Discount/CourseDiscount';
 import GoDemoLive from '../DemoClass/GoDemoLive';
+import MyCourses from '../MyCourses/MyCourses';
+import StudentPreview from '../Course/CourseDetails/StudentPreview';
+import MyAssessment from '../MyAssessments/MyAssessments';
+import PurchaseList from '../PurchaseList/PurchaseList';
+import { useSelector } from 'react-redux';
 
 const Stack = createNativeStackNavigator();
 
@@ -239,33 +244,41 @@ const AuthenticatedStack = () => {
         options={{headerShown: false}}
         screenOptionStyle={screenOptionStyle}
       />
+      <Stack.Screen
+        name="MyCourses"
+        component={MyCourses}
+        options={{headerShown: false}}
+        screenOptionStyle={screenOptionStyle}
+      />
+      <Stack.Screen
+        name="StudentPreview"
+        component={StudentPreview}
+        options={{headerShown: false}}
+        screenOptionStyle={screenOptionStyle}
+      />
+      <Stack.Screen
+        name="MyAssessment"
+        component={MyAssessment}
+        options={{headerShown: false}}
+        screenOptionStyle={screenOptionStyle}
+      />
+      <Stack.Screen
+        name="PurchaseList"
+        component={PurchaseList}
+        options={{headerShown: false}}
+        screenOptionStyle={screenOptionStyle}
+      />
     </Stack.Navigator>
   );
 };
 
 const OnBoardingStack = () => {
-  const [isLoggenIn, setIsLoggedIn] = useState(null)
-  const getLoggedIn = async () => {
-    try{
-      let v = await  AsyncStorage.getItem('isLoggedInBefore')
-      if(v !== null){
-        // console.log(v)
-        setIsLoggedIn(v)
-        console.log('===========================AsyncStorage.setItem==================', v)
-      } else {
-        setIsLoggedIn('false')
-        console.log('===========================AsyncStorage.setItem==================', v)
-      }
-    } catch (e){
-      console.log('===========================Error==================', e)
-    }
-  }
-  getLoggedIn()
+  const isLoggedinBefore = useSelector(state => state.Auth.IsLoggedInBefore);
   return (
     <>
       {
-        isLoggenIn !== null ?
-        <Stack.Navigator initialRouteName={isLoggenIn !== 'true' ? "CreateAccount" : "Login"}>
+        !isLoggedinBefore ?
+        <Stack.Navigator initialRouteName={"CreateAccount"}>
           <Stack.Screen
             name="Login"
             component={Login}
@@ -278,7 +291,20 @@ const OnBoardingStack = () => {
             screenOptionStyle={screenOptionStyle}
           />
         </Stack.Navigator>
-        : <></>
+        : 
+        <Stack.Navigator initialRouteName={"Login"}>
+          <Stack.Screen
+            name="Login"
+            component={Login}
+            options={{headerShown: false}}
+          />
+          <Stack.Screen
+            name="CreateAccount"
+            component={CreateAccount}
+            options={{headerShown: false}}
+            screenOptionStyle={screenOptionStyle}
+          />
+        </Stack.Navigator>
       }
     </>
   );

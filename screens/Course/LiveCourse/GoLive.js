@@ -13,6 +13,7 @@ const GoLive = ({navigation}) => {
   const SingleCD = useSelector(state => state.UserData.SingleCD);
   const LiveClassData = useSelector(state => state.Course.LiveCourseLiveObject);
   const courseCode = useSelector(state => state.Course.CurrentLiveCourseCode);
+  const GTD = useSelector(state => state.Course.LiveClassDetails);
   console.log('This is the object: ', courseCode, )
   const BaseURL = useSelector(state => state.UserData.BaseURL)
   const [roomId, setRoomId] = useState([])
@@ -20,7 +21,7 @@ const GoLive = ({navigation}) => {
   console.log(LiveClassData.liveUUID)
 
   useEffect(()=>{
-    // var token = LiveClassData.joinLiveLink.split('?')
+    var token = GTD.joinLiveLink.split('?')
     mediaDevices.getUserMedia({
             audio: true,
             video: true,
@@ -36,8 +37,8 @@ const GoLive = ({navigation}) => {
             console.log("Connected on default Port");
             peer.on("open", (id) => {
                 console.log("join-room", id);
-                setUrl(`https://dev.qlearning.academy/live-room-app/${courseCode}?${LiveClassData.joinLiveLink}`)
-                console.log(`https://dev.qlearning.academy/live-room-app/${courseCode}?${LiveClassData.joinLiveLink}`)
+                setUrl(`https://dev.qlearning.academy/live-room-app/${courseCode}?${token[1]}`)
+                console.log(`https://dev.qlearning.academy/live-room-app/${courseCode}?${token[1]}`)
             });
         })
   }, [])
@@ -59,7 +60,7 @@ const GoLive = ({navigation}) => {
           {
             url !== null ?
                 <WebView 
-                  style={{height:'100%', width:'100%', backgroundColor:"red"}} 
+                  style={{height:'100%', width:'100%'}} 
                   source={{ uri: url }} 
                   allowsInlineMediaPlayback={true} 
                   mediaPlaybackRequiresUserAction={false}

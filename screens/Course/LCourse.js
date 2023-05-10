@@ -19,7 +19,7 @@ const LCourse = ({navigation}) => {
   const liveCourseL = useSelector(state => state.Course.LiveCourses);
   const BaseURL = useSelector(state => state.UserData.BaseURL)
   const [liveCourseData, setLiveCourseData] = useState()
-  console.log(liveCourseL)
+  // console.log(liveCourseL, '___________________LIVE COURSES DATA___________________')
 
   useEffect(()=>{
     if(liveCourseL.length != 0){

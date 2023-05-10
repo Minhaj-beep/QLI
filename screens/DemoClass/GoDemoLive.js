@@ -34,7 +34,7 @@ const GoDemoLive = ({navigation}) => {
 
   useEffect(()=>{
     if(endClass !== null){
-      navigation.navigate('DemoClass')
+      navigation.goBack()
     }
   },[endClass])
 
@@ -42,6 +42,7 @@ const GoDemoLive = ({navigation}) => {
     var token = LiveClassData.instructorLink.split('?')
     var id = LiveClassData._id
     setUrl(`https://dev.qlearning.academy/demo-class-room-app/${id}?${token[1]}`)
+    console.log(`https://dev.qlearning.academy/demo-class-room-app/${id}?${token[1]}`)
     console.log(id, 'and ', token[1], 'and the entire link ', LiveClassData.instructorLink)
     // mediaDevices.getUserMedia({
     //         audio: true,

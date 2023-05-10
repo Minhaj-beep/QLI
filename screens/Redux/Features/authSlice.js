@@ -6,8 +6,10 @@ const initialState = {
   GUser: false,
   Mail: '',
   JWT: '',
+  User_ID: '',
   ProfileData: '',
   ProfileImg: false,
+  IsLoggedInBefore: false,
 };
 
 export const authSlice = createSlice({
@@ -35,6 +37,12 @@ export const authSlice = createSlice({
     setProfileImg: (state, action) => {
       state.ProfileImg = action.payload;
     },
+    setUser_ID: (state, action) => {
+      state.User_ID = action.payload;
+    },
+    setIsLoggedInBefore: (state, action) => {
+      state.IsLoggedInBefore = action.payload;
+    },
   },
 });
 
@@ -49,5 +57,7 @@ export const {
   setLoggedIn,
   setGUser,
   setLoading,
+  setUser_ID,
+  setIsLoggedInBefore
 } = authSlice.actions;
 export default authSlice.reducer;

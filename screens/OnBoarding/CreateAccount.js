@@ -61,7 +61,7 @@ const CreateAccount = ({navigation}) => {
 
   GoogleSignin.configure({
     webClientId:
-      "408533616894-ls53dphrdi4747bcgicoshb1bbdjjhdf.apps.googleusercontent.com"
+      "855618612359-gvf660jb4h9q42d0umjnpmj4va9s3moa.apps.googleusercontent.com"
   });
 
   const [PShow, setPShow] = useState(false);

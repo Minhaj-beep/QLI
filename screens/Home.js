@@ -5,30 +5,86 @@ import { Icon,Text,VStack,HStack,Button,Image,Center,IconButton} from 'native-ba
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AppBar from './components/Navbar';
 import { SetCourseData,setLoading,setProfileData,setTHistory, setTransactionHistory } from './Redux/Features/userDataSlice';
-import { setLogin_Status, setProfileImg,setUserImage,setName,setEmail,setJWT,setNCount } from './Redux/Features/loginSlice';
+import { setUser_ID } from './Redux/Features/authSlice';
+import { setLogin_Status, setProfileImg,setUserImage,setName,setEmail,setJWT,setNCount, setIsNotificationReady } from './Redux/Features/loginSlice';
 import {useDispatch,useSelector} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {setLiveCourses} from './Redux/Features/CourseSlice';
 import { GetWithdrawDashboardData } from './Functions/API/GetWithdrawDashboardData';
+import { LearnerList } from './Functions/API/LearnersList';
+import PushNotification from 'react-native-push-notification';
+import { PushNotificationRegister } from './Functions/API/PushNotificationRegister';
+// import { getApiHeader } from './Functions/GetApiHeader';
 
 const { width, height } = Dimensions.get('window')
 
 
 const Home = ({navigation}) => {
   
+  // const header = getApiHeader()
+  // console.log('______________API Header_____________________', header)
   const dispatch = useDispatch();
   const GUser = useSelector(state => state.Auth.GUser);
+  const User_ID = useSelector(state => state.Auth.User_ID);
+  const email = useSelector(state => state.Auth.Mail);
   const BaseURL = useSelector(state => state.UserData.BaseURL);
   const Name = useSelector(state => state.UserData.profileData);
   const transactionData = useSelector(state => state.UserData.TransactionHistory);
-  console.log(Name, 'Name is this')
   const [NMCount, setNMCount] = useState();
   const [DashData, setDashData] = useState();
+  const [setToken, isSetToken] = useState(false)
   const [appBarLoaded, setAppBarLoaded] = useState(false);
+  const JWT = useSelector(state => state.Login.JWT);
+
+  // if(JWT !== '' && !setToken){
+  //   PushNotification.configure({
+  //     onRegister: function (token) {
+  //       console.log("TOKEN:", token);
+  //       RegisterPushNotificationToken(token)
+  //     },
+  //     onNotification: function (notification) {
+  //       console.log("NOTIFICATION:", notification);
+  //       // notification.finish(PushNotificationIOS.FetchResult.NoData);
+  //     },
+  
+  //     onAction: function (notification) {
+  //       console.log("ACTION:", notification.action);
+  //       console.log("NOTIFICATION:", notification);
+  //     },
+  
+  //     onRegistrationError: function(err) {
+  //       console.error(err.message, err);
+  //     },
+  
+  //     permissions: {
+  //       alert: true,
+  //       badge: true,
+  //       sound: true,
+  //     },
+  //     popInitialNotification: true,
+  //     requestPermissions: true,
+  //   });
+  // }
+
+  // const RegisterPushNotificationToken = async(token) => {
+  //   console.log('_________________PUSH NOTIFICATION REGISTRATION STARTS______________________')
+  //   if(JWT !== '') {
+  //     try {
+  //       const result = await PushNotificationRegister(token, JWT)
+  //       console.log(result)
+  //       isSetToken(true)
+  //     } catch (e) {
+  //       console.log(e)
+  //     }
+  //   }
+  //   console.log('_________________PUSH NOTIFICATION REGISTRATION STARTS______________________')
+  // }
 
   
   useEffect(()=>{
     CheckLogin()
+    getData()
+    // getWithdrawDashboardData(header)
   },[])
   
   const GetProfileD = async email => {
@@ -103,12 +159,6 @@ const Home = ({navigation}) => {
       });
   };
 
-  // })();
-
-  useEffect(()=>{
-    getData()
-  },[])
-
   const GetNotification = (email) =>{
     dispatch(setLoading(true))
     const API = BaseURL+'/v1/notifications/getNotifications'
@@ -153,35 +203,44 @@ const Home = ({navigation}) => {
       const LName = await AsyncStorage.getItem('Name')
       console.log(LEmail, LName)
       if(GUser === true){
+        const LJWT = await AsyncStorage.getItem('JWT')
+        const RJWT = LJWT != null ? JSON.parse(LJWT) : null;
         const REmail = LEmail != null ? JSON.parse(LEmail) : null;
         const RName = LName != null ? JSON.parse(LName) : null;
         
         dispatch(setName(RName));
         dispatch(setEmail(REmail));
         
-        dispatch(setJWT('nojwt'));
+        dispatch(setJWT(RJWT));
         
+        console.log('++++++++++++++++++++++', REmail)
         getCourseCodes(REmail);
         getProfile(REmail);
         getLiveCourse(REmail);
         GetNotification(REmail);
         GetDData(REmail);
+        getWithdrawDashboardData(REmail)
         
         dispatch(setLoading(false));
       }else{
         const LJWT = await AsyncStorage.getItem('JWT')
+        const user_ID = await AsyncStorage.getItem('setUser_ID')
         
         const REmail = LEmail != null ? JSON.parse(LEmail) : null;
         const RName = LName != null ? JSON.parse(LName) : null;
         const RJWT = LJWT != null ? JSON.parse(LJWT) : null;
+        const User_ID = LJWT != null ? JSON.parse(user_ID) : null;
         
+        // console.log('----------------------', User_ID)
         dispatch(setName(RName));
         console.log('Hello')
         dispatch(setEmail(REmail));
         
         dispatch(setJWT(RJWT));
+        dispatch(setUser_ID(User_ID));
+        // dispatch(setIsNotificationReady(true));
         
-        getCourseCodes(REmail);
+        getCourseCodes(RJWT);
         getProfile(REmail);
         getLiveCourse(REmail);
         GetNotification(REmail);
@@ -191,16 +250,16 @@ const Home = ({navigation}) => {
       }      
     } catch(e) {
       dispatch(setLoading(false));
-      console.log('Something went wrong with the local storage')
+      console.log('Something went wrong with the local storage', e)
     }
   }
 
-  const getWithdrawDashboardData = async (email) => {
+  const getWithdrawDashboardData = async (header) => {
     try {
-      const result = await GetWithdrawDashboardData(email)
+      const result = await GetWithdrawDashboardData(header)
       if(result.status === 200){
         dispatch(setTransactionHistory(result.data))
-        console.log(result)
+        console.log('getWithdrawDashboardData: ',result)
       } else {
         console.log('getWithdrawDashboardData failed!', result)
       }
@@ -238,7 +297,7 @@ const Home = ({navigation}) => {
   }
 
   const getLiveCourse = (email) =>{
-    console.log("This is the data ========> ")
+    // console.log("This is the data ========> ")
     const API = BaseURL+'getLiveCoursebyInstructor';
 
     if(email === ''){
@@ -256,7 +315,7 @@ const Home = ({navigation}) => {
       fetch(API, requestOptions)
         .then(response => response.json())
         .then(result => {
-          console.log("This is the data ========> ", result.data)
+          // console.log("This is the data ========> ", result.data)
           dispatch(setLiveCourses(result.data))
           // console.log(result)
         }).catch(error => {
@@ -319,23 +378,29 @@ const Home = ({navigation}) => {
   };
 
 
-  const getCourseCodes = (email) => { 
-    if( email === ''){
-      console.log('Home: Something went wrong, please Login again');
-    }else{
+  const getCourseCodes = (JWT) => { 
+    // if( email === ''){
+    //   console.log('Home: Something went wrong, please Login again');
+    // }else{
+      const header = GUser ? {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        gmailUserType: 'INSTRUCTOR',
+        token: email,
+      } : {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'x-auth-token': User_ID,
+      }
       const requestOptions = {
         method: 'GET',
+        headers:header
         // headers:{
         //   'Accept': 'application/json',
         //   'Content-Type': 'application/json',
-        //   'x-auth-token': Jwt_Token,
+        //   'gmailUserType':'INSTRUCTOR',
+        //   'token':email
         // },
-        headers:{
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'gmailUserType':'INSTRUCTOR',
-          'token':email
-        },
       }
       // console.log(requestOptions);
       fetch(BaseURL+'getCoursebyInstructor', requestOptions)
@@ -344,17 +409,17 @@ const Home = ({navigation}) => {
           if(result.status === 200)
           {
             dispatch(SetCourseData(result.data));
-            // console.log(result.data)
+            console.log(result.data, '________________Get Courses By Instructor_______________')
           }else if(result.status > 200){
-            // alert('Error: ' + result.message);
+            alert('Error: getCourseCodes 1 ' + result.message);
             console.log(result);
           }
           // console.log(result);
         }).catch(error =>{
           console.log(error)
-          // alert('Error: ' + error);
+          alert('Error: getCourseCodes 2' + error);
         })
-    }
+    // }
   };
 
     const AppBarContent = {
@@ -376,7 +441,7 @@ const Home = ({navigation}) => {
            <VStack space={3}>
             <VStack style={styles.DCard} p={5} space={1}>
               <Text fontSize="sm" style={{fontWeight:'bold'}}>Current Balance</Text>
-              <Text fontSize="lg" style={{fontWeight:'bold'}}>₹{transactionData.TotalRevenue}</Text>
+              <Text fontSize="lg" style={{fontWeight:'bold'}}>₹{transactionData.currentBalance}</Text>
               <Button bg="primary.50" rounded={6} mt={3} 
               _pressed={{bg: "#fcfcfc",
                 _text:{color: "#3e5160"}
@@ -415,27 +480,43 @@ const Home = ({navigation}) => {
 
             <VStack style={styles.DCard} p={5} space={1}>
               <Text fontSize="sm" style={{fontWeight:'bold'}}>Total Learners</Text>
-              <Text fontSize="lg" style={{fontWeight:'bold'}}>{DashData && DashData[3].data.count}</Text>
+              <Text fontSize="lg" style={{fontWeight:'bold'}}>{transactionData.totalEnrollment}</Text>
               <HStack justifyContent='space-between' mt={2}>
                 <Text fontWeight='500' color="#8C8C8C">This Month</Text>
-                <Text fontWeight='500' color="#8C8C8C">{DashData && DashData[3].data.thisMonth}</Text>
+                <Text fontWeight='500' color="#8C8C8C">{transactionData.currentMonthEnrollment}</Text>
               </HStack>
               <HStack justifyContent='space-between' mt={1}>
                 <Text color="#8C8C8C">Last Month</Text>
-                <Text color="#8C8C8C">{DashData && DashData[3].data.lastMonth}</Text>
+                <Text color="#8C8C8C">{transactionData.lastMonthEnrollment}</Text>
               </HStack> 
             </VStack>
-
+            
+            {/* Transaction History */}
             <TouchableOpacity
             onPress={()=>navigation.navigate('TransactionHistory')}
             >
-            <VStack style={styles.THCard} p={5} mt={1} mb={4}>
+            <VStack style={styles.THCard} p={5} mt={1} mb={1}>
               <HStack style={{flex: 1,alignItems: 'center'}} justifyContent='space-between'>
                 <HStack style={{flex: 1,alignItems: 'center'}} space={2}>
                 <Image source={require('../assets/THDollar.png')} alt="THDollar" style={styles.ThImg} />
                 <Text fontSize="md" style={{fontWeight:'bold'}}>Transaction History</Text>
                 </HStack>
-                <IconButton style={styles.backbtn} icon={<Icon size="lg" as={Ionicons} name="chevron-forward-outline" color="primary.50"/> } />
+                <IconButton onPress={()=>navigation.navigate('TransactionHistory')} style={styles.backbtn} icon={<Icon size="lg" as={Ionicons} name="chevron-forward-outline" color="primary.50"/> } />
+              </HStack>
+            </VStack>
+            </TouchableOpacity>
+
+            {/* Purchaged history */} 
+            <TouchableOpacity
+            onPress={()=>navigation.navigate('PurchaseList')}
+            >
+            <VStack style={styles.THCard} p={5}mb={4}>
+              <HStack style={{flex: 1,alignItems: 'center'}} justifyContent='space-between'>
+                <HStack style={{flex: 1,alignItems: 'center'}} space={4}>
+                <Image source={require('../assets/checkpad.png')} alt="Purchaged history" style={{height:60, width:50}} />
+                <Text fontSize="md" style={{fontWeight:'bold'}}>Purchase List</Text>
+                </HStack>
+                <IconButton onPress={()=>navigation.navigate('PurchaseList')} style={styles.backbtn} icon={<Icon size="lg" as={Ionicons} name="chevron-forward-outline" color="primary.50"/> } />
               </HStack>
             </VStack>
             </TouchableOpacity>

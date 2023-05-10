@@ -18,7 +18,8 @@ const initialState = {
   LiveClassDetails:'',
   LiveCourseLiveObject:'',
   CurrentLiveCourseCode:null,
-  GoLiveDemoObject: {}
+  GoLiveDemoObject: {},
+  UpcomingClassData: [],
 };
 
 export const courseSlice = createSlice({
@@ -85,6 +86,9 @@ export const courseSlice = createSlice({
     setGoLiveDemoObject:(state, action) =>{
       state.GoLiveDemoObject = action.payload;
     },
+    setUpcomingClassData:(state, action) =>{
+      state.UpcomingClassData = action.payload;
+    },
   },
 });
 
@@ -108,6 +112,7 @@ export const {
   setCurrentLiveCourseCode,
   setCurrentDemoClassObject,
   setCurrentDemoClassCourseCode,
-  setGoLiveDemoObject
+  setGoLiveDemoObject,
+  setUpcomingClassData
 } = courseSlice.actions;
 export default courseSlice.reducer;

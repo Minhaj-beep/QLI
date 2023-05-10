@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View,TouchableOpacity,Dimensions } from 'react-native';
 import React, { useState } from 'react';
 import {VStack,HStack,Divider,Icon, IconButton} from 'native-base';
-import { Ionicons } from 'react-native-vector-icons/Ionicons';
+import  Ionicons  from 'react-native-vector-icons/Ionicons';
 import {useDispatch,useSelector} from 'react-redux';
 import { setLessonData } from '../../Redux/Features/userDataSlice';
 
@@ -43,13 +43,12 @@ const UVCard = ({props}) => {
         <VStack mt={3}>
 
             <HStack justifyContent="space-between" alignItems="center">
-          
                 <VStack  space={1}>
                     <Text style={{fontWeight:'bold', color:"#364b5b", maxWidth:width/1.5}}>{data.chapterName}</Text>
                    {/* {Assessment != true && <Text style={{fontSize: 13,color: '#8C8C8C'}} >{time}</Text>} */}
                 </VStack>
-                <Icon size="lg" as={Ionicons} name="chevron-forward-outline" color="#000000"/>
-        </HStack>
+                <Ionicons  as={Ionicons} size={30} name="ios-arrow-forward-circle-outline" color="#000000"/>
+            </HStack>
             <Divider mx={1} ml={0} mt={4} bg="primary.50"/>
         </VStack>
     </TouchableOpacity>

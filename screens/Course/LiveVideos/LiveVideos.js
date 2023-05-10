@@ -15,10 +15,13 @@ const LiveVideos = ({navigation}) => {
     const BaseURL = useSelector(state => state.UserData.BaseURL)
 
     const [LCData, setLCData] = useState();
-
+    
     useEffect(()=>{
-        getLiveClass(CourseCode)
-    },[])
+        const unsubscribe = navigation.addListener('focus', () => {
+            getLiveClass(CourseCode)
+        });
+        return unsubscribe;
+    },[navigation])
 
     const getLiveClass = (code) =>{
         const API = BaseURL+'getAllLiveClassByCourseCode?courseCode='+CourseCode;

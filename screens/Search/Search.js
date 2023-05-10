@@ -46,10 +46,12 @@ import {
   setSearchT,
 } from '../Redux/Features/CourseSlice';
 import {TextVal} from '../Functions/Validations';
+import { useNavigation } from '@react-navigation/native';
 
 const {width, height} = Dimensions.get('window');
 
-const Search = ({navigation}) => {
+const Search = () => {
+  const navigation = useNavigation()
   const [CData, setCData] = useState(null);
   const [SubCData, setSubCData] = useState(null);
 

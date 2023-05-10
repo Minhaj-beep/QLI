@@ -107,8 +107,9 @@ const Profile = ({navigation}) => {
       setfromTime(selectedDate);
       console.log(selectedDate);
       let time = selectedDate.toLocaleTimeString()
-      console.log(time.slice(0,4))
-      setDFromTime(time.slice(0,4))
+      console.log(time)
+      // setDFromTime(time.slice(0,4))
+      setDFromTime(time)
     }
     setShowFromPicker(false);
   }
@@ -121,7 +122,8 @@ const Profile = ({navigation}) => {
     }else{
       settoTime(selectedDate);
       let time = selectedDate.toLocaleTimeString()
-      setDToTime(time.slice(0,4))
+      // setDToTime(time.slice(0,4))
+      setDToTime(time)
     }
     setShowToPicker(false);
 }
@@ -324,8 +326,31 @@ const Profile = ({navigation}) => {
       PhoneInput.current.focus()
     }
 
+  const convertTo24Hour = (time) => {
+    if (time.indexOf(' ') !== -1) {
+      let timeArr = time.split(":");
+      let hours = parseInt(timeArr[0]);
+      let minutes = timeArr[1];
+      let secondsMeridian = timeArr[2].split(" ");
+      let seconds = secondsMeridian[0];
+      let meridian = secondsMeridian[1].toUpperCase();
+  
+      if (meridian === "PM" && hours < 12) {
+        hours += 12;
+      } else if (meridian === "AM" && hours === 12) {
+        hours -= 12;
+      }
+  
+      let formattedHours = hours < 10 ? "0" + hours : hours;
+  
+      return formattedHours + ":" + minutes;
+    } else {
+      return time
+    }
+  }    
+
   const updateProfile = () => {
-    console.log('saving changes')
+    // console.log('saving changes', DToTime, DFromTime, )
     let CLength = cat.length
     if( ErrAbout === true || Exp === '' || Ahours === '' || firstName === '' || LastName === '' || ErrMN === true || CLength === 0){
       // alert('Please fill the details properly!');
@@ -372,8 +397,8 @@ const Profile = ({navigation}) => {
           yearsOfExperience:Exp,
           availablePerHours:Ahours,
           aboutYou:About,
-          fromTime:DFromTime,
-          toTime:DToTime,
+          fromTime:convertTo24Hour(DFromTime),
+          toTime:convertTo24Hour(DToTime),
           categories:cat,
           facebook:facebook,
           instagram:instagram,
@@ -397,7 +422,7 @@ const Profile = ({navigation}) => {
             console.log(result.data)
           }else if(result.status > 200){
             alert(result.message);
-            console.log(result.message);
+            console.log('Update profile error: ',result.message);
           }
           // console.log(result);
         }).catch(error =>{
@@ -422,6 +447,7 @@ const Profile = ({navigation}) => {
 
         {showFromPicker && (
           <DateTimePicker
+            // is24Hour={true}
             testID="dateTimePicker"
             value={FDate}
             mode={Pmode}
@@ -432,6 +458,7 @@ const Profile = ({navigation}) => {
       {showToPicker && (
           <DateTimePicker
             testID="dateTimePicker"
+            // is24Hour={true}
             value={TDate}
             mode={Pmode}
             onChange={onChangeTo}

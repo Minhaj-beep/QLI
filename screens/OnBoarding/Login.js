@@ -41,6 +41,7 @@ import {
   setGUser,
   setUserData,
   setLoading,
+  setUser_ID
 } from '../Redux/Features/authSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import auth from '@react-native-firebase/auth';
@@ -53,12 +54,14 @@ import { GetAccountDetailsbyMobileNum } from '../Functions/API/GetAccountDetails
 import PhoneInput from 'react-native-phone-number-input'
 import { LoginWithMobileNum } from '../Functions/API/LoginWithMobileNum';
 import Countdown from './components/Countdown';
+import PushNotification from 'react-native-push-notification';
+import { PushNotificationRegister } from '../Functions/API/PushNotificationRegister';
 
 const {width, height} = Dimensions.get('window');
 
 GoogleSignin.configure({
   webClientId:
-    "408533616894-ls53dphrdi4747bcgicoshb1bbdjjhdf.apps.googleusercontent.com"
+    "855618612359-gvf660jb4h9q42d0umjnpmj4va9s3moa.apps.googleusercontent.com"
 });
 
 const Login = ({navigation}) => {
@@ -136,8 +139,10 @@ const Login = ({navigation}) => {
         .then(response => response.json())
         .then(result => {
           if (result.status === 200) {
-            console.log('___________________________________________________')
+            console.log('___________________Login with google data____________________')
             console.log(result)
+            dispatch(setJWT(result.data.userId));
+            EUSavelocal('JWT', JSON.stringify(result.data.userId));
             console.log('___________________________________________________')
             EUSavelocal('Email', JSON.stringify(Gmail));
             EUSavelocal('Name', JSON.stringify(GfullName));
@@ -164,11 +169,15 @@ const Login = ({navigation}) => {
   const [Pass, setPass] = useState('');
   const emailRef = useRef()
   const passRef = useRef()
-  const [ForgotVOtp, setForgotVOtp] = useState();
+  const [ForgotVOtp, setForgotVOtp] = useState('');
 
   const [NewPassword, setNewPassword] = useState();
   const [CNewPassword, setCNewPassword] = useState();
-  const [ForgotEmail, setForgotEmail] = useState();
+  const [ForgotEmail, setForgotEmail] = useState('')
+  const [forgetPassErr, setForgetPassErr] = useState(false)
+  const [forgetPassOtpErr, setForgetPassOtpErr] = useState(false)
+  const forgotPassRef = useRef()
+  const forgotPassOtpRef = useRef()
 
   const [LShow, setLShow] = useState(false);
   const [RPShow, setRPShow] = useState(false);
@@ -186,7 +195,7 @@ const Login = ({navigation}) => {
   const [emailAbs, setemailAbs] = useState('');
 
   const [time, setTime] = useState(10);
-  const timerRef = useRef(time);
+  const timerRef = useRef(time)
 
   const [showForgot, setForgot] = useState(false);
   const [showVerifyf, setVerifyf] = useState(false);
@@ -203,6 +212,48 @@ const Login = ({navigation}) => {
   // const [mobileAccount, setMobileAccount] = useState({})
   const [mobileAccounts, setMobileAccounts] = useState([])
   const [seconds, setSeconds] = useState(0)
+  let pushNotificationToken = null
+
+  useEffect(()=>{
+    PushNotification.configure({
+      onRegister: function (token) {
+        console.log("TOKEN:", token);
+        pushNotificationToken = token
+      },
+      onNotification: function (notification) {
+        console.log("NOTIFICATION:", notification);
+        // notification.finish(PushNotificationIOS.FetchResult.NoData);
+      },
+  
+      onAction: function (notification) {
+        console.log("ACTION:", notification.action);
+        console.log("NOTIFICATION:", notification);
+      },
+  
+      onRegistrationError: function(err) {
+        console.error(err.message, err);
+      },
+  
+      permissions: {
+        alert: true,
+        badge: true,
+        sound: true,
+      },
+      popInitialNotification: true,
+      requestPermissions: true,
+    });
+  },[])
+
+  const RegisterPushNotificationToken = async(token, jwt) => {
+      console.log('_________________PUSH NOTIFICATION REGISTRATION STARTS______________________')
+      try {
+        const result = await PushNotificationRegister(token, jwt)
+        console.log(result)
+      } catch (e) {
+        console.log('_________________PUSH NOTIFICATION REGISTRATION ERROR______________________', e)
+      }
+      console.log('_________________PUSH NOTIFICATION REGISTRATION ENDS______________________')
+  }
 
   useEffect(() => {
     if (parseInt(seconds) === 0) {
@@ -238,10 +289,13 @@ const Login = ({navigation}) => {
         console.log(Object.keys(response.data).length, response, 'responds loginWithMobileNum')
         dispatch(setGUser(false));
         dispatch(setJWT(response.data.userId));
+        dispatch(setUser_ID(response.data.JWT));
         dispatch(setMail(response.data.Email));
+        RegisterPushNotificationToken(pushNotificationToken, response.data.userId)
         EUSavelocal('Email', JSON.stringify(response.data.Email));
         EUSavelocal('Name', JSON.stringify(response.data.Name));
         EUSavelocal('JWT', JSON.stringify(response.data.userId))
+        EUSavelocal('setUser_ID', JSON.stringify(response.data.JWT))
         dispatch(setLoggedIn(true))
         setSelectMobileAccount(false)
       } else {
@@ -371,10 +425,15 @@ const Login = ({navigation}) => {
 
   const handleForgot = async () => {
     dispatch(setLoading(true));
-    if (ErrVFMail === true) {
+    if (ForgotEmail === '') {
       dispatch(setLoading(false));
-      alert('Please enter your email properly');
-    } else {
+      forgotPassRef.current.focus()
+      setForgetPassErr(true)
+    } else if (ErrVFMail === true) {
+      dispatch(setLoading(false));
+      forgotPassRef.current.focus()
+    }
+     else {
       const requestOptions = {
         method: 'POST',
         headers: {
@@ -442,10 +501,14 @@ const Login = ({navigation}) => {
         .then(result => {
           dispatch(setLoading(false));
           if (result.status === 200) {
+            console.log('___________________Login with credencials data____________________')
             console.log(result.data);
+            console.log('___________________________________________________________________')
             dispatch(setGUser(false));
             dispatch(setJWT(result.data.userId));
+            dispatch(setUser_ID(result.data.JWT));
             dispatch(setMail(result.data.Email));
+            RegisterPushNotificationToken(pushNotificationToken, result.data.userId)
 
             // getProfile(result.data.Email)
             // getCourseCodes(result.data.JWT)
@@ -453,6 +516,7 @@ const Login = ({navigation}) => {
             EUSavelocal('Email', JSON.stringify(result.data.Email));
             EUSavelocal('Name', JSON.stringify(result.data.Name));
             EUSavelocal('JWT', JSON.stringify(result.data.userId));
+            EUSavelocal('setUser_ID', JSON.stringify(result.data.JWT));
 
             dispatch(setLoggedIn(true));
           } else if (result.status > 200) {
@@ -483,8 +547,13 @@ const Login = ({navigation}) => {
     dispatch(setLoading(true));
     if (ErrOTP === true) {
       dispatch(setLoading(false));
-      alert('Please enter otp properly');
-    } else {
+      forgotPassOtpRef.current.focus()
+    } else if (ForgotVOtp === ''){
+      dispatch(setLoading(false));
+      forgotPassOtpRef.current.focus()
+      setForgetPassOtpErr(true)
+    } 
+    else {
       const requestOptions = {
         method: 'POST',
         headers: {
@@ -659,7 +728,7 @@ const Login = ({navigation}) => {
                         defaultCode={`${countryCode}`}
                         layout="first"
                         textContainerStyle={{height:50, backgroundColor:"#f3f3f3",}}
-                        codeTextStyle={{height:"150%",}}
+                        codeTextStyle={{height:"150%", alignSelf:"flex-start",}}
                         containerStyle={{width:"100%", backgroundColor:"#f3f3f3", color:"black", height:50, }}
                         onChangeCountry={(country)=>{
                           setCountryCode(country.cca2)
@@ -670,8 +739,8 @@ const Login = ({navigation}) => {
                           }
                         }}
                       />
-                      <View style={{width:"100%",  flexDirection:"row", position:"absolute"}}>
-                        <View style={{width:"40%",  marginLeft:'60%'}}>
+                      <View style={{width:"100%", height:"100%", flexDirection:"row", position:"absolute"}}>
+                        <View style={{width:"40%", height:'100%', marginLeft:'60%'}}>
                           <Input 
                           variant="filled" 
                           width={"100%"}
@@ -687,7 +756,7 @@ const Login = ({navigation}) => {
                           borderRadius={5}
                           keyboardType="numeric" 
                           p={2}
-                          style={{justifyContent:"flex-end"}}
+                          style={{justifyContent:"flex-end",height:"100%"}}
                           />
                         </View>
                       </View>
@@ -923,11 +992,13 @@ const Login = ({navigation}) => {
 
                     <FormControl style={styles.vinput}>
                       <Input
+                        ref={forgotPassRef}
                         variant="filled"
                         bg="#f3f3f3"
                         placeholder="Type your Email"
                         onChangeText={text => {
                           console.log(text);
+                          setForgetPassErr(false)
                           let EVal = EmailVal(text);
                           if (EVal === true) {
                             setForgotEmail(text);
@@ -939,6 +1010,7 @@ const Login = ({navigation}) => {
                         }}
                       />
                     </FormControl>
+                    {forgetPassErr ? <Text style={{color: '#FF0000', fontSize: 9}}>Please enter you email.</Text> : null}
                     {ErrVFMail === true ? (
                       <Text style={{color: '#FF0000', fontSize: 9}}>
                         {' '}
@@ -988,12 +1060,14 @@ const Login = ({navigation}) => {
                     </Heading>
                     <FormControl style={styles.vinput}>
                       <Input
+                        ref={forgotPassOtpRef}
                         autoComplete="off"
                         textContentType="none"
                         variant="filled"
                         bg="#f3f3f3"
                         placeholder="Enter 6 Digit OTP"
                         onChangeText={text => {
+                          setForgetPassOtpErr(false)
                           let ValOtpNum = OtpVal(text);
                           if (ValOtpNum === false) {
                             setErrOTP(true);
@@ -1004,6 +1078,7 @@ const Login = ({navigation}) => {
                         }}
                       />
                     </FormControl>
+                    {forgetPassOtpErr ? <Text style={{color: '#FF0000', fontSize: 9}}>Please enter the OTP!</Text> : null}
                     {ErrOTP === true ? (
                       <Text style={{color: '#FF0000', fontSize: 9}}>
                         {' '}
@@ -1258,17 +1333,3 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-
-
-
-// .then(result => {
-//   // console.log("Response for Request \n", result)
-//   if (result.message === "Token is Not Valid") {
-//       swal({
-//           title: "Please try to re-login",
-//           text: "You are already logged in on another device or browser!",
-//           icon: ErroImg,
-//           className: "error-window",
-//           button: true,
-//       })
-//   } else {

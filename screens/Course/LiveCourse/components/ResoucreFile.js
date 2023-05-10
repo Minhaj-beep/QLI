@@ -1,4 +1,4 @@
-import { StyleSheet, View,TouchableOpacity} from 'react-native';
+import { StyleSheet, View,TouchableOpacity, Linking} from 'react-native';
 import React,{ useCallback } from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { HStack,IconButton,Icon,Link,Text,VStack } from 'native-base';
@@ -21,9 +21,9 @@ const ResoucreFile = ({props}) => {
     //      }   
     //     };
 
-    // const OpenDoc = async(props) =>{
-    //     await Linking.openURL(props);
-    // }
+    const OpenDoc = async(props) =>{
+        await Linking.openURL(props);
+    }
 
     // const OpenDoc = async(props) =>{
     //     await WebBrowser.openBrowserAsync(props);

@@ -13,6 +13,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { GetCart } from '../Functions/API/GetCart';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
 
 const {width, height} = Dimensions.get('window');
 
@@ -24,7 +25,7 @@ const AppBar = ({props}) => {
   const [ProfileImg, setProfileImg] = useState(false);
   //  const ProfileImg = false;
     const NotiCount = useSelector(state => state.Login.NCount);
-  const navigation = props.navigation;
+  const navigation = useNavigation()
 
   // const dispatch = useDispatch()
   // console.log(String(NotiCount).length);
