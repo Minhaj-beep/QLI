@@ -12,6 +12,7 @@ const initialState = {
     JWT: '',
     NCount:null,
     isNotificationReady: false,
+    isDiscountModalOpen: false,
 }
 
 export const loginSlice = createSlice({
@@ -51,10 +52,13 @@ export const loginSlice = createSlice({
         setIsNotificationReady:(state, action) => {
             state.isNotificationReady = action.payload;
         },
+        setIsDiscountModalOpen:(state, action) => {
+            state.isDiscountModalOpen = action.payload;
+        },
     }
 });
 
 
 
-export const { setNCount,setProfileImg,setUserImage,setGUser,setName,setEmail, setIsNotificationReady, setPassword, setLogin_Status, resetLoginData, setJWT} = loginSlice.actions;
+export const {setIsDiscountModalOpen, setNCount,setProfileImg,setUserImage,setGUser,setName,setEmail, setIsNotificationReady, setPassword, setLogin_Status, resetLoginData, setJWT} = loginSlice.actions;
 export default loginSlice.reducer;

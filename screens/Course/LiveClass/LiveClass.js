@@ -61,8 +61,8 @@ const LiveClass = ({navigation}) => {
             console.log("Connected on default Port");
             peer.on("open", (id) => {
                 console.log("join-room", id);
-                setUrl(`https://dev.qlearning.academy/live-room-app/${LiveClassData.liveUUID}?${token[1]}`)
-                console.log(`https://dev.qlearning.academy/live-room-app/${LiveClassData.liveUUID}?${token[1]}`)
+                setUrl(`https://uat.qlearning.academy/live-room-app/${LiveClassData.liveUUID}?${token[1]}`)
+                console.log(`https://uat.qlearning.academy/live-room-app/${LiveClassData.liveUUID}?${token[1]}`)
             });
         })
   }, [])

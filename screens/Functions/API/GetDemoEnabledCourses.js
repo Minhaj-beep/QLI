@@ -7,7 +7,7 @@ const GetDemoEnabledCourses = async (header) => {
     headers: header,
   };
   const response = await fetch(
-    BaseURL + '/v1/live/course/getDemoEnabledCourses',
+    BaseURL + 'v1/live/course/getDemoEnabledCourses',
     requestOptions,
   );
   return response.json();

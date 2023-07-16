@@ -2,6 +2,7 @@ import { View, Text, StyleSheet,Dimensions,TouchableOpacity} from 'react-native'
 import React, { useEffect, useState } from 'react';
 import {HStack, VStack, Image,Center} from 'native-base';
 import {useDispatch,useSelector} from 'react-redux';
+import { AirbnbRating } from 'react-native-ratings';
 
 const { width, height } = Dimensions.get('window')
 const RcCard = ({props}) => {
@@ -69,48 +70,37 @@ useEffect(() => {
           </HStack>
             <HStack justifyContent={'space-between'} alignItems={'center'}>
               <HStack space={2} mt="2">
-                  <HStack space={1}>
-                      <Image
-                          source={require('../../assets/unstar.png')}
-                          alt="rating"
-                          size="3"
-                      />
-                        <Image
-                          source={require('../../assets/unstar.png')}
-                          alt="rating"
-                          size="3"
-                      />
-                        <Image
-                          source={require('../../assets/unstar.png')}
-                          alt="rating"
-                          size="3"
-                      />
-                        <Image
-                          source={require('../../assets/unstar.png')}
-                          alt="rating"
-                          size="3"
-                      />
-                        <Image
-                          source={require('../../assets/unstar.png')}
-                          alt="rating"
-                          size="3"
-                      />
-                  </HStack>
-
-                  <Text style={{fontSize: 10,color: '#000000',fontWeight: '900'}}>
-                    ({data.rating}/{data.ratingCount})
-                  </Text>
-
-                  {/* {data.courseStatus === 'ACTIVE' ? <HStack space={1}> 
-                      <Image
-                      alt="graduate icon"
-                      source={require('../../assets/graduate_student.png')}
-                      size="3" 
-                      />
-                      <Text style={{fontSize: 10,color:"#000000",fontWeight: '900'}}>
-                          7 Learners
-                      </Text>
-                </HStack>:null} */}
+                {
+                    data.hasOwnProperty('rating') ?
+                    <>
+                    <AirbnbRating
+                        count={5}
+                        isDisabled={true}
+                        showRating={false}
+                        defaultRating={`${data.rating}`}
+                        size={10}
+                        value={`${data.rating}`}
+                    />
+                        {
+                            !Number.isInteger(data.rating) ?
+                            <Text style={{fontSize: 11,color: '#000000',fontWeight: '900'}}>{data.rating.toFixed(1)} ({data.ratingCount})</Text>
+                            :
+                            <Text style={{fontSize: 11,color: '#000000',fontWeight: '900'}}>{data.rating} ({data.ratingCount})</Text>
+                        }
+                    </>
+                    : 
+                    <>
+                    <AirbnbRating
+                    count={5}
+                    isDisabled={true}
+                    showRating={false}
+                    defaultRating={0}
+                    size={10}
+                    value={0}
+                    />
+                    <Text style={{fontSize: 14, color: '#364b5b'}}>0 (0)</Text>
+                    </>
+                }
               </HStack>
               {
                 data.isDemo ?

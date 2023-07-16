@@ -1,7 +1,7 @@
-import {StyleSheet, View, Linking, Dimensions} from 'react-native';
+import {StyleSheet, Linking, Dimensions} from 'react-native';
 import React,{useEffect,useState} from 'react';
 import {useSelector,useDispatch} from 'react-redux';
-import {HStack, VStack,Text,Center} from 'native-base';
+import {HStack, VStack,Text, View} from 'native-base';
 import RenderHtml from 'react-native-render-html';
 import { setLoading } from '../../../Redux/Features/authSlice';
 import moment from 'moment';
@@ -22,6 +22,10 @@ const ClassTimes = ({type}) => {
         console.log('Class time tab');
     }
   },[CourseData,email]);
+
+  function capitalizeFirstLetter(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
 
   const GetClassTime = async (mail, code) => {
     try {
@@ -66,28 +70,28 @@ const ClassTimes = ({type}) => {
 
             <Text mt={3} color={'greyScale.800'} fontSize={12} fontWeight={'bold'}>Class Time</Text>
                { ClassT ?
-                <View>
-                    { ClassT.length > 0 ?
-                        <VStack space={1}>
-                        {
-                        ClassT.map((data, index )=>{
-                                const startS = moment(data.startTime, 'hh:mm A').format('hh:mm A');
-                                const startE = moment(data.endTime, 'hh:mm A').format('hh:mm A');
-                            return (
-                                <View key={index}>
-                                   { data.startTime !== '' ?
-                                    <HStack justifyContent={'space-between'} maxW={width / 1.5} ml={4} space={10}>
-                                        <Text  color={'greyScale.800'} fontSize={14} fontWeight={'bold'} mt={1}>{data.day}</Text>
-                                        <Text  color={'primary.100'} fontSize={14} fontWeight={'bold'} mt={1}>{startS} to {startE} </Text>
-                                    </HStack> : null}
-                                </View>
-                            );
-                        })
-                        }
-                        </VStack>
-                        :
-                        <Text  color={'greyScale.800'} fontSize={10}>Yet to add Class Duration</Text>
-                    }
+                  <View backgroundColor={'gray.200'} padding={1} borderRadius={'md'}>
+                  { ClassT.length > 0 ?
+                      <VStack space={1}>
+                      {
+                      ClassT.map((data, index )=>{
+                              const startS = moment(data.startTime, 'hh:mm A').format('hh:mm A');
+                              const startE = moment(data.endTime, 'hh:mm A').format('hh:mm A');
+                          return (
+                              <View key={index}>
+                                { data.startTime !== '' ?
+                                  <HStack justifyContent={'space-between'} marginX={2} space={10}>
+                                      <Text  color={'greyScale.800'} fontSize={14} fontWeight={'bold'} mt={1}>{capitalizeFirstLetter(data.day)}</Text>
+                                      <Text  color={'primary.900'} fontSize={14} fontWeight={'bold'} mt={1}>{startS} to {startE} </Text>
+                                  </HStack> : null}
+                              </View>
+                          );
+                      })
+                      }
+                      </VStack>
+                      :
+                      <Text  color={'greyScale.800'} fontSize={10}>Yet to add Class Duration</Text>
+                  }
                 </View>
                 :
                 <Text  color={'greyScale.800'} fontSize={10}>Yet to add Class Duration</Text>

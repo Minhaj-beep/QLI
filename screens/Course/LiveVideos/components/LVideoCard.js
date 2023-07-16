@@ -187,20 +187,36 @@ const Join = () => {
   const [isStart, setIsStart] = useState(false) 
   var date = data.date.split('T')
 
+  function isCurrentTimeLessThanAddedTime(timeString) {
+    // Create a Date object for the current time
+    const currentTime = new Date();
+  
+    // Convert the input time string to a Date object
+    const inputTime = new Date(timeString);
+  
+    // Add one hour to the input time
+    inputTime.setHours(inputTime.getHours() + 1);
+  
+    // Compare the current time with the added time
+    return currentTime < inputTime;
+  }
+
   //Finding the date in 'Tue, Apr 25, 2023, 10:28 AM' format based on time Zone
   const istOptions = { timeZone: 'Asia/Kolkata', weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true };
   const utcDate = new Date(data.date);
   const istDateTime = utcDate.toLocaleString('en-US', istOptions);
-  console.log(istDateTime, data)
-
+  
   //Find out the secondes left for the live class
   const remainingTime = Date.parse(data.date) - Date.now();
   const sec = Math.floor((remainingTime) / 1000)
 
   //Find out start time, end time and current time
   let now = new Date()
+  now = new Date(now.getTime() + (330 * 60 * 1000))
   const startDate = new Date(data.date)
   const endDate = new Date(data.toDate)
+  const isCurrentLessThanAdded = isCurrentTimeLessThanAddedTime(startDate)
+  console.log('WTFFFFFFFFFFFFF= ', isCurrentLessThanAdded)
 
 
   return(
@@ -216,31 +232,42 @@ const Join = () => {
             date[0] === utc  ?
             <>
               {
-                now >= startDate && now <endDate ?
+                now >= startDate && now < endDate ?
                 <TouchableOpacity
                   style={{borderWidth:1,borderColor:'#395061',borderRadius:10}}
                   onPress={() => {
                     startClass();
                   }}
                 >
+                  
                   <Text style={{fontSize:10, color:"black", paddingLeft:10,paddingRight:10,paddingTop:3,paddingBottom:3}}>
                     Start Live
                   </Text>
                 </TouchableOpacity>
                 :
                 <>
+                {/* {console.log('Khnog uthi goisile: ', now >= startDate, now < endDate)} */}
                   {
                     isStart ?
-                    <TouchableOpacity
-                      style={{borderWidth:1,borderColor:'#395061',borderRadius:10}}
-                      onPress={() => {
-                        startClass();
-                      }}
-                    >
-                      <Text style={{fontSize:10, color:"black", paddingLeft:10,paddingRight:10,paddingTop:3,paddingBottom:3}}>
-                        Start Live
-                      </Text>
-                    </TouchableOpacity>
+                    <>
+                      {
+                        isCurrentLessThanAdded ?
+                          <TouchableOpacity
+                            style={{borderWidth:1,borderColor:'#395061',borderRadius:10}}
+                            onPress={() => {
+                              startClass();
+                            }}
+                          >
+                            <Text style={{fontSize:10, color:"black", paddingLeft:10,paddingRight:10,paddingTop:3,paddingBottom:3}}>
+                              Start Live
+                            </Text>
+                          </TouchableOpacity>
+                        :
+                          <Text style={{fontSize:12, color:"red", paddingLeft:10,paddingRight:10,paddingTop:3,paddingBottom:3}}>
+                            Date Expired
+                          </Text>
+                      }
+                    </>
                     :
                     <CountDownTimer
                       containerStyle={styles.count}

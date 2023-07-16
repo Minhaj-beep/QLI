@@ -63,7 +63,8 @@ const ProfileSettings = props => {
       </TouchableOpacity>
 
       <TouchableOpacity
-        onPress={() => navigation.navigate('MyAssessment')}>
+        // onPress={() => navigation.navigate('MyAssessment')}>
+        onPress={() => navigation.navigate('Tabs', {screen: 'Courses', params: { initialTab: 'AssessmentTab', screenProps: {} }})}>
         <HStack style={styles.ProfileSettings}>
           <Text style={styles.ProfileText}>My Assessments</Text>
           <IconButton

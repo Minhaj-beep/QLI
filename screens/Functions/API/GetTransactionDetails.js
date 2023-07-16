@@ -12,7 +12,7 @@ const GetTransactionDetails = async (email) => {
     },
   };
   const response = await fetch(
-    BaseURL + '/v1/withdraw/getTransactionDetails',
+    BaseURL + 'v1/withdraw/getTransactionDetails',
     requestOptions,
   );
   return response.json();

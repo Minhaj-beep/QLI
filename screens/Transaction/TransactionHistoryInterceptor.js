@@ -24,7 +24,7 @@ import { useNavigation } from '@react-navigation/native';
 
 const { width, height } = Dimensions.get('window')
 
-const TransactionHistoryInterceptor = ({props}) => {
+const TransactionHistoryInterceptor = ({props, pushData}) => {
   const navigation = useNavigation()
   const dispatch = useDispatch()
   const [showModal, setShowModal] = useState(false);
@@ -41,14 +41,14 @@ const TransactionHistoryInterceptor = ({props}) => {
   const [readyFile, setReadyFile] = useState(false)
   const [uploadFile, setUploadFile] = useState({})
   const [chatLoading, setChatLoading] = useState(false)
-  const [isChatOpen, setIsChatOpen] = useState (false)
+  const [isChatOpen, setIsChatOpen] = useState (pushData !== null ? true : false)
   const [ChatText, setChatText] = useState();
-  const [ShowRChat, setRChat] = useState(false);
+  const [ShowRChat, setRChat] = useState( pushData !== null ? true : false);
   const [fileToBinary, setFileToBinary] = useState(null);
   const scrollViewRef = useRef();
   const JWT_token = useSelector(state => state.Login.JWT)
   const Name = useSelector(state => state.UserData.profileData.fullName)
-  const [CourseCode, setCourseCode] = useState(null)
+  const [CourseCode, setCourseCode] = useState(pushData !== null ? pushData._id : null)
 
   useEffect(()=>{
     getAllWithdrawRequest()

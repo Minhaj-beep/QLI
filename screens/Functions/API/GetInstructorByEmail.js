@@ -4,11 +4,6 @@ import {BaseURL} from '../../StaticData/Variables';
 const GetInstructorByEmail = async (email) => {
   const requestOptions = {
     method: 'GET',
-    // headers:{
-    //   'Accept': 'application/json',
-    //   'Content-Type': 'application/json',
-    //   'x-auth-token':UserD.JWT,
-    // },
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
@@ -17,7 +12,7 @@ const GetInstructorByEmail = async (email) => {
     },
   };
   const response = await fetch(
-    BaseURL + 'getInstructorByEmail?email=' + email,
+    BaseURL + 'getInstructorByEmail?instructorEmail=' + email,
     requestOptions,
   );
   return response.json();

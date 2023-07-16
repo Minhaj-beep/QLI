@@ -2,21 +2,24 @@ import React, { useEffect, useRef, useState, useCallback } from "react"
 import CourseDiscountInterceptor from "./CourseDiscountInterceptor"
 import { useIsFocused } from "@react-navigation/native";
 import { socket } from "../StaticData/SocketContext";
+import { useSelector } from "react-redux";
 
-const CourseDiscount = ({navigation}) => {
+const CourseDiscount = ({navigation, route}) => {
+    const pushData = route.params ? route.params.screenProps : null
     const isFocused = useIsFocused();
+    const isDiscountModalOpen = useSelector(state => state.Login.isDiscountModalOpen);
     const [timerId, setTimerId] = useState(null);
     const [messageCountArray, setMessageCountArray] = useState([])
 
     useEffect(()=>{
-        if(isFocused) {
+        if(isFocused, isDiscountModalOpen) {
         console.log('_______________________MOUNTED__________________________')
         onFocus()
         } else {
         console.log('_______________________UNMOUNTED__________________________')
         onBlur()
         }
-    },[isFocused])
+    },[isFocused, isDiscountModalOpen])
 
     useEffect(()=>{
         if(timerId !== null){
@@ -58,7 +61,7 @@ const CourseDiscount = ({navigation}) => {
         });
     }
     
-    return <CourseDiscountInterceptor props={messageCountArray} />
+    return <CourseDiscountInterceptor props={messageCountArray} pushData={pushData} />
 }
 
 export default CourseDiscount

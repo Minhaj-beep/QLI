@@ -41,7 +41,9 @@ import {
   setGUser,
   setUserData,
   setLoading,
-  setUser_ID
+  setUser_ID,
+  setIsLoggedInWithMobile,
+  setTempName
 } from '../Redux/Features/authSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import auth from '@react-native-firebase/auth';
@@ -142,6 +144,8 @@ const Login = ({navigation}) => {
             console.log('___________________Login with google data____________________')
             console.log(result)
             dispatch(setJWT(result.data.userId));
+            EUSavelocal('TempName', JSON.stringify(result.data.name));
+            dispatch(setTempName(result.data.name));
             EUSavelocal('JWT', JSON.stringify(result.data.userId));
             console.log('___________________________________________________')
             EUSavelocal('Email', JSON.stringify(Gmail));
@@ -291,7 +295,9 @@ const Login = ({navigation}) => {
         dispatch(setJWT(response.data.userId));
         dispatch(setUser_ID(response.data.JWT));
         dispatch(setMail(response.data.Email));
+        dispatch(setIsLoggedInWithMobile(true))
         RegisterPushNotificationToken(pushNotificationToken, response.data.userId)
+        EUSavelocal('IsLoggedInWithMobile', JSON.stringify(true));
         EUSavelocal('Email', JSON.stringify(response.data.Email));
         EUSavelocal('Name', JSON.stringify(response.data.Name));
         EUSavelocal('JWT', JSON.stringify(response.data.userId))

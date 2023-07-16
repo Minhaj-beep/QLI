@@ -15,7 +15,7 @@ const SubmitForApproval = async (email, discountId) => {
   };
   console.log(requestOptions);
   const response = await fetch(
-    BaseURL + '/v1/courseDiscount/submitForApproval',
+    BaseURL + 'v1/courseDiscount/submitForApproval',
     requestOptions,
   );
   return response.json();

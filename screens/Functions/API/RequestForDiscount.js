@@ -20,7 +20,7 @@ const RequestForDiscount = async (email, numberOfCoupon, discountPercentage, cou
   };
   console.log(requestOptions);
   const response = await fetch(
-    BaseURL + '/v1/courseDiscount/requestForDiscount',
+    BaseURL + 'v1/courseDiscount/requestForDiscount',
     requestOptions,
   );
   return response.json();

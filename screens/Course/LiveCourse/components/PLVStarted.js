@@ -1,13 +1,13 @@
-import {View, Dimensions, ScrollView, TouchableWithoutFeedback, StyleSheet,TouchableOpacity,Text} from 'react-native';
+import {View, Dimensions, ScrollView, TouchableWithoutFeedback, StyleSheet,TouchableOpacity} from 'react-native';
 import {useState,useEffect,React} from 'react';
-import {Image,VStack, HStack,Icon,Divider,Button } from 'native-base';
+import {Image,VStack, HStack,Icon,Divider,Button, Text } from 'native-base';
 import moment from 'moment';
 
 const { width, height } = Dimensions.get('window');
 
 const PLVStarted = ({props}) => {
 
-  console.log(props)
+  console.log(props, 'Previous classes daata')
   const status = props.liveClassStatus
   const liveClassStartedTime = props.liveClassStartedTime
   const liveClassEndedTime = props.liveClassEndedTime
@@ -38,9 +38,8 @@ const PLVStarted = ({props}) => {
     <VStack>
       <HStack justifyContent="space-between" alignItems="center" mt={4}>
         <VStack  space={2}>
-            <Text style={{fontWeight:'bold', fontSize:12, maxWidth:width/1.5}}>{props.liveCaption}</Text>
-            <Text style={{fontSize:10,color:'#8C8C8C' }}>{Duration}</Text>
-            <Text style={{fontSize:10,color:'#8C8C8C' }}>{SDate}{', '}{props.startTime}{' to '}{props.endTime}</Text>
+            <Text style={{fontWeight:'bold', fontSize:12, maxWidth:width/1.5}}>{props.weekDay}: {SDate}, {props.startTime}{' to '}{props.endTime}</Text>
+            <Text style={{fontSize:10,color:'#8C8C8C' }}>{props.liveCaption}: {Duration}</Text>
             {/* <View style={{backgroundColor:'#F0E1EB',borderRadius:10, alignSelf:'flex-start'}}>
           
             

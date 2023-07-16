@@ -10,6 +10,10 @@ const initialState = {
   ProfileData: '',
   ProfileImg: false,
   IsLoggedInBefore: false,
+  HasAccountDeleted: false,
+  IsLoggedInWithMobile: false,
+  TempName: '',
+
 };
 
 export const authSlice = createSlice({
@@ -43,6 +47,15 @@ export const authSlice = createSlice({
     setIsLoggedInBefore: (state, action) => {
       state.IsLoggedInBefore = action.payload;
     },
+    setHasAccountDeleted: (state, action) => {
+      state.HasAccountDeleted = action.payload;
+    },
+    setIsLoggedInWithMobile: (state, action) => {
+      state.IsLoggedInWithMobile = action.payload;
+    },
+    setTempName: (state, action) => {
+      state.TempName = action.payload;
+    },
   },
 });
 
@@ -58,6 +71,9 @@ export const {
   setGUser,
   setLoading,
   setUser_ID,
-  setIsLoggedInBefore
+  setIsLoggedInBefore,
+  setHasAccountDeleted,
+  setIsLoggedInWithMobile,
+  setTempName
 } = authSlice.actions;
 export default authSlice.reducer;

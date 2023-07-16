@@ -3,7 +3,7 @@ import React,{useState,useEffect, useRef} from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Icon,Modal,Text, Box,VStack,HStack,Input,FormControl,Button,Link,Heading,Image,Container,Spinner,Spacer,IconButton} from 'native-base';
 import { setLoading } from '../Redux/Features/userDataSlice';
-import { setLoggedIn, setIsLoggedInBefore } from '../Redux/Features/authSlice';
+import { setLoggedIn, setIsLoggedInBefore, setHasAccountDeleted } from '../Redux/Features/authSlice';
 import { setLogin_Status, setEmail, setIsNotificationReady } from '../Redux/Features/loginSlice';
 import {useDispatch,useSelector} from 'react-redux';
 import CountDown from 'react-native-countdown-component';
@@ -14,6 +14,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import PhoneInput from 'react-native-phone-number-input'
 import auth from '@react-native-firebase/auth'
+import { setProfileData } from '../Redux/Features/userDataSlice';
+import { DeactivateAccount } from '../Functions/API/DeactiveAccount';
+import { GetInstructorByEmail } from '../Functions/API/GetInstructorByEmail';
+import moment from 'moment';
 
 const { width, height } = Dimensions.get('window')
 
@@ -21,6 +25,7 @@ const AccountSettings = ({navigation}) => {
 
   const GUser = useSelector(state => state.Login.GUser);
   const ProfileD = useSelector(state => state.UserData.profileData);
+  const IsLoggedInWithMobile = useSelector(state => state.Auth.IsLoggedInWithMobile);
   // console.log(ProfileD, '______________Profile Data______________')
   const dispatch = useDispatch();
   const JWT = useSelector(state => state.Login.JWT);
@@ -37,6 +42,7 @@ const AccountSettings = ({navigation}) => {
   }
 
   useEffect(()=> {
+    CheckDeactivate()
     getLogingWithGoogle()
 
     if(ProfileD.mobileNumber.match(/\W/)){
@@ -73,6 +79,8 @@ const AccountSettings = ({navigation}) => {
   const [showDA, setShowDA] = useState(false);
   const [verifyDA, setVerifyDA] = useState(false);
   const [SuccessDA, setSuccessDA] = useState(false);
+  const [deactivated, setDeactivated] = useState(false)
+  const [remainingDays, setRemaingDay] = useState('')
 
   const [NEmail, setNEmail] = useState('');
   const [VCECode, setVCECode] = useState('');
@@ -179,20 +187,92 @@ const MatchPassword = (mail) =>{
       );
       result = await auth().signInWithCredential(credential);
       console.log(result)
+      if (result && result.user) {
+        console.log("OTP verification successful");
+        // Perform actions for correct OTP
+        ChangePhoneNumber();
+      } else {
+        alert("Wrong OTP entered");
+        // Perform actions for wrong OTP
+      }
     } catch (error) {
-      console.log('Error verifying OTP:', error);
+      alert(error);
     }
-    // if(Object.keys(result).length > 0){
-    //   // alert('Done')
-    // } else {
-    //   alert('Please insert the OTP correctly and try again!')
-    // }
-    ChangePhoneNumber()
   };
+
+  function waitToCloseDropdown() {
+    setTimeout(function() {
+      setVerifyAuth(false)
+      submitPhNo();
+    }, 100);
+  }
+
+  const CheckDeactivate = async () => {
+    try {
+      const result = await GetInstructorByEmail(OEmail)
+      if(result.status === 200) {
+        let UserInfo = result.data;
+        setDeactivated(UserInfo.deactivateReqRaised);
+        let CompletionDate = moment(UserInfo.deactivateCompletionDate).format('DD/MM/YYYY, hh:mm a');
+        setRemaingDay(CompletionDate);
+      } else {
+        alert(result)
+        console.log(result)
+      }
+    } catch (e) {
+      alert(e)
+    }
+  }
+
+  const GetProfileD = async email => {
+    if (email === '') {
+      alert('Something is wrong, please login again');
+    } else {
+      const requestOptions = {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          gmailUserType: 'INSTRUCTOR',
+          token: email,
+        },
+      };
+      await fetch(BaseURL + 'getInstructorByEmail?instructorEmail=' + email, requestOptions)
+        .then(response => response.json())
+        .then(result => {
+          if (result.status === 200) {
+            // console.log(result.data.profileImgPath);
+            dispatch(setProfileData(result.data));
+            dispatch(setLoading(false));
+            console.log('Has the number got updated? =>', result)
+          } else if (result.status > 200) {
+            dispatch(setLoading(false));
+            console.log('GetProfileD error 1 : ' + result.message);
+          }
+        })
+        .catch(error => {
+          dispatch(setLoading(false));
+          console.log('GetProfileD error 2 : ' + error);
+        });
+    }
+  };
+
+  function getLastTenCharacters(str) {
+    if (typeof str !== 'string') {
+      return 'Invalid input. Please provide a string.';
+    }
+  
+    if (str.length <= 10) {
+      return str;
+    }
+  
+    return str.slice(-10);
+  }
 
 
   const ChangePhoneNumber = async () => {
-    console.log('Token: ', CEmail)
+    let oldNumber = '+91' + getLastTenCharacters(phNo)
+    let newNumber = '+91' + getLastTenCharacters(newPhNo)
     dispatch(setLoading(true));
       const requestOptions = {
         method: 'POST',
@@ -203,8 +283,8 @@ const MatchPassword = (mail) =>{
           gmailusertype: 'INSTRUCTOR',
         },
         body: JSON.stringify({
-          oldMobileNumber: phNo,
-          newMobileNumber: newPhNo,
+          oldMobileNumber: oldNumber,
+          newMobileNumber: newNumber,
         }),
       };
       await fetch(BaseURL + 'changeMobileNumber', requestOptions)
@@ -212,12 +292,9 @@ const MatchPassword = (mail) =>{
         .then(result => {
           if (result.status === 200) {
             setShowCP(false);
-            // setTime(60);
-            // timerRef.current = 60;
-
-            // setOTPTimer();
             setSuccessCP(true)
             setConfirmChangePhNo(false)
+            GetProfileD(OEmail)
             dispatch(setLoading(false));
             console.log(result);
           } else if (result.status > 200) {
@@ -240,6 +317,7 @@ const MatchPassword = (mail) =>{
       // if(phNo === newPhNo){
       //   alert('Please insert a new phone number')
       // } else {
+        setresend(true)
         sendOtp('+91'+newPhNo)
         setConfirmChangePhNo(true)
         setChangePhNo(false)
@@ -407,6 +485,17 @@ const MatchPassword = (mail) =>{
     dispatch(setLoading(false));
     logOutFromCurrentDevice()
   };
+  const deleteLogOut = () => {
+    // dispatch(setIsNotificationReady(false))
+    ClearLocalStorage();
+    dispatch(setIsLoggedInBefore(false))
+    dispatch(setHasAccountDeleted(true))
+    dispatch(setLoading(true));
+    dispatch(setLoggedIn(false));
+    GSignOut();
+    dispatch(setLoading(false));
+    logOutFromCurrentDevice()
+  };
 
   const ChangePassword = () => {
     if(CPass === '' || NPass === '' || CNPass === '') {
@@ -531,14 +620,12 @@ const MatchPassword = (mail) =>{
        .then(result => {
          if(result.status === 200)
          {
-            ClearLocalStorage()
             setVerifyDA(false)
-            setSuccessDA(true)
-            dispatch(setLoading(false))
+            deactiveAccount()
             console.log(result)
          }else if(result.status > 200){
           dispatch(setLoading(false))
-          //  alert('Error: ' + result.message);
+           alert(result.message);
            console.log(result);
          }
        }).catch(error =>{
@@ -548,6 +635,20 @@ const MatchPassword = (mail) =>{
        })
     }
     dispatch(setLoading(false));
+  }
+
+  const deactiveAccount = async () => {
+    try {
+      const result = await DeactivateAccount(OEmail)
+      if(result.status === 200) {
+        // setSuccessDA(true)
+        CheckDeactivate()
+      } else {
+        alert(result.message)
+      }
+    } catch (e) {
+      alert(e)
+    }
   }
 
   return (
@@ -657,7 +758,7 @@ const MatchPassword = (mail) =>{
                                 setresend(false)
                                 setVerifyAuth(true)
                               }}
-                              containerStyle={{backgroundColor: 'White', borderWidth: 0, width: 40, height: 20}}
+                              containerStyle={{backgroundColor: 'White', borderWidth: 0,  height: 20}}
                               textStyle={{color: '#3e5160', fontSize: 12}}
                             />
                             {/* <CountDown
@@ -687,7 +788,7 @@ const MatchPassword = (mail) =>{
                             }
                             disabled={resend}
                             >
-                            <Text
+                            <Text bottom={1}
                             style={resend === true ? styles.resendtext : styles.resendtextActive}
                             // style={[styles.Verifybtn, {opacity: resend ? 1 : 0.7}]}
                             >
@@ -980,10 +1081,12 @@ const MatchPassword = (mail) =>{
                               _pressed={{bg: "#fcfcfc",
                                 _text:{color: "#3e5160"}
                                 }}
-                                onPress={()=>
-                                  DeleteAccount()}
+                                onPress={()=>{
+                                  setShowDA(false);
+                                  deactiveAccount()
+                                }}
                                 >
-                            Yes, Delete Account
+                            Yes, Deactivate
                             </Button>
                       
                         </HStack>
@@ -1003,7 +1106,7 @@ const MatchPassword = (mail) =>{
                         
                         <VStack>
                         <Text fontSize="md" style={{fontWeight:'bold'}}>Verify it's You</Text>
-                        <Text fontSize={13} color="#8C8C8C">We send 6 Digit OTP to </Text>
+                        <Text fontSize={13} color="#8C8C8C">We send 6 Digit OTP to {CEmail}</Text>
                         </VStack>
                           <FormControl  style={{Width:width/1}}>
                             <Input 
@@ -1033,7 +1136,7 @@ const MatchPassword = (mail) =>{
                                 setresend(false)
                                 setVerifyAuth(true)
                               }}
-                              containerStyle={{backgroundColor: 'White', borderWidth: 0, width: 40, height: 20}}
+                              containerStyle={{backgroundColor: 'White', borderWidth: 0,  height: 20}}
                               textStyle={{color: '#3e5160', fontSize: 12}}
                             />
                             {/* <CountDown
@@ -1061,7 +1164,7 @@ const MatchPassword = (mail) =>{
                             }
                             disabled={resend}
                             >
-                            <Text
+                            <Text bottom={1}
                             // style={styles.resendtext}
                             style={resend === true ? styles.resendtext : styles.resendtextActive}
                             >
@@ -1090,48 +1193,62 @@ const MatchPassword = (mail) =>{
                     </VStack>
                   </Modal.Body>
               </Modal.Content>
-            </Modal>
+            </Modal>  
 
-             <Modal isOpen={SuccessDA} onClose={() => {
-              setSuccessDA(false)
-              dispatch(setLogin_Status(false))
-              }} size="lg">
+            <Modal
+              isOpen={SuccessDA}
+              onClose={() => {
+                setSuccessDA(false);
+                // dispatch(setLoggedIn(false));
+              }}
+              size="lg">
               <Modal.Content maxWidth="700" borderRadius={20}>
                 <Modal.CloseButton />
-                  <Modal.Body>
-                    {/* <VStack> */}
+                <Modal.Body>
+                  {/* <VStack> */}
 
-                      <VStack safeArea flex={1} p={2} w="90%" mx="auto" space={6} justifyContent="center" alignItems="center">
-                        
-                        <Image
-                        source={require('../../assets/delete-user.png')}
-                        resizeMode="contain"
-                        size="md"
-                        alt="successful"
-                        />
+                  <VStack
+                    safeArea
+                    flex={1}
+                    p={2}
+                    w="90%"
+                    mx="auto"
+                    space={6}
+                    justifyContent="center"
+                    alignItems="center">
+                    <Image
+                      source={require('../../assets/delete-user.png')}
+                      resizeMode="contain"
+                      size="md"
+                      alt="successful"
+                    />
 
-                        <Text fontWeight="bold" fontSize="17">Account Successfully Deleted!</Text>
-                          
-                        <Button 
-                          bg="#3e5160"
-                          colorScheme="blueGray"
-                          style={{paddingTop:10,paddingBottom:10,paddingLeft:40, paddingRight:40}}
-                          _pressed={{bg: "#fcfcfc",
-                            _text:{color: "#3e5160"}
-                            }}
-                            onPress={()=>{
-                              dispatch(setLogin_Status(false))
-                              setSuccessDA(false)
-                            }}
-                            >
-                        Create New Account
-                      </Button>
-                      
-                      {/* </VStack> */}
-                    </VStack>
-                  </Modal.Body>
+                    <Text fontWeight="bold" fontSize="17" textAlign={'center'}>
+                      Account Successfully Deleted! If you wish to Re-activate, please raise a ticket in the Help & support!
+                    </Text>
+
+                    <Button
+                      bg="#3e5160"
+                      colorScheme="blueGray"
+                      style={{
+                        paddingTop: 10,
+                        paddingBottom: 10,
+                        paddingLeft: 40,
+                        paddingRight: 40,
+                      }}
+                      _pressed={{bg: '#fcfcfc', _text: {color: '#3e5160'}}}
+                      onPress={() => {
+                        // dispatch(setLoggedIn(false));
+                        setSuccessDA(false);
+                      }}>
+                    Done
+                    </Button>
+
+                    {/* </VStack> */}
+                  </VStack>
+                </Modal.Body>
               </Modal.Content>
-            </Modal>         
+            </Modal>    
 
 {/* Change mobile no popup */}
         <Modal isOpen={changePhNo} onClose={() => setChangePhNo(false)} size="lg">
@@ -1242,26 +1359,27 @@ const MatchPassword = (mail) =>{
                   <Text style={{fontSize: 1}}> </Text>
                 )}
 
-                <HStack style={styles.otpcount} space={2}>
+                <HStack style={styles.otpcount}  space={2}>
                   <View style={styles.count}>
-                    <Text style={{fontSize: 12, color: '#3e5160'}}>
-                      00 : {time}
-                    </Text>
+                  <CountDownTimer
+                    timestamp={60}
+                    timerCallback={()=>{
+                      setresend(false)
+                      setVerifyAuth(true)
+                    }}
+                    containerStyle={{backgroundColor: 'White', borderWidth: 0,  height: 20}}
+                    textStyle={{color: '#3e5160', fontSize: 12}}
+                  />
                   </View>
                   <View style={styles.resendbtn}>
                     <TouchableOpacity
                       onPress={() => {
-                        setVerifyEC(false);
-                        setVerifyAuth(false);
-                        ChangeEmail();
+                        setConfirmChangePhNo(false)
+                        waitToCloseDropdown()
                       }}
                       disabled={resend}>
-                      <Text
-                        style={
-                          resend === true
-                            ? styles.resendtext
-                            : styles.resendtextActive
-                        }
+                      <Text bottom={1}
+                        style={resend === true ? styles.resendtext : styles.resendtextActive}
                         // style={[styles.Verifybtn, {opacity: resend ? 1 : 0.7}]}
                       >
                         Resend
@@ -1335,60 +1453,67 @@ const MatchPassword = (mail) =>{
           <VStack pl={4} pr={4} pt={8}>
               <VStack space={10}>
                 
-               { loginWithGoogle === null && <VStack space={10}>
-                <HStack justifyContent='space-between' alignItems="center">
-                  <HStack  justifyContent='space-between' alignItems="center" space={3}>
-                    <Image
-                      alt='EmailAddress'
-                      source={require('../../assets/ACSettings/MailSettings.png')}
-                      size={12}
-                      resizeMode='contain'
-                    />
-                    <VStack>
-                      <Text fontSize="md" style={{fontWeight:'bold'}}>Email Address</Text>
-                      <Text fontWeight='500' color="#8C8C8C" style={{maxWidth:width/2.5}}>{OEmail}</Text>
-                    </VStack>
-                  </HStack>
+              { loginWithGoogle === null &&  
+               <VStack space={10}>
+                {
+                  IsLoggedInWithMobile === false && 
+                  <>
+                    <HStack justifyContent='space-between' alignItems="center">
+                      <HStack  justifyContent='space-between' alignItems="center" space={3}>
+                        <Image
+                          alt='EmailAddress'
+                          source={require('../../assets/ACSettings/MailSettings.png')}
+                          size={12}
+                          resizeMode='contain'
+                        />
+                        <VStack>
+                          <Text fontSize="md" style={{fontWeight:'bold'}}>Email Address</Text>
+                          <Text fontWeight='500' color="#8C8C8C" style={{maxWidth:width/2.5}}>{OEmail}</Text>
+                        </VStack>
+                      </HStack>
 
-                  <Button
-                  bg="#3e5160"
-                  colorScheme="blueGray"
-                  style={{width:width/5}}
-                  _pressed={{bg: "#fcfcfc",
-                    _text:{color: "#3e5160"}
-                    }}
-                  onPress={()=>setShowCE(true)}
-                  >
-                    Change
-                  </Button>
-                </HStack>
+                      <Button
+                      bg="#3e5160"
+                      colorScheme="blueGray"
+                      style={{width:width/5}}
+                      _pressed={{bg: "#fcfcfc",
+                        _text:{color: "#3e5160"}
+                        }}
+                      onPress={()=>setShowCE(true)}
+                      >
+                        Change
+                      </Button>
+                    </HStack>
+                    <HStack justifyContent='space-between' alignItems="center">
+                      <HStack  justifyContent='space-between' alignItems="center" space={3}>
+                        <Image
+                          alt='EmailAddress'
+                          source={require('../../assets/ACSettings/PasswordSettings.png')}
+                          size={12}
+                          resizeMode='contain'
+                        />
+                        <VStack>
+                          <Text fontSize="md" style={{fontWeight:'bold'}}>Password</Text>
+                          <Text fontWeight='500' color="#8C8C8C" style={{maxWidth:width/2.5}}>***********************</Text>
+                        </VStack>
+                      </HStack>
 
-                <HStack justifyContent='space-between' alignItems="center">
-                  <HStack  justifyContent='space-between' alignItems="center" space={3}>
-                    <Image
-                      alt='EmailAddress'
-                      source={require('../../assets/ACSettings/PasswordSettings.png')}
-                      size={12}
-                      resizeMode='contain'
-                    />
-                    <VStack>
-                      <Text fontSize="md" style={{fontWeight:'bold'}}>Password</Text>
-                      <Text fontWeight='500' color="#8C8C8C" style={{maxWidth:width/2.5}}>***********************</Text>
-                    </VStack>
-                  </HStack>
+                      <Button
+                      bg="#3e5160"
+                      colorScheme="blueGray"
+                      style={{width:width/5}}
+                      _pressed={{bg: "#fcfcfc",
+                        _text:{color: "#3e5160"}
+                        }}
+                        onPress={()=>setShowCP(true)}
+                      >
+                        Change
+                      </Button>
+                    </HStack>
+                  </>
+                }
 
-                  <Button
-                  bg="#3e5160"
-                  colorScheme="blueGray"
-                  style={{width:width/5}}
-                  _pressed={{bg: "#fcfcfc",
-                    _text:{color: "#3e5160"}
-                    }}
-                    onPress={()=>setShowCP(true)}
-                  >
-                    Change
-                  </Button>
-                </HStack>
+
                 <HStack justifyContent='space-between' alignItems="center">
                   <HStack  justifyContent='space-between' alignItems="center" space={3}>
                     <Image
@@ -1419,8 +1544,8 @@ const MatchPassword = (mail) =>{
                     Change
                   </Button>
                 </HStack>
-                </VStack>
-                }
+              </VStack>
+              }
 
                 <HStack justifyContent='space-between' alignItems="center">
                   <HStack  justifyContent='space-between' alignItems="center" space={3}>
@@ -1458,21 +1583,25 @@ const MatchPassword = (mail) =>{
                       resizeMode='contain'
                     />
                     <VStack>
-                      <Text fontSize="md" style={{fontWeight:'bold'}}>Delete Account</Text>
-                      <Text fontWeight='500' color="#8C8C8C" style={{maxWidth:width/2.5}}>Permanently</Text>
+                      <Text fontSize="md" style={{fontWeight:'bold'}}>Deactivate Account</Text>
+                      <Text fontWeight='500' color="red.500" style={{maxWidth:width/2.5}}>
+                      {deactivated ?  'Deactivating on ' + remainingDays : 'Permanently.'}
+                      </Text>
                     </VStack>
                   </HStack>
 
                   <Button
                   bg="#3e5160"
                   colorScheme="blueGray"
-                  style={{width:width/5}}
+                  style={{}}
                   _pressed={{bg: "#fcfcfc",
                     _text:{color: "#3e5160"}
                     }}
-                    onPress={()=> setShowDA(true)}
+                    onPress={()=> {
+                      deactivated ? alert('Deactivation has already been requested!') : setShowDA(true)
+                    }}
                   >
-                    Delete
+                    Deactivate
                   </Button>
                 </HStack>
               </VStack>

@@ -12,7 +12,7 @@ const GetDiscountRequest = async (email) => {
     },
   };
   const response = await fetch(
-    BaseURL + '/v1/courseDiscount/getDiscountRequest',
+    BaseURL + 'v1/courseDiscount/getDiscountRequest',
     requestOptions,
   );
   return response.json();

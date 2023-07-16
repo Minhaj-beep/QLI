@@ -1,6 +1,6 @@
 import {BaseURL} from '../../StaticData/Variables';
 
-const GetActiveCoursebyInstructor = async (email) => {
+const GetActiveDicountCoursebyInstructor = async (email, id) => {
   const requestOptions = {
     method: 'GET',
     headers: {
@@ -11,10 +11,10 @@ const GetActiveCoursebyInstructor = async (email) => {
     },
   };
   const response = await fetch(
-    BaseURL + 'getActiveCoursebyInstructor',
+    BaseURL + 'v1/courseDiscount/getActiveDicountCoursebyInstructor?discountId=' + id,
     requestOptions,
   )
   return response.json();
 };
 
-export {GetActiveCoursebyInstructor};
+export {GetActiveDicountCoursebyInstructor};

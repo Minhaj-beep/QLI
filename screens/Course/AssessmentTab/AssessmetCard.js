@@ -14,8 +14,9 @@ import { setLoading } from '../../Redux/Features/authSlice';
 import RNFetchBlob from 'rn-fetch-blob';
 import { useNavigation } from '@react-navigation/native';
 
-const AssessmentCard = ({props}) => {
+const AssessmentCard = ({props, pushData}) => {
     const navigation = useNavigation()
+    // console.log(pushData.hasOwnProperty('assessmentCode'), 'This is the data')
 
   const email = useSelector(state => state.Login.email);
   const BaseURL = useSelector(state => state.UserData.BaseURL);
@@ -29,9 +30,9 @@ const AssessmentCard = ({props}) => {
   const [readyFile, setReadyFile] = useState(false)
   const [uploadFile, setUploadFile] = useState({})
   const [chatLoading, setChatLoading] = useState(false)
-  const [isChatOpen, setIsChatOpen] = useState (false)
+  const [isChatOpen, setIsChatOpen] = useState (pushData.hasOwnProperty('assessmentCode') ? true : false)
   const [ChatText, setChatText] = useState();
-  const [ShowRChat, setRChat] = useState(false);
+  const [ShowRChat, setRChat] = useState(pushData.hasOwnProperty('assessmentCode') ? true : false);
   const [fileToBinary, setFileToBinary] = useState(null);
   const scrollViewRef = useRef();
   const JWT_token = useSelector(state => state.Login.JWT)
@@ -319,12 +320,12 @@ const AssessmentCard = ({props}) => {
                     navigation.navigate('Assessments')
                 }}>
                 <HStack alignItems="center" space={3}>
-                    <Container bg='#F0E1EB' p={2} borderRadius={50}>
+                    <Container bg='#F0E1EB'  p={2} borderRadius={50}>
                       <Icon size="lg" as={Ionicons} name="clipboard-outline" color="primary.100" />
                     </Container>
                       <VStack>
-                      <HStack alignItems="center" width={width*0.75} justifyContent={'space-between'}>
-                        <Text style={{fontWeight:'bold',maxWidth:240,fontSize: 13}}>{data.assessmentTitle}</Text>
+                      <HStack alignItems="center" width={'80%'} justifyContent={'space-between'}>
+                        <Text noOfLines={4} width={'70%'} style={{fontWeight:'bold', fontSize: 13}}>{data.assessmentTitle}</Text>
                         { data.assessmentStatus === 'INREVIEW' ? <Text style={{fontSize:9,color: '#FFFFFF',backgroundColor:'#ffc107',padding:5, borderRadius:3}}>In Review</Text> : null }
                         { data.assessmentStatus === 'REJECTED' ? <Text style={{fontSize:9,color: '#FFFFFF',backgroundColor:'#ff0000',padding:5, borderRadius:3}}>Rejected</Text> : null }
                         { data.assessmentStatus === 'ACTIVE' ? <Text style={{fontSize:9,color: '#FFFFFF',backgroundColor:'#29d363',padding:5, borderRadius:3}}>Active</Text> : null }
@@ -342,7 +343,7 @@ const AssessmentCard = ({props}) => {
                         </Text>
                       </HStack> */}
                       {/* <Text style={{maxWidth:300,fontSize: 10}}>{data.catogory}  {'>'}  {data.subCategory}</Text> */}
-                        <HStack alignItems="center" width={width*0.75} justifyContent={'space-between'}>
+                        <HStack alignItems="center"  b width={'80%'} justifyContent={'space-between'}>
                           <Text style={{maxWidth:300,fontSize: 10}}>{Object.keys(data.assessmentDetails).length} Questions</Text>
                           {
                             data.assessmentStatus === 'INREVIEW' || data.assessmentStatus === 'REJECTED' || data.assessmentStatus === 'ACTIVE' || data.assessmentStatus === 'BANNED' ?

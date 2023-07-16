@@ -15,7 +15,7 @@ const RaiseWithdrawRequest = async (email, requestedAmount ) => {
     }),
   };
   const response = await fetch(
-    BaseURL + '/v1/withdraw/raiseWithdrawRequest',
+    BaseURL + 'v1/withdraw/raiseWithdrawRequest',
     requestOptions,
   );
   return response.json();

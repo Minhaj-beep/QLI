@@ -9,6 +9,7 @@ import { setLoading } from '../../Redux/Features/userDataSlice';
 import ResoucreFile from './components/ResoucreFile';
 import { setLiveClassDetails } from '../../Redux/Features/CourseSlice';
 import { setUpcomingClassData } from '../../Redux/Features/CourseSlice';
+import moment from 'moment';
 
 
 const { width, height } = Dimensions.get('window')
@@ -54,8 +55,15 @@ const GTStart = ({navigation}) => {
     }
   }
 
+  function compareDateWithCurrent(dateString) {
+    const givenDate = moment(dateString).startOf('day');
+    const currentDate = moment().startOf('day');
+  
+    return givenDate.isSame(currentDate);
+  }
+
   useEffect(()=>{
-    console.log(GTData, '+++++++++++++++++++++++++')
+    // console.log(GTData, '+++++++++++++++++++++++++')
     let dateToday = new Date().toJSON().slice(0, 10)
     dateToday = dateToday.split('-')
     const scheduledDate = GTData.scheduledDate.split('-')
@@ -63,27 +71,27 @@ const GTStart = ({navigation}) => {
     let endTime = GTData.endTime.split(':')
     const hour = new Date().getHours() 
     const minute = new Date().getMinutes() 
-    console.log('==========================')
-    console.log(dateToday[0], scheduledDate[0], dateToday[1], scheduledDate[1], parseInt(dateToday[2]), parseInt(scheduledDate[2]))
-    if(dateToday[0] === scheduledDate[0] && dateToday[1] === scheduledDate[1] && parseInt(dateToday[2]) === parseInt(scheduledDate[2])) {
-      // console.log('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
-      // console.log(`
-      //   hour: ${typeof(hour)}
-      //   minute: ${minute}
-      //   startTime: ${startTime}
-      //   endTime: ${typeof(endTime[0])}
-      // `)
+    // console.log('==========================')
+    // console.log(dateToday[0], scheduledDate[0], dateToday[1], scheduledDate[1], parseInt(dateToday[2]), parseInt(scheduledDate[2]))
+    // console.log('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
+    // console.log(`
+    //   hour: ${hour}
+    //   minute: ${minute}
+    //   startTime: ${startTime}
+    //   endTime: ${endTime[0]}
+    // `)
+    if(dateToday[0] === scheduledDate[0] && dateToday[1] === scheduledDate[1] && compareDateWithCurrent(GTData.scheduledDate)) {
       if(hour > parseInt(startTime[0]) && hour < parseInt(endTime[0])){
-        // console.log('1111111111111111111111111111111111')
+        console.log('1111111111111111111111111111111111')
         setSLBtn(false)
       } else if (hour === parseInt(startTime[0]) && minute > parseInt(startTime[1])){
-        // console.log('2222222222222222222222222222222222')
+        console.log('2222222222222222222222222222222222')
         setSLBtn(false)
       } else if (hour === parseInt(endTime[0]) && minute < parseInt(endTime[1])){
-        // console.log('3333333333333333333333333333333333')
+        console.log('3333333333333333333333333333333333')
         setSLBtn(false)
       }
-      // console.log('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
+      // console.log('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++2')
     }
   },[])
 
@@ -253,6 +261,11 @@ const GTStart = ({navigation}) => {
   } 
   
   const CreateLC = () =>{
+    console.log(GTData.startTime + GTData.scheduledDate, ' Check the format=========================')
+    const datePart = moment(GTData.scheduledDate).format("YYYY-MM-DD")
+    const mergedDateTime = moment(`${datePart} ${GTData.startTime}`)
+    const formattedDateTime = mergedDateTime.toISOString()
+    
     if(LCaption != ''){
       dispatch(setLoading(true))
       var myHeaders = new Headers();
@@ -268,6 +281,7 @@ const GTStart = ({navigation}) => {
       formdata.append("weekDay", GTData.weekDay);
       formdata.append("scheduledDate", GTData.scheduledDate);
       formdata.append("liveClassOrder",Order)
+      formdata.append("scheduledDateTime", formattedDateTime) // 
 
       if(Resource.length != 0){
         Resource.forEach((data, index) =>{

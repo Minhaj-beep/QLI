@@ -45,6 +45,7 @@ import {
   setLoggedIn,
   setGUser,
   setLoading,
+  setHasAccountDeleted,
 } from '../Redux/Features/authSlice';
 import auth from '@react-native-firebase/auth';
 import {
@@ -86,6 +87,7 @@ const CreateAccount = ({navigation}) => {
 
   const [showVmodal, setVmodal] = useState(false);
   const [resend, setresend] = useState(true);
+  const [SuccessDA, setSuccessDA] = useState(useSelector(state => state.Auth.HasAccountDeleted))
 
   const [countrycode, setCountryCode] = useState('IN');
   const [FormattedPhone, setFormattedPhone] = useState();
@@ -487,6 +489,47 @@ const CreateAccount = ({navigation}) => {
           </Modal.Body>
         </Modal.Content>
       </Modal>
+
+      <Modal isOpen={SuccessDA} onClose={() => { 
+        setSuccessDA(false)
+        dispatch(setHasAccountDeleted(false))
+       }} size="lg">
+              <Modal.Content maxWidth="700" borderRadius={20}>
+                <Modal.CloseButton />
+                  <Modal.Body>
+                    {/* <VStack> */}
+
+                      <VStack safeArea flex={1} p={2} w="90%" mx="auto" space={6} justifyContent="center" alignItems="center">
+                        
+                        <Image
+                        source={require('../../assets/delete-user.png')}
+                        resizeMode="contain"
+                        size="md"
+                        alt="successful"
+                        />
+
+                        <Text fontWeight="bold" fontSize="17">Account Successfully Deleted!</Text>
+                          
+                        <Button 
+                          bg="#3e5160"
+                          colorScheme="blueGray"
+                          style={{paddingTop:10,paddingBottom:10,paddingLeft:40, paddingRight:40}}
+                          _pressed={{bg: "#fcfcfc",
+                            _text:{color: "#3e5160"}
+                            }}
+                            onPress={()=>{
+                              setSuccessDA(false)
+                              dispatch(setHasAccountDeleted(false))
+                            }}
+                            >
+                        Create New Account
+                      </Button>
+                      
+                      {/* </VStack> */}
+                    </VStack>
+                  </Modal.Body>
+              </Modal.Content>
+            </Modal>   
 
       <ScrollView>
         <Center w="100%">

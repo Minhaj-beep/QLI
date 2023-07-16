@@ -54,7 +54,7 @@ const Notifications = ({navigation}) => {
   const GetNotification = () =>{
     dispatch(setLoading(true))
     const API = BaseURL+'v1/notifications/getNotifications'
-    // const API = 'https://api.dev.qlearning.academy/v1/notifications/getNotifications'
+    // const API = 'https://api-uat.qlearning.academy/v1/notifications/getNotifications'
     var requestOptions = {
       method:'GET',
       headers:{

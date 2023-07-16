@@ -3,7 +3,9 @@ import AssessmentCard from './AssessmentTab/AssessmetCard';
 import { socket } from '../StaticData/SocketContext';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 
-const AssessmentTab = () => {
+const AssessmentTab = (props) => {
+  const pushData = props.hasOwnProperty('screenProps') ? props.screenProps : null
+  // console.log(pushData)
   const navigation = useNavigation()
   const isFocused = useIsFocused();
   const [timerId, setTimerId] = useState(null);
@@ -18,7 +20,7 @@ const AssessmentTab = () => {
       })
 
       const intervalId = setInterval(() => {
-        console.log('Game on________________________________________________');
+        console.log('Game on________________________________________________111111111111');
         newMessageCount()
       }, 1000);
       setTimerId(intervalId);
@@ -35,11 +37,11 @@ const AssessmentTab = () => {
       clearInterval(timerId);
     };
 
-    if (isFocused) {
-      onFocus();
-    } else {
-      onBlur();
-    }
+    // if (isFocused) {
+    //   onFocus();
+    // } else {
+    //   onBlur();
+    // }
 
     const unsubscribe = navigation.addListener('focus', onFocus);
     const unsubscribeBlur = navigation.addListener('blur', onBlur);
@@ -51,6 +53,16 @@ const AssessmentTab = () => {
     };
   }, [isFocused]);
 
+  useEffect(()=>{
+    if(timerId !== null && !isFocused){
+      clearInterval(timerId)
+      return ()=> {
+        console.log('_______________________UNMOUNTED__________________________')
+        clearInterval(timerId)
+      }
+    }
+  },[timerId, isFocused])
+
   const newMessageCount = (data) => {
     socket.emit("newMessageCount", { ticketType: "ASSESSMENT" }, async (response) => {
       console.log("newMessageCount response===>", response)
@@ -58,7 +70,7 @@ const AssessmentTab = () => {
     });
   }
 
-  return <AssessmentCard props={messageCountArray}/>
+  return <AssessmentCard props={messageCountArray} pushData={pushData} />
 }
 
 export default AssessmentTab

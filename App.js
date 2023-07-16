@@ -1,10 +1,5 @@
 import {
-  StyleSheet,
-  Dimensions,
-  ActivityIndicator,
-  View,
-  StatusBar,
-} from 'react-native';
+  StyleSheet, Dimensions, ActivityIndicator, View, StatusBar, Linking, Platform, PermissionsAndroid } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {NativeBaseProvider, extendTheme, Modal, VStack, Image, Text, Button, ScrollView} from 'native-base';
@@ -17,6 +12,8 @@ import {Provider, useSelector, useDispatch} from 'react-redux';
 import 'react-native-reanimated';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import PushNotification from 'react-native-push-notification'
+import messaging from '@react-native-firebase/messaging';
+import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setLoggedIn, setLoading, setIsLoggedInBefore } from './screens/Redux/Features/authSlice';
 const {width, height} = Dimensions.get('window');
@@ -64,25 +61,24 @@ const RootNavigation = () => {
   const email = useSelector(state => state.Auth.Mail);
   const [timerId, setTimerId] = useState(null);
   const [showModal, setShowModal] = useState(null);
-  // console.log('__________________Google user____________________', User_ID, JWT, email)
 
 
   // Checking every time when the user login status or user type (Google user/ Normal user) changes
   useEffect(()=>{
     if(!GUser && LoggedIn) { // calling a timer if the user is logged in and not logged in with google
-      console.log('_______________________SET TIMER_____________________________')
+      console.log('_______________________SET TIMER_____________________________', !GUser && LoggedIn)
       onFocus()
     }
     else if (!LoggedIn) { // stopping the timer when the user logs out
       console.log('_______________________KILL TIMER_____________________________')
       onBlur()
     }
-  },[GUser, LoggedIn])
+  },[GUser, LoggedIn, User_ID])
 
   // calling a function to check the user if or if not logged in on an another device or browser every after 5 sec
   const onFocus = () => {
     const intervalId = setInterval(() => {
-      // console.log('Game on________________________________________________');
+      // console.log('Game on________________________________________________',  !GUser && LoggedIn);
       checkValidToken()
     }, 5000);
     setTimerId(intervalId);
@@ -104,12 +100,13 @@ const RootNavigation = () => {
         'x-auth-token': User_ID,
       }
     }
-    fetch('https://api.dev.qlearning.academy/getCoursebyInstructor', requestOptions)
+    fetch('https://api-uat.qlearning.academy/getCoursebyInstructor', requestOptions)
     .then(response => response.json())
     .then(result => {
       if(result.message === "Token is Not Valid" && result.status === 500){
         setShowModal(true)
       }
+      // console.log(result)
     })
   }
 
@@ -139,7 +136,7 @@ const RootNavigation = () => {
       }),
     };
 
-    await fetch('https://api.dev.qlearning.academy/logout', requestOptions)
+    await fetch('https://api-uat.qlearning.academy/logout', requestOptions)
     .then(response => response.json())
     .then(result => {
       console.log('Has the user logged out ??????? ', result)
@@ -157,32 +154,33 @@ const RootNavigation = () => {
     setShowModal(false)
   }
 
-  PushNotification.configure({
-    onNotification: function (notification) {
-      console.log("NOTIFICATION:", notification);
-      alert(notification.data.from)
-      let data = JSON.parse(notification.data.app)
-      console.log(data.courseCode, data.type)
-      // notification.finish(PushNotificationIOS.FetchResult.NoData);
-    },
 
-    onAction: function (notification) {
-      console.log("ACTION:", notification.action);
-      console.log("NOTIFICATION:", notification);
-    },
+  // PushNotification.configure({
+  //   onNotification: function (notification) {
+  //     console.log("NOTIFICATION:", notification);
+  //     alert(notification.data.from)
+  //     let data = JSON.parse(notification.data.app)
+  //     console.log(data.courseCode, data.type)
+  //     // notification.finish(PushNotificationIOS.FetchResult.NoData);
+  //   },
 
-    onRegistrationError: function(err) {
-      console.error(err.message, err);
-    },
+  //   onAction: function (notification) {
+  //     console.log("ACTION:", notification.action);
+  //     console.log("NOTIFICATION:", notification);
+  //   },
 
-    permissions: {
-      alert: true,
-      badge: true,
-      sound: true,
-    },
-    popInitialNotification: true,
-    requestPermissions: true,
-  });
+  //   onRegistrationError: function(err) {
+  //     console.error(err.message, err);
+  //   },
+
+  //   // permissions: {
+  //   //   alert: true,
+  //   //   badge: true,
+  //   //   sound: true,
+  //   // },
+  //   // popInitialNotification: true,
+  //   // requestPermissions: true,
+  // });
 
   return (
     <NavigationContainer>
@@ -231,6 +229,89 @@ const RootNavigation = () => {
 };
 
 const App = () => {
+
+  useEffect(() => {
+    checkPermission();
+  }, []);
+
+  const checkPermission = async () => {
+    let permissionStatus = '';
+
+    if (Platform.OS === 'android') {
+      permissionStatus = await checkAndroidPermission();
+    } else if (Platform.OS === 'ios') {
+      permissionStatus = await messaging().hasPermission()
+        ? 'granted'
+        : 'denied';
+    }
+
+    handlePermission(permissionStatus);
+  };
+
+  const checkAndroidPermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.check(
+        PermissionsAndroid.PERMISSIONS.RECEIVE_SMS
+      );
+      return granted ? 'granted' : 'denied';
+    } catch (error) {
+      console.log('Permission check error:', error);
+      return 'unavailable';
+    }
+  };
+
+  const handlePermission = (permissionStatus) => {
+    switch (permissionStatus) {
+      case 'granted':
+        // Permission is granted
+        console.log('Permission is granted');
+        break;
+      case 'denied':
+        // Permission is denied
+        console.log('Permission is denied');
+        // You can request the permission here
+        requestPermission();
+        break;
+      case 'never_ask_again':
+        // Permission is set to "Never ask again"
+        console.log('Permission is set to "Never ask again"');
+        // You can direct the user to the app settings here
+        openAppSettings();
+        break;
+      case 'unavailable':
+        // Permission status is unavailable
+        console.log('Permission status is unavailable');
+        break;
+    }
+  };
+
+  const requestPermission = async () => {
+    if (Platform.OS === 'android') {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.RECEIVE_SMS
+        );
+        handlePermission(granted ? 'granted' : 'denied');
+      } catch (error) {
+        console.log('Permission request error:', error);
+      }
+    } else if (Platform.OS === 'ios') {
+      messaging()
+        .requestPermission()
+        .then((authStatus) => {
+          const permissionStatus = authStatus ? 'granted' : 'denied';
+          handlePermission(permissionStatus);
+        })
+        .catch((error) => {
+          // Handle permission request error
+          console.log('Permission request error:', error);
+        });
+    }
+  };
+
+  const openAppSettings = () => {
+    Linking.openSettings();
+  };
 
   return (
     <Provider store={store}>

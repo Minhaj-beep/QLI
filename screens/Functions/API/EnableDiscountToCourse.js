@@ -16,7 +16,7 @@ const EnbleDiscountToCourse = async (email, list, id) => {
     }),
   };
   const response = await fetch(
-    BaseURL + '/v1/courseDiscount/enableDiscountToCourse',
+    BaseURL + 'v1/courseDiscount/enableDiscountToCourse',
     requestOptions,
   )
   return response.json();

@@ -12,7 +12,7 @@ const GetDemoClassListbyCourseCode = async (email, code) => {
     },
   };
   const response = await fetch(
-    BaseURL + '/v1/live/course/getDemoClassListbyCourseCode?courseCode=' + code,
+    BaseURL + 'v1/live/course/getDemoClassListbyCourseCode?courseCode=' + code,
     requestOptions,
   );
   return response.json();

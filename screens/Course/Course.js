@@ -9,22 +9,29 @@ import LCourse from './LCourse';
 import AssessmentTab from './AssessmentTab';
 import {setIAssessmentList} from '../Redux/Features/CourseSlice';
 import {useDispatch,useSelector} from 'react-redux';
+import { useRoute } from '@react-navigation/native';
 
 const { width, height } = Dimensions.get('window')
 
 const Tab = createMaterialTopTabNavigator();
 
-const Courses = ({navigation}) => {
+const Courses = ({navigation, route}) => {
 
+  const dispatch = useDispatch();
   const email = useSelector(state => state.Auth.GUser);
   const BaseURL = useSelector(state => state.UserData.BaseURL)
+  let selectedTab = route.params && route.params.hasOwnProperty('initialTab') ? route.params.initialTab : 'RCourse'
   // const JWT = useSelector(state => state.Auth.JWT);
   // console.log(JWT)
 
-  const dispatch = useDispatch();
-  // useEffect(() =>{
-  //   GetIAssessment()
-  // },[])
+  useEffect(() => {
+    if (route.params &&  route.params.hasOwnProperty('initialTab')) {
+      // Set the target tab as the initial route
+      navigation.jumpTo( route.params.initialTab);
+    }
+  }, [route.params]);
+
+
   const GetIAssessment = () =>{
     const API = BaseURL+'getAssessmentbyEmail'
     var requestOptions = {
@@ -58,6 +65,8 @@ const Courses = ({navigation}) => {
     RightIcon2:'person'                  
   }
 
+  const screenProps = route.params && route.params.hasOwnProperty('initialTab') ? route.params.screenProps : {};
+
   return (
   <View style={styles.container}>
     <SafeAreaView>
@@ -65,7 +74,7 @@ const Courses = ({navigation}) => {
       <ScrollView nestedScrollEnabled={true}>
         <View>
           <Tab.Navigator
-            initialRouteName="RCourse"
+            initialRouteName={selectedTab}
             screenOptions={{
               tabBarLabelStyle:{fontSize:12, color:'#3e5160', fontWeight:'bold'},
               tabBarStyle:{backgroundColor:'#F3F3F3'},
@@ -74,6 +83,7 @@ const Courses = ({navigation}) => {
               tabBarItemStyle: { width: width / 3 },
             }}
             style={{height:height}}
+            screenProps={screenProps}
           >
             <Tab.Screen 
               name="RCourse" 
@@ -86,10 +96,11 @@ const Courses = ({navigation}) => {
               options={{ tabBarLabel: 'Live Course' }}
             />
             <Tab.Screen 
-              name="AssessmentTab" 
-              component={AssessmentTab}
+              name="AssessmentTab"
               options={{ tabBarLabel: 'Assessment' }}
-            />
+            >
+              {() => <AssessmentTab screenProps={screenProps} />}
+            </Tab.Screen>
           </Tab.Navigator>
         </View>
         </ScrollView>

@@ -22,9 +22,12 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import DocumentPicker, { types } from 'react-native-document-picker'
 import RNFetchBlob from 'rn-fetch-blob';
 import { useNavigation } from "@react-navigation/native";
+import { GetActiveDicountCoursebyInstructor } from "../Functions/API/GetActiveDicountCoursebyInstructor";
+import { setIsDiscountModalOpen } from "../Redux/Features/loginSlice";
 
-const CourseDiscountInterceptor = ({props}) => {
+const CourseDiscountInterceptor = ({props, pushData}) => {
     const navigation = useNavigation()
+    const dispatch = useDispatch()
     const [allDiscounts, setAllDiscounts] = useState([])
     const [viewAddCoupon, setViewAddCoupon] = useState(false)
     const [startOpen, setStartOpen] = useState(false)
@@ -50,15 +53,19 @@ const CourseDiscountInterceptor = ({props}) => {
     const [readyFile, setReadyFile] = useState(false)
     const [uploadFile, setUploadFile] = useState({})
     const [chatLoading, setChatLoading] = useState(false)
-    const [isChatOpen, setIsChatOpen] = useState (false)
+    const [isChatOpen, setIsChatOpen] = useState (pushData !== null ? true : false)
     const [ChatText, setChatText] = useState();
-    const [ShowRChat, setRChat] = useState(false);
+    const [ShowRChat, setRChat] = useState(pushData !== null ? true : false);
     const [fileToBinary, setFileToBinary] = useState(null);
     const scrollViewRef = useRef();
     const JWT_token = useSelector(state => state.Login.JWT)
     const Name = useSelector(state => state.UserData.profileData.fullName)
     // console.log(useSelector(state => state.UserData.profileData))
-    const [CourseCode, setCourseCode] = useState(null)
+    const [CourseCode, setCourseCode] = useState(pushData !== null ? pushData._id : null)
+
+    useEffect(()=>{ // if the enable discount modal is on then we are disconnecting the socket 
+        !enabled ? dispatch(setIsDiscountModalOpen(true)) : dispatch(setIsDiscountModalOpen(false))
+    },[enabled])
 
     // Socket code starts
     useEffect(()=>{
@@ -267,7 +274,7 @@ const CourseDiscountInterceptor = ({props}) => {
             }
         } catch (e) {
             console.log('RequestForDiscount error 2 :', e)
-            alert('Request failed due to server error. Please try again later!')
+            alert(' RequestForDiscount Request failed due to server error. Please try again later!')
         }
     }
 
@@ -304,6 +311,7 @@ const CourseDiscountInterceptor = ({props}) => {
             const result = await GetDiscountRequest(email)
             if(result.status === 200){
                 setAllDiscounts(result.data)
+                // console.log(result.data)
                 // result.data.map((i)=>console.log(i))
             } else {
                 console.log('getAllDiscountRequest failed', result)
@@ -376,7 +384,12 @@ const CourseDiscountInterceptor = ({props}) => {
         } else {
             return (
                 <HStack left={5} space={2}>
-                    <Text left={5} bg="primary.50" onPress={()=>{handleEnableDiscount(data)}} style={{fontSize:11,color: '#FFFFFF', padding:5, borderRadius:3}}>Enable Discount</Text>
+                    {
+                        new Date(data.expiryDate).toJSON().slice(0, 10) < new Date().toJSON().slice(0, 10) ?
+                        <Text left={5} bg="red.500" style={{fontSize:11,color: '#FFFFFF', padding:5, borderRadius:3}}>Expired</Text>
+                        :
+                        <Text left={5} bg="primary.50" onPress={()=>{handleEnableDiscount(data)}} style={{fontSize:11,color: '#FFFFFF', padding:5, borderRadius:3}}>Enable Discount</Text>
+                    }
                     <HStack mr={5}>
                       {
                         getNewMessageCount(data._id) !== null ?
@@ -464,7 +477,38 @@ const CourseDiscountInterceptor = ({props}) => {
 
     const RenderCourses = () => {
         const [isCheckAll, setIsCheckAll] = useState(false)
+        const [loaded, setLoaded] = useState(false)
         const [isCheck, setIsCheck] = useState([])
+
+        useEffect(()=> {
+            getActiveDicountCoursebyInstructor()
+        },[])
+
+        useEffect(()=>{
+            Object.keys(allCourses).length === Object.keys(isCheck).length ? setIsCheckAll(true) : setIsCheckAll(false)
+        },[isCheck])
+
+        const getActiveDicountCoursebyInstructor = async () => {
+            console.log(email, )
+            try {
+                const result = await GetActiveDicountCoursebyInstructor(email, discountId)
+                if(result.status === 200) {
+                    let arr = []
+                    result.data.map((i)=> {
+                        if(i.isDiscountEnable) arr.push(i.courseCode)
+                    })
+                    setIsCheck(arr)
+                } else {
+                    console.log('getActiveDicountCoursebyInstructor error1: ', result)
+                    alert('Something went wrong, please try again!')
+                }
+                setLoaded(true)
+            } catch (e) {
+                console.log('getActiveDicountCoursebyInstructor error2: ', result)
+                alert('Server is down, please try after sometime.')
+                setLoaded(true)
+            }
+        }
 
         const handleApply = async () => {
             if(Object.keys(isCheck).length > 0){
@@ -496,12 +540,12 @@ const CourseDiscountInterceptor = ({props}) => {
         const handleClick = (id, val) => {
             setIsCheck([...isCheck, id]);
             if (!val) {
-              setIsCheck(isCheck.filter(item => item !== id));
+                setIsCheck(isCheck.filter(item => item !== id));
             }
         };
 
         return (
-            Object.keys(allCourses).length > 0 ?
+            Object.keys(allCourses).length > 0 && loaded ?
                 <>
                     <HStack>
                         <FormControl.Label _text={{ bold: true}}>Select All:</FormControl.Label>
@@ -668,6 +712,8 @@ const CourseDiscountInterceptor = ({props}) => {
                     }
                 </Modal.Content>
             </Modal>
+
+            {/* Show and apply discount modal */}
             <Modal isOpen={enabled} onClose={() => setEnabled(false)} size="xl">
               <Modal.Content maxWidth="700" borderRadius={20}>
                 <Modal.CloseButton />
@@ -765,12 +811,13 @@ const CourseDiscountInterceptor = ({props}) => {
                   </Modal.Body>
               </Modal.Content>
             </Modal>
+            
             <View style={{flex:1}}>
                 <ScrollView contentContainerStyle={{bottom:10}}>
                     {
                         Object.keys(allDiscounts).length > 0 ? 
                             allDiscounts.map((data, index)=>{
-                                // console.log(new Date(data.startDate).toJSON().slice(0, 10) < new Date(data.expiryDate).toJSON().slice(0, 10))
+                                // console.log(new Date(data.expiryDate).toJSON().slice(0, 10) < new Date().toJSON().slice(0, 10))
                                 return (
                                     <TouchableOpacity key={index} onPress={()=>{}} style={styles.CourseCard}>
                                         <HStack justifyContent={'space-between'} paddingBottom={3} alignItems={'center'}>

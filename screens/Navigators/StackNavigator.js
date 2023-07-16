@@ -40,6 +40,12 @@ import MyCourses from '../MyCourses/MyCourses';
 import StudentPreview from '../Course/CourseDetails/StudentPreview';
 import MyAssessment from '../MyAssessments/MyAssessments';
 import PurchaseList from '../PurchaseList/PurchaseList';
+import AssessmentsStudentPreview from '../Course/CourseDetails/components/AssessmentsStudentPreview';
+import Promotion from '../PushNotificationScreens/Promotion';
+import Subscription from '../PushNotificationScreens/Subscription';
+import CourseCompletion from '../PushNotificationScreens/CourseCompletion';
+import ViewCourse from '../PushNotificationScreens/ViewCourse';
+
 import { useSelector } from 'react-redux';
 
 const Stack = createNativeStackNavigator();
@@ -265,6 +271,36 @@ const AuthenticatedStack = () => {
       <Stack.Screen
         name="PurchaseList"
         component={PurchaseList}
+        options={{headerShown: false}}
+        screenOptionStyle={screenOptionStyle}
+      />
+      <Stack.Screen
+        name="AssessmentsStudentPreview"
+        component={AssessmentsStudentPreview}
+        options={{headerShown: false}}
+        screenOptionStyle={screenOptionStyle}
+      />
+      <Stack.Screen
+        name="Promotion"
+        component={Promotion}
+        options={{headerShown: false}}
+        screenOptionStyle={screenOptionStyle}
+      />
+      <Stack.Screen
+        name="Subscription"
+        component={Subscription}
+        options={{headerShown: false}}
+        screenOptionStyle={screenOptionStyle}
+      />
+      <Stack.Screen
+        name="CourseCompletion"
+        component={CourseCompletion}
+        options={{headerShown: false}}
+        screenOptionStyle={screenOptionStyle}
+      />
+      <Stack.Screen
+        name="ViewCourse"
+        component={ViewCourse}
         options={{headerShown: false}}
         screenOptionStyle={screenOptionStyle}
       />

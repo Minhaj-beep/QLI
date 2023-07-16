@@ -11,7 +11,7 @@ const GetAllWithdrawRequest = async (email) => {
     },
   };
   const response = await fetch(
-    BaseURL + '/v1/withdraw/getAllWithdrawRequest',
+    BaseURL + 'v1/withdraw/getAllWithdrawRequest',
     requestOptions,
   )
   return response.json();

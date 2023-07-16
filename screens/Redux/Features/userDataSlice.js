@@ -16,7 +16,7 @@ BankData:[],
 SingleBD:'',
 THistory:'',
 TransactionHistory: {},
-BaseURL:'https://api.dev.qlearning.academy/'
+BaseURL:'https://api-uat.qlearning.academy/'
 }
 
 export const userDataSlice = createSlice ({

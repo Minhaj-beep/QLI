@@ -25,6 +25,7 @@ import RNFetchBlob from 'rn-fetch-blob';
 import { GetLearnersList } from '../../Functions/API/GetLearnersList';
 import { GetReview } from '../../Functions/API/GetReview';
 import { useNavigation } from '@react-navigation/native';
+import { AirbnbRating } from 'react-native-ratings';
 
 
 const { width, height } = Dimensions.get('window');
@@ -542,7 +543,12 @@ const getCourseOverview = (courseCode) =>{
        <VStack key={index} mt={4}>
          <HStack space={2} style={styles.chatTile}>
            <Container>
-             <Image source={require('../../../assets/profile.png')} alt="profile" size={10} rounded={20}/>
+              {
+                RD.hasOwnProperty('studentImage') ? 
+                <Image source={{uri: RD.studentImage}} alt="profile" size={10} rounded={20}/>
+                :
+                <Image source={require('../../../assets/personIcon.png')} alt="profile" size={10} rounded={20}/>
+              }
            </Container>
            <VStack space={1}>
              <HStack justifyContent={'space-between'} width={width / 1.4}>
@@ -800,36 +806,37 @@ const getCourseOverview = (courseCode) =>{
           <Text style={{fontSize: 15,color: '#000000',fontWeight: 'bold'}}>{currencyType} {SingleCD.fee}</Text>
           <HStack space={2} justifyContent={'space-between'} mt="2" alignItems="center">
             <HStack space={2} alignItems="center">
-                <HStack space={1}>
-                <Image
-                    source={require('../../../assets/star.png')}
-                    alt="rating"
-                    size="3"
-                />
-                  <Image
-                    source={require('../../../assets/star.png')}
-                    alt="rating"
-                    size="3"
-                />
-                  <Image
-                    source={require('../../../assets/star.png')}
-                    alt="rating"
-                    size="3"
-                />
-                  <Image
-                    source={require('../../../assets/unstar.png')}
-                    alt="rating"
-                    size="3"
-                />
-                  <Image
-                    source={require('../../../assets/unstar.png')}
-                    alt="rating"
-                    size="3"
-                />
-                </HStack>
-            <Text style={{fontSize: 14,color: '#364b5b'}}>
-              5.0(150)
-            </Text>
+              {
+                  SingleCD.hasOwnProperty('rating') ?
+                  <>
+                  <AirbnbRating
+                      count={5}
+                      isDisabled={true}
+                      showRating={false}
+                      defaultRating={`${SingleCD.rating}`}
+                      size={10}
+                      value={`${SingleCD.rating}`}
+                  />
+                      {
+                          !Number.isInteger(SingleCD.rating) ?
+                          <Text style={{fontSize: 14, color: '#364b5b'}}>{SingleCD.rating.toFixed(1)} ({SingleCD.ratingCount})</Text>
+                          :
+                          <Text style={{fontSize: 14, color: '#364b5b'}}>{SingleCD.rating} ({SingleCD.ratingCount})</Text>
+                      }
+                  </>
+                  : 
+                  <>
+                  <AirbnbRating
+                  count={5}
+                  isDisabled={true}
+                  showRating={false}
+                  defaultRating={0}
+                  size={10}
+                  value={0}
+                  />
+                  <Text style={{fontSize: 14, color: '#364b5b'}}>0 (0)</Text>
+                  </>
+              }
             <Text onPress={()=>setStudList(true)} style={{fontSize: 15,color: '#364b5b',fontWeight: 'bold',paddingLeft:1}}>
               View Reviews
             </Text>
@@ -1026,39 +1033,9 @@ const getCourseOverview = (courseCode) =>{
                   contentWidth={width/3}
                   source={OverviewSource}
                   baseStyle={{color:'#000'}}
-                //   renderersProps={renderersProps}
-                  // onLinkPress={(evt, href) => { Linking.openURL(href) }}
                 />
               </TouchableOpacity>
             </VStack>
-            {/* <ScrollView
-                style={{height: height/3}} 
-                nestedScrollEnabled={true}
-                showsHorizontalScrollIndicator={true}
-                > */}
-            {/* <Text style={{fontSize: 13,color: '#000000'}}> */}
-              {/* {Overview.courseOverview}                 */}
-             
-              {/* <View style={{zIndex:5}}>
-              <RenderHtml
-                contentWidth={width/3}
-                source={{html: SingleCD.courseOverview}}
-                tagsStyles={tagsStyles} 
-                // renderersProps={renderersProps}
-                // onLinkPress={(evt, href) => { Linking.openURL(href) }}
-                />
-                </View> */}
-             
-                {/* <WebView 
-                  originWhitelist={['*']}
-                  source={OverviewSource}
-                  style={{minHeight:height/5, zIndex:5}}
-                /> */}
-               
-
-              {/* {"\n"} */}
-              {/* </Text> */}
-            {/* </ScrollView> */}
           </CollapsibleView>
 
           <CollapsibleView 

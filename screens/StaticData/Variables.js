@@ -1,4 +1,5 @@
-const BaseURL = 'https://api.dev.qlearning.academy/';
+// const BaseURL = 'https://api.dev.qlearning.academy/';
+const BaseURL = 'https://api-uat.qlearning.academy/';
 const RAZORPAY_API_KEY = "rzp_test_EI6r8BZdNAcrUq";
 const RAZORPAY_API_KEY_2 = "rzp_test_ezVfwUzLum4wAY";
 

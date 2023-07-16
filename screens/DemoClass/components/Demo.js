@@ -25,7 +25,9 @@ const Demo = ({navigation}) => {
             const result = await GetDemoEnabledCourses(header)
             if(result.status === 200) {
                 setAllData(result.data)
+                console.log(result)
             } else {
+                alert(result.message)
                 console.log('getDemoEnabledCourses error1 :', result)
             }
         } catch (e) {

@@ -74,14 +74,14 @@ const LCourse = ({navigation}) => {
           if(result.status === 200)
           {
             const over = result.data[0]
-            // console.log(over);
+            // console.log(over, '======================Whst wrong');
             dispatch(setCCOverview(over));
           }else if(result.status > 200){
             // alert('Error: ' + result.message);
-            console.log(result.message);
+            console.log(result.message, 'getCourseOverview errror 1');
           }
         }).catch(error =>{
-          console.log(error)
+          console.log(error, 'getCourseOverview error 2')
           // alert('Error: ' + error);
         })
     }
@@ -98,15 +98,17 @@ const LCourse = ({navigation}) => {
         <View key={index}>
           <TouchableOpacity style={styles.LcCard}
             onPress={()=>{
-              dispatch(setSingleLiveCourse(data))
-              console.log('helooooooooooooooo: ', Object.keys(data.assesmentList).length)
-              dispatch(setLiveAssessmentList(data.assesmentList))
-              console.log('data ==================>', Object.keys(data.assesmentList).length, ' assesment for class code ', data.courseCode)
-              getCourseOverview(data.courseCode)
-              // data.assesmentList.map((i)=>{
-              //   console.log('data ==================>', i.assessmentDetails)
-              // })
-              navigation.navigate('LCourseDetails')
+              if(!data.isExpired){
+                dispatch(setSingleLiveCourse(data))
+                console.log('helooooooooooooooo: ', Object.keys(data.assesmentList).length)
+                dispatch(setLiveAssessmentList(data.assesmentList))
+                console.log('data ==================>', Object.keys(data.assesmentList).length, ' assesment for class code ', data.courseCode)
+                getCourseOverview(data.courseCode)
+                // data.assesmentList.map((i)=>{
+                //   console.log('data ==================>', i.assessmentDetails)
+                // })
+                navigation.navigate('LCourseDetails')
+              }
             }}
           >
               <LcCard props={courseD}/>

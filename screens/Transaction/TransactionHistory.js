@@ -3,7 +3,9 @@ import { useIsFocused } from '@react-navigation/native';
 import { socket } from "../StaticData/SocketContext";
 import TransactionHistoryInterceptor from "./TransactionHistoryInterceptor";
 
-const TransactionHistory = ({navigation}) => {
+const TransactionHistory = ({navigation, route}) => {
+  const pushData = route.params ? route.params.screenProps : null
+  console.log(route.params)
   const isFocused = useIsFocused();
   const [timerId, setTimerId] = useState(null);
   const [messageCountArray, setMessageCountArray] = useState([])
@@ -58,7 +60,7 @@ const TransactionHistory = ({navigation}) => {
     });
   }
 
-  return <TransactionHistoryInterceptor props={messageCountArray} />
+  return <TransactionHistoryInterceptor props={messageCountArray} pushData={pushData} />
 }
 
 export default TransactionHistory

@@ -23,6 +23,7 @@ import RNFetchBlob from 'rn-fetch-blob';
 import { GetLearnersList } from '../../Functions/API/GetLearnersList';
 import { GetReview } from '../../Functions/API/GetReview';
 import { useNavigation } from '@react-navigation/native';
+import { AirbnbRating } from 'react-native-ratings';
 
 const RecordedCorseDetails = ({props}) => {
   const dispatch = useDispatch()
@@ -379,7 +380,12 @@ const requestDemoClass = async () => {
       <VStack key={index} mt={4}>
         <HStack space={2} style={styles.chatTile}>
           <Container>
-            <Image source={require('../../../assets/profile.png')} alt="profile" size={10} rounded={20}/>
+            {
+              RD.hasOwnProperty('studentImage') ? 
+              <Image source={{uri: RD.studentImage}} alt="profile" size={10} rounded={20}/>
+              :
+              <Image source={require('../../../assets/personIcon.png')} alt="profile" size={10} rounded={20}/>
+            }
           </Container>
           <VStack space={1}>
             <HStack justifyContent={'space-between'} width={width / 1.4}>
@@ -618,39 +624,40 @@ const requestDemoClass = async () => {
           <Text style={{fontSize: 15,color: '#000000',fontWeight: 'bold'}}>{currencyType} {SingleCD.fee}</Text>
           <HStack space={2} justifyContent={'space-between'} mt="2" alignItems="center">
             <HStack space={2} alignItems="center">
-                <HStack space={1}>
-                <Image
-                    source={require('../../../assets/star.png')}
-                    alt="rating"
-                    size="4"
-                />
-                  <Image
-                    source={require('../../../assets/star.png')}
-                    alt="rating"
-                    size="4"
-                />
-                  <Image
-                    source={require('../../../assets/star.png')}
-                    alt="rating"
-                    size="4"
-                />
-                  <Image
-                    source={require('../../../assets/unstar.png')}
-                    alt="rating"
-                    size="4"
-                />
-                  <Image
-                    source={require('../../../assets/unstar.png')}
-                    alt="rating"
-                    size="4"
-                />
-                </HStack>
-            <Text style={{fontSize: 15,color: '#364b5b'}}>
-              5.0(150)
-            </Text>
-            <Text onPress={()=>setStudList(true)} style={{fontSize: 15,color: '#364b5b',fontWeight: 'bold',paddingLeft:1}}>
-              View Reviews
-            </Text>
+              {
+                  SingleCD.hasOwnProperty('rating') ?
+                  <>
+                  <AirbnbRating
+                      count={5}
+                      isDisabled={true}
+                      showRating={false}
+                      defaultRating={`${SingleCD.rating}`}
+                      size={15}
+                      value={`${SingleCD.rating}`}
+                  />
+                      {
+                          !Number.isInteger(SingleCD.rating) ?
+                          <Text style={{fontSize: 14, color: '#364b5b'}}>{SingleCD.rating.toFixed(1)} ({SingleCD.ratingCount})</Text>
+                          :
+                          <Text style={{fontSize: 14, color: '#364b5b'}}>{SingleCD.rating} ({SingleCD.ratingCount})</Text>
+                      }
+                  </>
+                  : 
+                  <>
+                  <AirbnbRating
+                  count={5}
+                  isDisabled={true}
+                  showRating={false}
+                  defaultRating={0}
+                  size={10}
+                  value={0}
+                  />
+                  <Text style={{fontSize: 14, color: '#364b5b'}}>0 (0)</Text>
+                  </>
+              }
+              <Text onPress={()=>setStudList(true)} style={{fontSize: 15,color: '#364b5b',fontWeight: 'bold',paddingLeft:1}}>
+                View Reviews
+              </Text>
             </HStack>
             {/* {SingleCD.courseStatus === 'ACTIVE' ? <TouchableOpacity
             onPress={()=>setStudList(true)}

@@ -8,6 +8,7 @@ import WebView from 'react-native-webview';
 const { width, height } = Dimensions.get('window')
 
 const GoLive = ({navigation}) => {
+  const [endClass, setEndClass] = useState(null)
   const email = useSelector(state => state.Login.email);
   const name = useSelector(state => state.Login.Name);
   const SingleCD = useSelector(state => state.UserData.SingleCD);
@@ -19,6 +20,12 @@ const GoLive = ({navigation}) => {
   const [roomId, setRoomId] = useState([])
   const [url, setUrl] = useState(null)
   console.log(LiveClassData.liveUUID)
+
+  useEffect(()=>{
+    if(endClass !== null){
+      navigation.navigate('Tabs', {screen: 'Courses'})
+    }
+  },[endClass])
 
   useEffect(()=>{
     var token = GTD.joinLiveLink.split('?')
@@ -37,8 +44,8 @@ const GoLive = ({navigation}) => {
             console.log("Connected on default Port");
             peer.on("open", (id) => {
                 console.log("join-room", id);
-                setUrl(`https://dev.qlearning.academy/live-room-app/${courseCode}?${token[1]}`)
-                console.log(`https://dev.qlearning.academy/live-room-app/${courseCode}?${token[1]}`)
+                setUrl(`https://uat.qlearning.academy/live-room-app/${courseCode}?${token[1]}`)
+                console.log(`https://uat.qlearning.academy/live-room-app/${courseCode}?${token[1]}`)
             });
         })
   }, [])
@@ -49,6 +56,11 @@ const GoLive = ({navigation}) => {
     ArrowVisibility: true,
     RightIcon1:'notifications-outline',
     RightIcon2:'person'                  
+  }
+
+  const onMessage = (data) => {
+    console.log('End class date recived:', data)
+    setEndClass(data.nativeEvent.data);
   }
 
   return (
@@ -69,6 +81,7 @@ const GoLive = ({navigation}) => {
                   allowsAirPlayForMediaPlayback={true}
                   startInLoadingState
                   scalesPageToFit
+                  onMessage={onMessage}
                   javaScriptEnabled={true}
                   userAgent={'Mozilla/5.0 (Linux; An33qdroid 10; Android SDK built for x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.185 Mobile Safari/537.36'}
                 />

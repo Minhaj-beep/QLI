@@ -1,5 +1,5 @@
 import React,{ Component } from 'react';
-import { IconButton,Icon,Text,HStack,Image } from 'native-base';
+import { IconButton,Icon,Text,HStack,Image, StatusBar } from 'native-base';
 import {View, Dimensions,StyleSheet,TouchableOpacity} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -11,9 +11,9 @@ const MessageAppBar = (props) => {
   // console.log(props.props.navigation);
   const navigation = props.props.navigation;
   return (
-    <SafeAreaView>
-      <View style={{overflow: 'hidden', paddingBottom: 5 }}>
-      <HStack style={styles.container} mt={1} space={2}>
+      <View style={{overflow: 'hidden', }}>
+        <StatusBar animated={true} backgroundColor="#FFFFFF" barStyle="dark-content" />
+      <HStack style={styles.container} paddingY={3} space={2}>
           { 
             AppBarData.props.ArrowVisibility && 
             <IconButton
@@ -22,17 +22,32 @@ const MessageAppBar = (props) => {
               icon={<Icon size="lg" as={Ionicons} name="arrow-back" color="primary.50"/> }
             /> 
           }
-          <Image source={require('../../../assets/chat_person.png')} alt='person1' style={{ width:60, height:60}}/>
+          {
+          AppBarData.props.RightIcon2 !== null ?
+            <Image 
+              source={{uri: AppBarData.props.RightIcon2}}
+              alt="learner"
+              style={styles.learner_img}
+              rounded={50}
+              size={'xs'}
+            />
+          :
+            <Image 
+              source={require('../../../assets/personIcon.png')}
+              alt="learner"
+              style={styles.learner_img}
+              rounded={5}
+              size='xs'
+            />
+        }
           <Text style={styles.Name} color="#000000" >{AppBarData.props.Name}</Text>
         </HStack>
       </View>
-    </SafeAreaView>
   )
 }
 
 const styles = StyleSheet.create({
   container:{
-    flex: 1,
     alignItems: 'center',
     backgroundColor: "#FFFFFF",
     // shadowColor: '#000',

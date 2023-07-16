@@ -72,46 +72,38 @@ const Learners = ({navigation}) => {
 
   return (
       <View style={styles.Container}>
-        <SafeAreaView>
         <AppBar props={AppBarContent}/>
-          <ScrollView>
-            <View style={styles.TopContainer}>
-              
-              {/* <View style={styles.demoRequest}>
-                <Text style={styles.demoText}>1001 Requested For Demo Class</Text>
-              </View> */}
+        <View style={{flex:1, width:"95%", alignSelf:"center"}}>
+          {
+            Object.keys(allLearaners).length > 0 ?
+            <>
+              <Input 
+                variant="filled"
+                mt={2}
+                mb={0.5} 
+                bg="#EEEEEE" 
+                placeholder="Search"
+                onChangeText={(text) => {
+                  setQuery(text);
+                }}
+                borderRadius={7}
+                InputLeftElement={<Icon as={<Ionicons name="search" />} size={5} ml="3" color="#364b5b" />}
+              />
+              <ScrollView>
               {
-                Object.keys(allLearaners).length > 0 ?
-                <>
-                  <Input 
-                    variant="filled"
-                    mt={2}
-                    mb={2} 
-                    bg="#EEEEEE" 
-                    placeholder="Search"
-                    onChangeText={(text) => {
-                      setQuery(text);
-                    }}
-                    borderRadius={7}
-                    InputLeftElement={<Icon as={<Ionicons name="search" />} size={5} ml="3" color="#364b5b" />}
-                  />
-                  {
-                    learaners.map((data, index)=>{
-                      return (
-                        <View key={index} style={{marginTop:10}}>
-                          <LearnerCard data={data}/>
-                        </View>
-                      )
-                    })
-                  }
-                </>
-                : 
-                <Text style={{fontSize:12, alignSelf:"center", marginTop:"10%", color:'#8C8C8C'}}>Currently you don't have any learners</Text>
+                learaners.map((data, index)=>{
+                  return (
+                    <View key={index} style={{marginTop:5, marginBottom:5}}>
+                      <LearnerCard data={data}/>
+                    </View>
+                  )
+                })
               }
-            </View>
-          </ScrollView>
-
-      </SafeAreaView>
+              </ScrollView>
+            </>
+            : <Text style={{fontSize:12, alignSelf:"center", marginTop:"10%", color:'#8C8C8C'}}>Currently you don't have any learners</Text>
+          }
+        </View>
       </View>
   )
 }

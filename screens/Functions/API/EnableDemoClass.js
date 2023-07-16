@@ -16,7 +16,7 @@ const EnableDemoClass = async (email, code) => {
     }),
   };
   const response = await fetch(
-    BaseURL + '/v1/live/course/enableDemo',
+    BaseURL + 'v1/live/course/enableDemo',
     requestOptions,
   )
   return response.json();

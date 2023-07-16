@@ -3,6 +3,7 @@ import React,{useState,useEffect} from 'react';
 import {HStack, VStack, Image,Center} from 'native-base';
 import {useDispatch,useSelector} from 'react-redux';
 import Icon from 'react-native-vector-icons/AntDesign';
+import { AirbnbRating } from 'react-native-ratings';
 
 const { width, height } = Dimensions.get('window')
 
@@ -100,18 +101,60 @@ const LcCard = ({props}) => {
           </HStack>
 
           <HStack justifyContent={'space-between'} alignItems={'center'}>
+              <HStack space={2} mt="2">
+                {
+                    data.hasOwnProperty('rating') ?
+                    <>
+                    <AirbnbRating
+                        count={5}
+                        isDisabled={true}
+                        showRating={false}
+                        defaultRating={`${data.rating}`}
+                        size={10}
+                        value={`${data.rating}`}
+                    />
+                        {
+                            !Number.isInteger(data.rating) ?
+                            <Text style={{fontSize: 11,color: '#000000',fontWeight: '900'}}>{data.rating.toFixed(1)} ({data.ratingCount})</Text>
+                            :
+                            <Text style={{fontSize: 11,color: '#000000',fontWeight: '900'}}>{data.rating} ({data.ratingCount})</Text>
+                        }
+                    </>
+                    : 
+                    <>
+                    <AirbnbRating
+                    count={5}
+                    isDisabled={true}
+                    showRating={false}
+                    defaultRating={0}
+                    size={10}
+                    value={0}
+                    />
+                    <Text style={{fontSize: 11, color: '#000000',fontWeight: '900'}}>0 (0)</Text>
+                    </>
+                }
+              </HStack>
+              {
+                data.isDemo ?
+                  <Text style={{fontSize:9,color: '#FFFFFF',backgroundColor:'grey',padding:5, borderRadius:3}}>Demo enabled</Text>
+                : null
+              }
+            </HStack>
+
+          <HStack justifyContent={'space-between'} alignItems={'center'}>
             <HStack space={2} mt="2">
               <Text style={{fontSize: 10,color: '#091B12',fontWeight: 'bold'}}> {fromTime} To {toTime} ({data.courseDuration})</Text>
               {/* <Text style={{fontSize: 10,color: '#091B12',fontWeight: 'bold'}}> {fromDate.toDateString()} To {toDate.toLocaleDateString("en-US", options)} ({data.courseDuration})</Text> */}
                 {/* {data.liveCourseStatus != 'INREVIEW' ?  */}
                 
             </HStack>
-              {
+              {/* {
                 data.isDemo ?
                 <Text style={{fontSize:9,color: '#FFFFFF',backgroundColor:'grey',padding:5, borderRadius:3}}>Demo enabled</Text>
                 : null
-              }
+              } */}
           </HStack>
+          
         </VStack>
       </HStack>
       </View>
@@ -121,7 +164,6 @@ export default LcCard
 
 const styles = StyleSheet.create({
   CourseCard: {
-    maxHeight: height/8.5,
     borderRadius: 10,
     backgroundColor: "#FFFFFF",
     shadowColor: "rgba(0, 0, 0, 0.03)",

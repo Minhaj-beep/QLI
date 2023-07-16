@@ -11,7 +11,7 @@ const LearnerList = async (email) => {
     },
   };
   const response = await fetch(
-    BaseURL + '/v1/withdraw/myLearners',
+    BaseURL + 'v1/withdraw/myLearners',
     requestOptions,
   )
   return response.json();
