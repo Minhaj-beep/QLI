@@ -1,8 +1,9 @@
-import { StyleSheet, View,Dimensions, TouchableOpacity } from 'react-native';
+import { StyleSheet, View,Dimensions, TouchableOpacity, } from 'react-native';
 import React from 'react';
 import { Divider,Icon,Stack,Text, Avatar,VStack,HStack,Input,FormControl,Button,Link,Heading,Image,Container,Center,Spacer,FlatList,IconButton} from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
+const {width, height} = Dimensions.get('window')
 
 
 const MessageCard = ({props}) => {
@@ -51,7 +52,7 @@ const MessageCard = ({props}) => {
                                 <Avatar bg="green.500" source={require('../../assets/personIcon.png')}>{props.fullName}</Avatar>
                             }
                         </View>
-                        <View style={{marginLeft:10}}>
+                        <View style={{marginLeft:10, maxWidth: width*0.6}}>
                             <Text noOfLines={1} maxW={'72'} style={{fontSize:14, fontWeight:"500"}}>{props.fullName}</Text>
                             {
                                 props.senderId === User_ID ?

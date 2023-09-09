@@ -26,6 +26,7 @@ import { GetLearnersList } from '../../Functions/API/GetLearnersList';
 import { GetReview } from '../../Functions/API/GetReview';
 import { useNavigation } from '@react-navigation/native';
 import { AirbnbRating } from 'react-native-ratings';
+import VideoPlayer from 'react-native-video-controls';
 
 
 const { width, height } = Dimensions.get('window');
@@ -503,7 +504,7 @@ const getCourseOverview = (courseCode) =>{
   const AppBarContent = {
     title: 'Courses',
     navigation: navigation,
-    ArrowVisibility: false,
+    ArrowVisibility: true,
     RightIcon1:'notifications-outline',
     RightIcon2:'person'                  
   }
@@ -641,7 +642,7 @@ const getCourseOverview = (courseCode) =>{
   }
 
   return (
-      <SafeAreaView keyboardShouldPersistTaps={'always'}>
+      <View keyboardShouldPersistTaps={'always'}>
         <ScrollView style={styles.container} keyboardShouldPersistTaps={'always'}>
         <AppBar props={AppBarContent}/>
       
@@ -886,12 +887,22 @@ const getCourseOverview = (courseCode) =>{
                 :null}
                 <>
                   <TouchableOpacity
-                    onPress={()=>navigation.navigate('StudentPreview', {type: 'live'})}
+                    onPress={()=>{
+                      if(SingleCD.courseStatus === 'BANNED' || SingleCD.courseStatus === 'REJECTED') {
+                        return null
+                      } else {
+                        navigation.navigate('StudentPreview', {type: 'live'})
+                      }
+                    }}
                   >
                   <HStack bg={'gray.300'} space={1} padding={2} borderRadius={5} alignItems="center">
                     {/* <Icon size='sm' as={FontAwesome5} name='envelope' color='primary.50'/> */}
-                    <Text color={'primary.50'} bold onPress={()=>{
+                    <Text color={SingleCD.courseStatus === 'BANNED' || SingleCD.courseStatus === 'REJECTED' ? 'gray.50' : 'primary.50'} bold onPress={()=>{
+                      if(SingleCD.courseStatus === 'BANNED' || SingleCD.courseStatus === 'REJECTED') {
+                        return null
+                      } else {
                         navigation.navigate('StudentPreview', {type: 'live'})
+                      }
                     }} style={{fontSize:11, borderRadius:3}}>Student Preview</Text>
                   </HStack>
                   </TouchableOpacity>
@@ -1100,7 +1111,8 @@ const getCourseOverview = (courseCode) =>{
                 <Text style={{color:'#000000', fontSize: 12,fontWeight:'bold'}}>Thumbnail</Text>
                 <Text style={{fontSize: 11,color: '#8C8C8C'}}>Width 600 px, Height 350px. Format will be JPG, PNG, JPEG</Text>
                 <Image 
-                  style={styles.Thumbnail} 
+                  style={{width:'100%', height:height/4}} 
+                  // size={width*0.5}
                   source={{uri:SingleCD.thumbNailImagePath}}
                   alt='courseImg'
                   mb={2}
@@ -1112,7 +1124,7 @@ const getCourseOverview = (courseCode) =>{
               <VStack space={1}>
                 <Text style={{color:'#000000', fontSize: 12,fontWeight:'bold'}}>Intro Video</Text>
                 <Text style={{fontSize: 11,color: '#8C8C8C'}}>Width 600 px, Height 350px. Format will be MP4</Text>
-                <Video 
+                {/* <Video 
                 // source={{uri:'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'}}
                 source={{uri:SingleCD.introVideoPath}}
                 rate={1.0}
@@ -1123,7 +1135,22 @@ const getCourseOverview = (courseCode) =>{
                 isLooping
                 style={{ width: 360, height: 220, alignSelf: 'center',borderRadius: 10 }}
                 useNativeControls
-                />
+                /> */}
+                <View style={{width: '100%', height: 220, }}>
+                  <VideoPlayer
+                    source={{uri: SingleCD.introVideoPath}}
+                    style={{ width: '100%', zIndex:1000, elevation:1000, alignSelf: 'center' }}
+                    onError={()=>{
+                      console.log('Something went wrong...');
+                    }}
+                    pictureInPicture={true}
+                    navigator={navigation}
+                    isFullscreen={false}
+                    tapAnywhereToPause = {false}
+                    onPlay = {() => {}}
+                    paused={true}
+                  />
+                </View>
               </VStack>
             </VStack>
           </CollapsibleView>
@@ -1444,7 +1471,7 @@ const getCourseOverview = (courseCode) =>{
 
         </View>
         </ScrollView>
-      </SafeAreaView>
+      </View>
   )
 }
 

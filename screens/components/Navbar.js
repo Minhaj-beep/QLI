@@ -14,6 +14,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { GetCart } from '../Functions/API/GetCart';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
+import { getStatusBarHeight } from 'react-native-status-bar-height'
 
 const {width, height} = Dimensions.get('window');
 
@@ -78,7 +79,7 @@ const AppBar = ({props}) => {
   };
 
   return (
-    <SafeAreaView>
+    <View style={{marginTop:getStatusBarHeight()}}>
       <VStack>
         <HStack style={styles.container} ml={2} mr={2} mt={1}>
           <HStack style={{flex: 1, alignItems: 'center'}}>
@@ -114,7 +115,7 @@ const AppBar = ({props}) => {
                 mx={{
                   base: 'auto',
                   md: 10,
-                }} style={{marginBottom:-5}}
+                }} style={{marginBottom:-5, marginRight:1}}
                 icon={<Icon name={AppBarData.RightIcon1} color="#3e5160" size={20} />}
                 onPress={() => navigation.navigate('Notifications')}
               />
@@ -150,7 +151,7 @@ const AppBar = ({props}) => {
           </HStack>
         </HStack>
       </VStack>
-    </SafeAreaView>
+    </View>
   );
 };
 

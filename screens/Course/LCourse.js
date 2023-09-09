@@ -120,13 +120,13 @@ const LCourse = ({navigation}) => {
 
   return (
     <View style={styles.container}>
-      <SafeAreaView style={{ alignItems: 'center'}} >
+      <View style={{ alignItems: 'center'}} >
         <ScrollView style={{ marginBottom:150}} nestedScrollEnabled={true}>
           {liveCourseData ? <VRender/> : 
               <Text style={{fontSize:12, marginTop:"10%", color:'#8C8C8C'}}>Currently you don't have any courses</Text>
           }
         </ScrollView>
-      </SafeAreaView>
+      </View>
     </View>
   )
 }

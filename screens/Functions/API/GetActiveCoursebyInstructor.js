@@ -1,6 +1,8 @@
 import {BaseURL} from '../../StaticData/Variables';
 
 const GetActiveCoursebyInstructor = async (email) => {
+
+  console.log(email, 'Emil for get all discount ')
   const requestOptions = {
     method: 'GET',
     headers: {

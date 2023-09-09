@@ -333,7 +333,7 @@ const PayoutInfo = ({navigation}) => {
   }
 
   return (
-  <SafeAreaView style={styles.TopContainer}>
+  <View style={styles.TopContainer}>
     <AppBar props={AppBarContent}/>
     <ScrollView>
       <VStack ml={10} mr={10} mt={10}>
@@ -509,7 +509,7 @@ const PayoutInfo = ({navigation}) => {
 
       </VStack>
     </ScrollView>
-  </SafeAreaView>
+  </View>
   )
 }
 

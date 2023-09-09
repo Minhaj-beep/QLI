@@ -61,8 +61,7 @@ const CreateAccount = ({navigation}) => {
   const dispatch = useDispatch();
 
   GoogleSignin.configure({
-    webClientId:
-      "855618612359-gvf660jb4h9q42d0umjnpmj4va9s3moa.apps.googleusercontent.com"
+    webClientId: Platform.OS === 'ios' ? "408533616894-b5aq7s034bv3naa6aedr8r57m6u5a6tr.apps.googleusercontent.com" :  "855618612359-gvf660jb4h9q42d0umjnpmj4va9s3moa.apps.googleusercontent.com"
   });
 
   const [PShow, setPShow] = useState(false);
@@ -406,7 +405,7 @@ const CreateAccount = ({navigation}) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <Modal isOpen={showVmodal} onClose={() => setVmodal(false)} size="lg">
         <Modal.Content maxWidth="600">
           <Modal.CloseButton />
@@ -533,7 +532,7 @@ const CreateAccount = ({navigation}) => {
 
       <ScrollView>
         <Center w="100%">
-          <Box safeArea p="2" w="90%" maxW="350" py="8">
+          <Box safeArea p="2" w="90%" maxW="90%" py="8">
             <Heading
               size="md"
               color="coolGray.800"
@@ -828,7 +827,7 @@ const CreateAccount = ({navigation}) => {
           </Box>
         </Center>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 

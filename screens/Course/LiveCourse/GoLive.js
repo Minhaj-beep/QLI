@@ -3,7 +3,6 @@ import {useState,useEffect,React, useCallback, useRef} from 'react';
 import AppBar from '../../components/Navbar';
 import {useDispatch,useSelector} from 'react-redux';
 import {mediaDevices,} from 'react-native-webrtc';
-import Peer from 'react-native-peerjs'
 import WebView from 'react-native-webview';
 const { width, height } = Dimensions.get('window')
 
@@ -29,25 +28,8 @@ const GoLive = ({navigation}) => {
 
   useEffect(()=>{
     var token = GTD.joinLiveLink.split('?')
-    mediaDevices.getUserMedia({
-            audio: true,
-            video: true,
-        })
-        .then((stream) => {
-            myVideoStream = stream;
-            var peer = new Peer(undefined, {
-                path: "/peerjs",
-                host: "live.qlearning.academy",
-                port: "", //443
-                secure: true,  
-            });
-            console.log("Connected on default Port");
-            peer.on("open", (id) => {
-                console.log("join-room", id);
-                setUrl(`https://uat.qlearning.academy/live-room-app/${courseCode}?${token[1]}`)
-                console.log(`https://uat.qlearning.academy/live-room-app/${courseCode}?${token[1]}`)
-            });
-        })
+    setUrl(`https://uat.qlearning.academy/live-room-app/${courseCode}?${token[1]}`)
+    console.log(`https://uat.qlearning.academy/live-room-app/${courseCode}?${token[1]}`)
   }, [])
 
   const AppBarContent = {

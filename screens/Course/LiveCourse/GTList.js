@@ -153,7 +153,7 @@ const GTList = ({navigation}) => {
     }
 
   return (
-    <SafeAreaView>
+    <View>
         <AppBar props={AppBarContent}/>
         <ScrollView style={styles.TopContainer}>
             <VStack style={{marginTop:10}} space={5}>
@@ -172,7 +172,7 @@ const GTList = ({navigation}) => {
                </VStack>
             </VStack>
         </ScrollView>
-    </SafeAreaView>
+    </View>
   )
 }
 

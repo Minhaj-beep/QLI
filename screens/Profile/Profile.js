@@ -8,7 +8,9 @@ import { setUserImage, setProfileImg } from '../Redux/Features/loginSlice';
 import {useDispatch,useSelector} from 'react-redux';
 import { setProfileData, setLoading } from '../Redux/Features/userDataSlice';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import DatePicker from 'react-native-date-picker'
 import PhoneInput from "react-native-phone-number-input";
+import moment from 'moment';
 // import PhoneInput from 'react-phone-number-input'
 
 const { width, height } = Dimensions.get('window')
@@ -99,34 +101,24 @@ const Profile = ({navigation}) => {
     }  
   }, [])
 
-    const onChangeFrom = (event, selectedDate) => {
-    setShowFromPicker(Platform.OS === 'ios')
-    if (event?.type === 'dismissed') {
-      setfromTime(DFromTime);
-    }else{
-      setfromTime(selectedDate);
-      console.log(selectedDate);
-      let time = selectedDate.toLocaleTimeString()
-      console.log(time)
-      // setDFromTime(time.slice(0,4))
-      setDFromTime(time)
-    }
-    setShowFromPicker(false);
+  function convertTo24HourFormat(timestamp) {
+    const formattedTime = moment(timestamp).format('HH:mm');
+    return formattedTime;
   }
 
-  const onChangeTo = (event, selectedDate) => {
-    setShowToPicker(Platform.OS === 'ios')
-
-    if (event?.type === 'dismissed') {
-      settoTime(DToTime)
-    }else{
-      settoTime(selectedDate);
-      let time = selectedDate.toLocaleTimeString()
-      // setDToTime(time.slice(0,4))
-      setDToTime(time)
+    const onChangeFrom = (time) => {
+      setfromTime(convertTo24HourFormat(time));
+      console.log(time)
+      setDFromTime(convertTo24HourFormat(time))
+      setShowFromPicker(false);
     }
+
+  const onChangeTo = (time) => {
+    settoTime(convertTo24HourFormat(time));
+    console.log(time)
+    setDToTime(convertTo24HourFormat(time))
     setShowToPicker(false);
-}
+  }
 
   const updateProfileData = (PData) =>{
       console.log(PData)
@@ -442,26 +434,46 @@ const Profile = ({navigation}) => {
         <View style={{backgroundColor: '#fcfcfc'}}>
       <AppBar props={AppBarContent} />
     </View>
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <ScrollView style={{marginBottom: 40}}>
 
-        {showFromPicker && (
-          <DateTimePicker
-            // is24Hour={true}
-            testID="dateTimePicker"
-            value={FDate}
-            mode={Pmode}
-            onChange={onChangeFrom}
-          />
-        )}
+      <DatePicker
+        modal
+        mode="time"
+        open={showFromPicker}
+        date={FDate}
+        onConfirm={text => {
+          onChangeFrom(text)
+          setShowFromPicker(false)
+        }}
+        onCancel={() => {
+          setShowFromPicker(false)
+        }}
+      />
+
+      <DatePicker
+        modal
+        mode="time"
+        open={showToPicker}
+        date={TDate}
+        onConfirm={text => {
+          onChangeTo(text)
+          setShowToPicker(false)
+        }}
+        onCancel={() => {
+          setShowToPicker(false)
+        }}
+      />
 
       {showToPicker && (
           <DateTimePicker
+            display="spinner"
             testID="dateTimePicker"
             // is24Hour={true}
             value={TDate}
             mode={Pmode}
             onChange={onChangeTo}
+            style={{width: 320, backgroundColor: "white"}}
           />
         )}
 
@@ -745,11 +757,11 @@ const Profile = ({navigation}) => {
 
                 <VStack>
                   <ScrollView horizontal={true}>
-                    <SafeAreaView style={styles.flatContainer}>
+                    <View style={styles.flatContainer}>
                       <View style={styles.FlatRender}>
                         { RChip && <RenderChip/>}
                       </View>
-                    </SafeAreaView>
+                    </View>
                   </ScrollView>
                 </VStack>
 
@@ -1018,7 +1030,7 @@ const Profile = ({navigation}) => {
             </TouchableOpacity>
           </VStack>
       </ScrollView>
-    </SafeAreaView>
+    </View>
       </View>
     }
   </View>

@@ -46,14 +46,14 @@ const LiveAssessmentList = ({navigation}) => {
     }
 
   return (
-    <SafeAreaView>
+    <View>
         <AppBar props={AppBarContent}/>
         <ScrollView style={styles.container}>
             <VStack mt={2}>
                 {Object.keys(AssessmentList).length > 0 ? <Render/> : <Text style={{fontSize:12, color:'#8C8C8C', alignSelf:"center"}}>No Assessment available for this course!</Text>}
             </VStack>
        </ScrollView>
-    </SafeAreaView>
+    </View>
   )
 }
 

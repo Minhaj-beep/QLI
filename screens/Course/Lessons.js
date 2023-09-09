@@ -90,7 +90,7 @@ const Lessons = ({navigation}) => {
   return (
     <View style={styles.TopContainer}>
         <ScrollView>
-            <SafeAreaView>
+            <View>
                 <AppBar props={AppBarContent}/>
                 <VStack style={styles.Container} m={5}>
                    { Assessment ? <Text style={styles.Notice} >Assessments of {LessonData.ChapterName}</Text>
@@ -99,7 +99,7 @@ const Lessons = ({navigation}) => {
                     { LeData != null && LItem()}
                     {/* <LCard/> */}
                 </VStack>    
-            </SafeAreaView>
+            </View>
         </ScrollView>
     </View>
   )

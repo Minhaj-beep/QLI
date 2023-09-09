@@ -81,7 +81,7 @@ const LessonDetails = ({navigation}) => {
   return (
     <View  style={styles.TopContainer}>
     <ScrollView>
-        <SafeAreaView>
+        <View>
             <AppBar props={AppBarContent}/>
                 <VStack mt={5}>
                 {/* { LDData && <Video 
@@ -119,7 +119,7 @@ const LessonDetails = ({navigation}) => {
                         {LData && <LItem/>}
                     </VStack>
                 </VStack>
-        </SafeAreaView>
+        </View>
     </ScrollView>
     </View>
   )

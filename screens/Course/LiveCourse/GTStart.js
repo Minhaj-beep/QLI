@@ -403,7 +403,7 @@ const GTStart = ({navigation}) => {
   }
 
   return (
-      <SafeAreaView>
+      <View>
         <AppBar props={AppBarContent}/>
 
         {/* Modal for showing warning: not to recive calls during the class */}
@@ -502,7 +502,7 @@ const GTStart = ({navigation}) => {
          </VStack>
 
         </ScrollView>
-      </SafeAreaView>
+      </View>
   )
 }
 

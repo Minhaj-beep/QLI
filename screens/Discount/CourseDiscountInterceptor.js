@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from "react"
 import { View, Text, HStack, VStack, Icon, Image, ScrollView, Button, Modal, IconButton, Heading, FormControl, Input, Select, Center, Badge } from "native-base"
-import { Dimensions, StyleSheet, TouchableOpacity, ActivityIndicator, Linking } from "react-native"
+import { Dimensions, Pressable, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator, Linking } from "react-native"
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import { useSelector, useDispatch } from "react-redux"
 import AppBar from "../components/Navbar"
@@ -245,7 +245,7 @@ const CourseDiscountInterceptor = ({props, pushData}) => {
                 setAllCourses(result.data)
                 console.log('Oi 00000===>', result.data)
             } else {
-                console.log('GetActiveCoursebyInstructor error 2:', result)
+                console.log('GetActiveCoursebyInstructor error 1:', result)
             }
         } catch (e) {
             console.log('GetActiveCoursebyInstructor error 2:', e)
@@ -349,8 +349,8 @@ const CourseDiscountInterceptor = ({props, pushData}) => {
     const renderButton = (data) => {
         if(data.requestedstatus === 'CREATED'){
             return (
-                <HStack left={5} space={2}>
-                    <Text left={5} bg="primary.50" onPress={()=>handleReview(data._id)} style={{fontSize:11,color: '#FFFFFF', padding:5, borderRadius:3}}>Submit for review</Text>
+                <VStack left={5} space={1}>
+                   
                     <HStack mr={5}>
                         {
                             getNewMessageCount(data._id) !== null ?
@@ -362,7 +362,8 @@ const CourseDiscountInterceptor = ({props, pushData}) => {
                         }
                         <Text bg="rgba(42,60,72, 0.2)"  style={{fontSize:11,color: '#FFFFFF', padding:5, borderRadius:3}}>Raise a ticket</Text>
                     </HStack>
-                </HStack>
+                    <Text mr={5} bg="primary.50" onPress={()=>handleReview(data._id)} style={{fontSize:11,color: '#FFFFFF', padding:5, borderRadius:3}}>Submit for review</Text>
+                </VStack>
             )
         } else if (data.requestedstatus === 'REQUESTED') {
             return (
@@ -383,13 +384,8 @@ const CourseDiscountInterceptor = ({props, pushData}) => {
             )
         } else {
             return (
-                <HStack left={5} space={2}>
-                    {
-                        new Date(data.expiryDate).toJSON().slice(0, 10) < new Date().toJSON().slice(0, 10) ?
-                        <Text left={5} bg="red.500" style={{fontSize:11,color: '#FFFFFF', padding:5, borderRadius:3}}>Expired</Text>
-                        :
-                        <Text left={5} bg="primary.50" onPress={()=>{handleEnableDiscount(data)}} style={{fontSize:11,color: '#FFFFFF', padding:5, borderRadius:3}}>Enable Discount</Text>
-                    }
+                <VStack left={5} space={1}>
+                   
                     <HStack mr={5}>
                       {
                         getNewMessageCount(data._id) !== null ?
@@ -404,7 +400,13 @@ const CourseDiscountInterceptor = ({props, pushData}) => {
                         setCourseCode(data._id)
                       }} style={{fontSize:11,color: '#FFFFFF', padding:5, borderRadius:3}}>Raise a ticket</Text>
                     </HStack>
-                </HStack>
+                    {
+                        new Date(data.expiryDate).toJSON().slice(0, 10) < new Date().toJSON().slice(0, 10) ?
+                        <Text mr={5} bg="red.500" alignSelf={'flex-end'} textAlign={'center'} maxW={50} style={{fontSize:11,color: '#FFFFFF', padding:5, borderRadius:3}}>Expired</Text>
+                        :
+                        <Text  mr={5} bg="primary.50" maxW={80}  textAlign={'center'}  onPress={()=>{handleEnableDiscount(data)}} style={{fontSize:11,color: '#FFFFFF', padding:5, borderRadius:3}}>Enable Discount</Text>
+                    }
+                </VStack>
             )
         }
     }
@@ -500,7 +502,7 @@ const CourseDiscountInterceptor = ({props, pushData}) => {
                     setIsCheck(arr)
                 } else {
                     console.log('getActiveDicountCoursebyInstructor error1: ', result)
-                    alert('Something went wrong, please try again!')
+                    // alert('Something went wrong, please try again!')
                 }
                 setLoaded(true)
             } catch (e) {
@@ -738,7 +740,10 @@ const CourseDiscountInterceptor = ({props, pushData}) => {
                       <VStack safeArea flex={1} p={2} w="90%" mx="auto" space={5}>
                         
                         <Heading alignSelf={'center'} size="md">
-                          <Text>Create New Coupon</Text>
+                            <Pressable onPress={()=>alert('hello')}>
+                            <Text >Create New Coupon</Text> 
+                            </Pressable>
+                          
                         </Heading>
 
                           <FormControl  style={{Width:width/1}}>
@@ -789,15 +794,21 @@ const CourseDiscountInterceptor = ({props, pushData}) => {
                             <FormControl.Label _text={{ bold: true}}>Number of coupon:</FormControl.Label>
                             <Input ref={couponNumberRef} keyboardType="numeric" marginY={1} variant="filled" bg="#f3f3f3" placeholder="100" onChangeText={setCouponNumbers}/>
                             {errorName === 'coupon numbers' ? <Text style={{fontSize:9, color:"red"}}>Please enter the number of coupons</Text> : null}
+                            
                             <FormControl.Label _text={{ bold: true}}>Start date:</FormControl.Label>
-                            <TouchableOpacity onPress={()=>{setStartOpen(true)}}>
+                            {/* <TouchableOpacity onPress={()=>{alert('Hello')}}> */}
+                            <View style={{width:"100%",}}>
                                 <Input marginY={1} isReadOnly={true} variant="filled" bg="#f3f3f3" placeholder={`${new Date(startDate).toJSON().slice(0, 10)}`} />
-                            </TouchableOpacity>
+                                <Pressable onPress={()=>setStartOpen(true)} style={{ position:"absolute", width:"100%", height:40}}></Pressable>
+                            </View>
+                                
+                            {/* </TouchableOpacity> */}
                             {errorName === 'date error' ? <Text style={{fontSize:9, color:"red"}}>Please enter the start date properly!</Text> : null}
                             <FormControl.Label _text={{ bold: true}}>End date:</FormControl.Label>
-                            <TouchableOpacity onPress={()=>{setEndOpen(true)}}>
+                            <View style={{width:"100%",}}>
                                 <Input marginY={1} isReadOnly={true} variant="filled" bg="#f3f3f3" placeholder={`${new Date(endDate).toJSON().slice(0, 10)}`} />
-                            </TouchableOpacity>
+                                <Pressable onPress={()=>setEndOpen(true)} style={{ position:"absolute", width:"100%", height:40}}></Pressable>
+                            </View>
                             {errorName === 'date error' ? <Text style={{fontSize:9, color:"red"}}>Please enter the expiry date properly!</Text> : null}
                           </FormControl>
                           {/* { 

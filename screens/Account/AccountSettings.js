@@ -53,12 +53,14 @@ const AccountSettings = ({navigation}) => {
       setPhNo(ProfileD.mobileNumber) 
     }
   }, [])
+
   useEffect(()=>{
     console.log('Hollla')
     if(newPhNo !== ''){
       newPhNo.length !== 10 ? setErrNewPhNo(true) : setErrNewPhNo(false)
     }
   },[newPhNo])
+
   const getLogingWithGoogle = async() => {
     const data = await AsyncStorage.getItem('loginWithGoogle')
     console.log('Is login with google : =========', data)
@@ -113,6 +115,7 @@ const AccountSettings = ({navigation}) => {
 
   const [changePhNo, setChangePhNo] = useState(false)
   const [confirmChangePhNo, setConfirmChangePhNo] = useState(false)
+  const [isChangePhNoCanceled, setIsChangePhNoCanceled] = useState(true)
   const [successChangePhNo, setSuccessChangePhNo] = useState(false)
   const [verificationId, setVerificationId] = useState('')
   const [otp, setOtp] = useState('')
@@ -321,6 +324,7 @@ const MatchPassword = (mail) =>{
         sendOtp('+91'+newPhNo)
         setConfirmChangePhNo(true)
         setChangePhNo(false)
+        setIsChangePhNoCanceled(true)
       // }
     } else {
         mobileNumberRef.current.focus()
@@ -485,6 +489,7 @@ const MatchPassword = (mail) =>{
     dispatch(setLoading(false));
     logOutFromCurrentDevice()
   };
+
   const deleteLogOut = () => {
     // dispatch(setIsNotificationReady(false))
     ClearLocalStorage();
@@ -659,7 +664,7 @@ const MatchPassword = (mail) =>{
       </View>
       :
     <ScrollView style={styles.topContainer}>
-      <SafeAreaView>
+      <View>
         <AppBar props={AppBarContent}/>
 
             <Modal isOpen={showCE} onClose={() => setShowCE(false)} size="lg">
@@ -1251,7 +1256,10 @@ const MatchPassword = (mail) =>{
             </Modal>    
 
 {/* Change mobile no popup */}
-        <Modal isOpen={changePhNo} onClose={() => setChangePhNo(false)} size="lg">
+        <Modal isOpen={changePhNo} onClose={() => {
+          setChangePhNo(false)
+          setIsChangePhNoCanceled(true)
+        }} size="lg">
           <Modal.Content maxWidth="700" borderRadius={20}>
             <Modal.CloseButton />
             <Modal.Body>
@@ -1282,11 +1290,12 @@ const MatchPassword = (mail) =>{
                       justifyContent={"flex-end"}
                       bg="#f3f3f3"
                       mt={0.5}
-                      // value={MobileNo} 
+                      value={isChangePhNoCanceled ? '' : newPhNo} 
                       ref={mobileNumberRef}
                       placeholder="Enter Mobile No."
                       onChangeText={text => {
                         setNewPhNo(text.trim())
+                        setIsChangePhNoCanceled(false)
                       }}
                       borderRadius={5}
                       keyboardType="numeric" 
@@ -1606,7 +1615,7 @@ const MatchPassword = (mail) =>{
                 </HStack>
               </VStack>
           </VStack>
-      </SafeAreaView>
+      </View>
     </ScrollView>
     }
     </>

@@ -5,6 +5,8 @@ import {
   TouchableOpacity,
   Text,
   PermissionsAndroid,
+  Dimensions,
+  Platform
 } from 'react-native';
 import {
   Image,
@@ -26,6 +28,7 @@ import {
   setProfileData,
 } from '../Redux/Features/authSlice';
 import { setUserImage, setProfileImg } from '../Redux/Features/loginSlice';
+const { width, height } = Dimensions.get('window')
 
 export default function DashImg() {
   const dispatch = useDispatch();
@@ -36,12 +39,48 @@ export default function DashImg() {
   const [upImage, setUpImage] = useState(null);
   const [DImage, setDImage] = useState(null);
   const [ShowImgUp, setShowImgUp] = useState(false);
+  const [imageStyle, setImageStyle] = useState({})
 
-  console.log(ProfileImg , ' is the profile image');
+  console.log(ProfileImg, ' is the profile image');
+  console.log( width, height , ' _________________________________WIDTH_AND_HEIGHT___________________________');
 
   useEffect(() => {
     upImage !== null ? console.log(upImage, 'THIS') : setPImage(ProfileImg)
   }, [PImage, upImage, ProfileImg]);
+
+  useEffect(()=> {
+    if(Platform.OS == 'ios' && width > 700 && height > 1100) {
+      setImageStyle({
+        size: 250,
+        rounded: 150,
+        iconMt: "230",
+        iconMl: "250"
+      })
+    } 
+    // else if (Platform.OS == 'ios' && width == 1024 && height == 1366) {
+    //   setImageStyle({
+    //     size: 250,
+    //     rounded: 150,
+    //     iconMt: "230",
+    //     iconMl: "250"
+    //   })
+    // } else if (Platform.OS == 'ios' && width == 744 && height == 1133) {
+    //   setImageStyle({
+    //     size: 250,
+    //     rounded: 150,
+    //     iconMt: "230",
+    //     iconMl: "250"
+    //   })
+    // }  
+    else {
+      setImageStyle({
+        size: 150,
+        rounded: 100,
+        iocnMt: "150",
+        iconMl: "150"
+      })
+    }
+  },[])
 
   const getProfile = (email) => {
     dispatch(setLoading(true))
@@ -178,10 +217,11 @@ export default function DashImg() {
                 alignContent="center">
                 {DImage && (
                   <Image
-                    rounded={100}
-                    size={150}
+                    alignSelf={'center'}
+                    rounded={imageStyle.rounded}
+                    size={imageStyle.size}
                     source={{uri: DImage}}
-                    alt="profile-img"
+                    alt=" "
                     mt="50"
                     ml="50"
                     mb="10"
@@ -231,20 +271,20 @@ export default function DashImg() {
       <ZStack>
         {upImage === null && (
           <Image
-            rounded={100}
-            size={150}
+            rounded={imageStyle.rounded}
+            size={imageStyle.size}
             source={{uri: PImage}}
-            alt="profile-img"
+            alt=" "
             mt="50"
             ml="50"
           />
         )}
         {upImage && (
           <Image
-            rounded={100}
-            size={150}
+            rounded={imageStyle.rounded}
+            size={imageStyle.size}
             source={{uri: upImage}}
-            alt="profile-img"
+            alt=" "
             mt="50"
             ml="50"
           />
@@ -252,10 +292,10 @@ export default function DashImg() {
         {console.log('Profile Image is this one : ', ProfileImg)}
         {!ProfileImg && (
           <Image
-            rounded={100}
-            size={150}
+            rounded={imageStyle.rounded}
+            size={imageStyle.size}
             source={require('../../assets/personIcon.png')}
-            alt="profile-img"
+            alt=" "
             mt="50"
             ml="50"
           />
@@ -266,8 +306,8 @@ export default function DashImg() {
             resizeMode={'contain'}
             source={require('../../assets/CameraImg.png')}
             alt="cameraImg"
-            mt="150"
-            ml="150"
+            mt={imageStyle.iconMt}
+            ml={imageStyle.iconMl}
           />
         </TouchableOpacity>
       </ZStack>

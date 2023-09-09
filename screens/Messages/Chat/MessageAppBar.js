@@ -3,6 +3,7 @@ import { IconButton,Icon,Text,HStack,Image, StatusBar } from 'native-base';
 import {View, Dimensions,StyleSheet,TouchableOpacity} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { getStatusBarHeight } from 'react-native-status-bar-height'
 
 const { width, height } = Dimensions.get('window')
 
@@ -50,6 +51,7 @@ const styles = StyleSheet.create({
   container:{
     alignItems: 'center',
     backgroundColor: "#FFFFFF",
+    paddingTop:getStatusBarHeight()
     // shadowColor: '#000',
     // shadowOffset: { width: 1, height: 1 },
     // shadowOpacity: 0.4,

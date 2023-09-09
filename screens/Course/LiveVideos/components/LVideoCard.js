@@ -204,7 +204,7 @@ const Join = () => {
   //Finding the date in 'Tue, Apr 25, 2023, 10:28 AM' format based on time Zone
   const istOptions = { timeZone: 'Asia/Kolkata', weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true };
   const utcDate = new Date(data.date);
-  const istDateTime = utcDate.toLocaleString('en-US', istOptions);
+  const istDateTime = moment.utc(data.date).local().format('ddd, MMM D, YYYY, h:mm A');
   
   //Find out the secondes left for the live class
   const remainingTime = Date.parse(data.date) - Date.now();
@@ -311,7 +311,7 @@ const Join = () => {
       //Finding the date in 'Tue, Apr 25, 2023, 10:28 AM' format based on time Zone
       const istOptions = { timeZone: 'Asia/Kolkata', weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true };
       const utcDate = new Date(data.date);
-      const istDateTime = utcDate.toLocaleString('en-US', istOptions);
+      const istDateTime = moment.utc(data.date).local().format('ddd, MMM D, YYYY, h:mm A');
       return(
         <VStack>
             <HStack justifyContent="space-between" alignItems="center">

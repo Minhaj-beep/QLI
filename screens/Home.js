@@ -12,8 +12,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {setLiveCourses} from './Redux/Features/CourseSlice';
 import { GetWithdrawDashboardData } from './Functions/API/GetWithdrawDashboardData';
 import { LearnerList } from './Functions/API/LearnersList';
-import PushNotification from 'react-native-push-notification';
-import { PushNotificationRegister } from './Functions/API/PushNotificationRegister';
+// import PushNotification from 'react-native-push-notification';
+// import { PushNotificationRegister } from './Functions/API/PushNotificationRegister';
 // import { getApiHeader } from './Functions/GetApiHeader';
 
 const { width, height } = Dimensions.get('window')
@@ -46,10 +46,10 @@ const Home = ({navigation}) => {
   //   action: 'Transaction',
   //   _id: '64269ce19851101bf973d8f7'
   // };
-  const screenProps = {
-    action: 'Discount',
-    _id: '640c1c051d90bfd2f07bb5cf'
-  };
+  // const screenProps = {
+  //   action: 'Discount',
+  //   _id: '640c1c051d90bfd2f07bb5cf'
+  // };
   // const screenProps = {
   //   action: 'Message',
   //   fullName: "Minhaj null Ahmed",
@@ -67,25 +67,25 @@ const Home = ({navigation}) => {
   //   courseCode: "1403b434-c281-4620-a5ff-fa0c67df52fa",
   // };
 
-  PushNotification.configure({
-    onNotification: function (notification) {
-      console.log("NOTIFICATION:", notification);
-      // navigation.navigate('ViewCourse', {screenProps: screenProps})
-      navigation.navigate('CourseDiscount', {screenProps: screenProps})
-      // navigation.navigate('Tabs', {screen: 'Courses', params: { initialTab: 'AssessmentTab', screenProps: screenProps }})
-      // let data = JSON.parse(notification.data.app)
-      // console.log(data.courseCode, data.type)
-      // notification.finish(PushNotificationIOS.FetchResult.NoData);
-    },
+  // PushNotification.configure({
+  //   onNotification: function (notification) {
+  //     console.log("NOTIFICATION:", notification);
+  //     // navigation.navigate('ViewCourse', {screenProps: screenProps})
+  //     navigation.navigate('CourseDiscount', {screenProps: screenProps})
+  //     // navigation.navigate('Tabs', {screen: 'Courses', params: { initialTab: 'AssessmentTab', screenProps: screenProps }})
+  //     // let data = JSON.parse(notification.data.app)
+  //     // console.log(data.courseCode, data.type)
+  //     // notification.finish(PushNotificationIOS.FetchResult.NoData);
+  //   },
 
-    onAction: function (notification) {
-      console.log("ACTION:", notification.action);
-      console.log("NOTIFICATION:", notification);
-    },
+  //   onAction: function (notification) {
+  //     console.log("ACTION:", notification.action);
+  //     console.log("NOTIFICATION:", notification);
+  //   },
 
-    onRegistrationError: function(err) {
-      console.error(err.message, err);
-    },
+  //   onRegistrationError: function(err) {
+  //     console.error(err.message, err);
+  //   },
 
     // permissions: {
     //   alert: true,
@@ -94,7 +94,7 @@ const Home = ({navigation}) => {
     // },
     // popInitialNotification: true,
     // requestPermissions: true,
-  });
+  // });
 
   // if(JWT !== '' && !setToken){
   //   PushNotification.configure({
@@ -147,6 +147,13 @@ const Home = ({navigation}) => {
     // Permissions()
     // getWithdrawDashboardData(header)
   },[])
+
+  useEffect(()=>{
+      const unsubscribe = navigation.addListener('focus', () => {
+          getWithdrawDashboardData(email)
+      })
+      return unsubscribe
+  },[navigation])
 
   const Permissions = async () => {
     try {
@@ -519,7 +526,7 @@ const Home = ({navigation}) => {
 
   return (
     <View style={styles.tcontainer}>
-        <SafeAreaView>
+        <View>
         {appBarLoaded ? <AppBar props={AppBarContent}/> : null}
 
         {/* Modal for asking the user to access push notification */}
@@ -644,7 +651,7 @@ const Home = ({navigation}) => {
            </VStack>
           </Center>
           </ScrollView>
-        </SafeAreaView>
+        </View>
     </View>
   )
 }
@@ -665,8 +672,8 @@ const styles = StyleSheet.create({
     DCard: {
       // width:width/1.2,
       // height:height/4,
-      width: width/1.1,
-      height: height/4.5,
+      // width: width/1.1,
+      // height: height/4.5,
       borderRadius:15,
       backgroundColor: "#FFFFFF",
       shadowColor: "rgba(0, 0, 0, 0.03)",

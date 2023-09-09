@@ -147,7 +147,7 @@ export default function RCourse({navigation}) {
   }
   return (
     <View style={styles.container}>
-      <SafeAreaView style={{ alignItems: 'center'}}>
+      <View style={{ alignItems: 'center'}}>
         <HStack space={3} mt={5} style={styles.TRC} borderWidth={1}>
           <TouchableOpacity
             onPress={()=>{
@@ -169,7 +169,7 @@ export default function RCourse({navigation}) {
         <ScrollView style={{ marginBottom:150, marginTop:20}} nestedScrollEnabled={true}>
           {CTab ? <CRender/> : <DCRender/>}
         </ScrollView>
-      </SafeAreaView>
+      </View>
     </View>
   )
 }

@@ -79,7 +79,7 @@ const Chapters = ({navigation}) => {
   return (
     <View style={styles.TopContainer}>
         <ScrollView>
-            <SafeAreaView>
+            <View>
                 <AppBar props={AppBarContent}/>
                 <VStack style={styles.Container} m={5}>
               {  Assessment ? <Text style={styles.Notice} >Open each chapter to view the list of Assessments!</Text>
@@ -87,7 +87,7 @@ const Chapters = ({navigation}) => {
 
                     {CapData && UVItem()}
                 </VStack>    
-            </SafeAreaView>
+            </View>
         </ScrollView>
     </View>
   )

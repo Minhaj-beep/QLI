@@ -183,7 +183,7 @@ export default function DashImg() {
                     rounded={100}
                     size={150}
                     source={{uri: DImage}}
-                    alt="profile-img"
+                    alt=" "
                     mt="50"
                     ml="50"
                     mb="10"
@@ -236,7 +236,7 @@ export default function DashImg() {
             rounded={100}
             size={150}
             source={{uri: PImage}}
-            alt="profile-img"
+            alt=" "
             mt="50"
             ml="50"
           />
@@ -246,7 +246,7 @@ export default function DashImg() {
             rounded={100}
             size={150}
             source={{uri: upImage}}
-            alt="profile-img"
+            alt=" "
             mt="50"
             ml="50"
           />
@@ -256,7 +256,7 @@ export default function DashImg() {
             rounded={100}
             size={150}
             source={require('../../../assets/personIcon.png')}
-            alt="profile-img"
+            alt=""
             mt="50"
             ml="50"
           />

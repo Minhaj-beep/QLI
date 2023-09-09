@@ -88,7 +88,7 @@ const LiveVideos = ({navigation}) => {
   return (
     <View style={styles.TopContainer}>
         <ScrollView>
-            <SafeAreaView>
+            <View>
                 <AppBar props={AppBarContent}/>
                 <VStack justifyContent="center" space={20}>
                     <VStack style={{marginTop:25}}>
@@ -96,7 +96,7 @@ const LiveVideos = ({navigation}) => {
                     
                     </VStack>
                 </VStack>
-            </SafeAreaView>
+            </View>
         </ScrollView>
     </View>
   )

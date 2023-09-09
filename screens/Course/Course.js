@@ -69,7 +69,7 @@ const Courses = ({navigation, route}) => {
 
   return (
   <View style={styles.container}>
-    <SafeAreaView>
+    <View>
     <AppBar props={AppBarContent}/>
       <ScrollView nestedScrollEnabled={true}>
         <View>
@@ -104,7 +104,7 @@ const Courses = ({navigation, route}) => {
           </Tab.Navigator>
         </View>
         </ScrollView>
-      </SafeAreaView>
+      </View>
   </View>
   )
 }

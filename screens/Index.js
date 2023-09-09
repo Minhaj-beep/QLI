@@ -421,7 +421,7 @@ const Index = ({navigation}) => {
 
   return (
     <View style={styles.tcontainer}>
-        <SafeAreaView>
+        <View>
         {appBarLoaded ? <AppBar props={AppBarContent}/> : null}
           <ScrollView>
           <Center mt={5} mb={20}>
@@ -495,7 +495,7 @@ const Index = ({navigation}) => {
            </VStack>
           </Center>
           </ScrollView>
-        </SafeAreaView>
+        </View>
     </View>
   )
 }

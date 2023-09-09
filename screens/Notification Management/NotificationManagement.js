@@ -221,7 +221,7 @@ const NMCheckPush = () => {
   }
 
   return (
-    <SafeAreaView>
+    <View>
       <AppBar props={AppBarContent}/>
       <ScrollView>
         <VStack style={styles.container} pt={5} space={3}>
@@ -235,7 +235,7 @@ const NMCheckPush = () => {
         </VStack>
 
       </ScrollView>
-    </SafeAreaView>
+    </View>
   )
 }
 

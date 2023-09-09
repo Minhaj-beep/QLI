@@ -51,7 +51,7 @@ const WithdrawFund = ({navigation}) => {
 
 
   return (
-    <SafeAreaView>
+    <View>
         <AppBar props={AppBarContent}/>
         <ScrollView>
         <Modal isOpen={Withdrawal} onClose={() => setWithdrawal(false)} size="lg">
@@ -162,7 +162,7 @@ const WithdrawFund = ({navigation}) => {
             </VStack>
 
         </ScrollView>
-    </SafeAreaView>
+    </View>
   )
 }
 

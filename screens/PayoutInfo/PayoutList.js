@@ -115,7 +115,7 @@ const PayoutList = ({navigation}) => {
     }
 
   return (
-    <SafeAreaView style={styles.TopContainer}>
+    <View style={styles.TopContainer}>
     <AppBar props={AppBarContent}/>
     <ScrollView contentContainerStyle={styles.container}>
         <VStack style={{marginBottom:100}}>
@@ -139,7 +139,7 @@ const PayoutList = ({navigation}) => {
                 </Button>
         </VStack>
     </ScrollView>
-    </SafeAreaView>
+    </View>
   )
 }
 

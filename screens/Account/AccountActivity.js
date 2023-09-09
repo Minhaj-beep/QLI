@@ -88,7 +88,7 @@ const AccountActivity = ({navigation}) => {
     };
 
   return (
-    <SafeAreaView style={styles.topContainer}>
+    <View style={styles.topContainer}>
     <ScrollView style={styles.Container}>
             <AppBar props={AppBarContent}/>
             <View style={styles.Container}>
@@ -97,7 +97,7 @@ const AccountActivity = ({navigation}) => {
                 </VStack>
             </View>
     </ScrollView>
-    </SafeAreaView>
+    </View>
   )
 }
 

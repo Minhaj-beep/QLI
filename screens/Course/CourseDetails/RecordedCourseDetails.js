@@ -302,7 +302,7 @@ const requestDemoClass = async () => {
   const AppBarContent = {
     title: 'Courses',
     navigation: navigation,
-    ArrowVisibility: false,
+    ArrowVisibility: true,
     RightIcon1:'notifications-outline',
     RightIcon2:'person'                  
   }
@@ -477,7 +477,7 @@ const requestDemoClass = async () => {
     })
   }
   return (
-      <SafeAreaView keyboardShouldPersistTaps={'always'}>
+      <View keyboardShouldPersistTaps={'always'}>
           <ScrollView style={styles.container} nestedScrollEnabled={true} keyboardShouldPersistTaps={'always'}>
           <AppBar props={AppBarContent}/>
       
@@ -704,12 +704,22 @@ const requestDemoClass = async () => {
                 :null}
                 <>
                   <TouchableOpacity
-                    onPress={()=>navigation.navigate('StudentPreview', {type: 'recorded'})}
+                    onPress={()=>{
+                      if(SingleCD.courseStatus === 'BANNED' || SingleCD.courseStatus === 'REJECTED') {
+                        return null
+                      } else {
+                        navigation.navigate('StudentPreview', {type: 'recorded'})
+                      }
+                    }}
                   >
                   <HStack bg={'gray.300'} space={1} padding={2} borderRadius={5} alignItems="center">
                     {/* <Icon size='sm' as={FontAwesome5} name='envelope' color='primary.50'/> */}
-                    <Text color={'primary.50'} bold onPress={()=>{
-                        navigation.navigate('StudentPreview', {type: 'recorded'})
+                    <Text color={SingleCD.courseStatus === 'BANNED' || SingleCD.courseStatus === 'REJECTED' ? 'gray.50' : 'primary.50'} bold onPress={()=>{
+                        if(SingleCD.courseStatus === 'BANNED' || SingleCD.courseStatus === 'REJECTED') {
+                          return null
+                        } else {
+                          navigation.navigate('StudentPreview', {type: 'recorded'})
+                        }
                     }} style={{fontSize:11, borderRadius:3}}>Student Preview</Text>
                   </HStack>
                   </TouchableOpacity>
@@ -994,10 +1004,10 @@ const requestDemoClass = async () => {
                 style={{ width: 360, height: 220, alignSelf: 'center',borderRadius: 10 }}
                 useNativeControls
                 /> */}
-                <View style={{width: '100%', height: 220,}}>
+                <View style={{width: '100%', height: 220, }}>
                   <VideoPlayer
                     source={{uri: IntroVideo}}
-                    style={{ width: 360, height: 220, zIndex:1000, elevation:1000, alignSelf: 'center',borderRadius: 10 }}
+                    style={{ width: '100%', zIndex:1000, elevation:1000, alignSelf: 'center' }}
                     onError={()=>{
                       console.log('Something went wrong...');
                     }}
@@ -1221,7 +1231,7 @@ const requestDemoClass = async () => {
 
         </View>
     </ScrollView>
-    </SafeAreaView>
+    </View>
   )
 }
 

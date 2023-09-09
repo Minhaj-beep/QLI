@@ -91,7 +91,7 @@ const PaymentHistory = ({navigation}) => {
   }
 
   return (
-    <SafeAreaView>
+    <View>
       <AppBar props={AppBarContent}/>
       
       <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
@@ -152,7 +152,7 @@ const PaymentHistory = ({navigation}) => {
        {THistory && <RenderTH/> }     
       </VStack>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   )
 }
 

@@ -56,14 +56,13 @@ import { GetAccountDetailsbyMobileNum } from '../Functions/API/GetAccountDetails
 import PhoneInput from 'react-native-phone-number-input'
 import { LoginWithMobileNum } from '../Functions/API/LoginWithMobileNum';
 import Countdown from './components/Countdown';
-import PushNotification from 'react-native-push-notification';
-import { PushNotificationRegister } from '../Functions/API/PushNotificationRegister';
+// import PushNotification from 'react-native-push-notification';
+// import { PushNotificationRegister } from '../Functions/API/PushNotificationRegister';
 
 const {width, height} = Dimensions.get('window');
 
 GoogleSignin.configure({
-  webClientId:
-    "855618612359-gvf660jb4h9q42d0umjnpmj4va9s3moa.apps.googleusercontent.com"
+  webClientId: Platform.OS === 'ios' ? "408533616894-b5aq7s034bv3naa6aedr8r57m6u5a6tr.apps.googleusercontent.com" :  "855618612359-gvf660jb4h9q42d0umjnpmj4va9s3moa.apps.googleusercontent.com"
 });
 
 const Login = ({navigation}) => {
@@ -216,48 +215,48 @@ const Login = ({navigation}) => {
   // const [mobileAccount, setMobileAccount] = useState({})
   const [mobileAccounts, setMobileAccounts] = useState([])
   const [seconds, setSeconds] = useState(0)
-  let pushNotificationToken = null
+  // let pushNotificationToken = null
 
-  useEffect(()=>{
-    PushNotification.configure({
-      onRegister: function (token) {
-        console.log("TOKEN:", token);
-        pushNotificationToken = token
-      },
-      onNotification: function (notification) {
-        console.log("NOTIFICATION:", notification);
-        // notification.finish(PushNotificationIOS.FetchResult.NoData);
-      },
+  // useEffect(()=>{
+  //   PushNotification.configure({
+  //     onRegister: function (token) {
+  //       console.log("TOKEN:", token);
+  //       pushNotificationToken = token
+  //     },
+  //     onNotification: function (notification) {
+  //       console.log("NOTIFICATION:", notification);
+  //       // notification.finish(PushNotificationIOS.FetchResult.NoData);
+  //     },
   
-      onAction: function (notification) {
-        console.log("ACTION:", notification.action);
-        console.log("NOTIFICATION:", notification);
-      },
+  //     onAction: function (notification) {
+  //       console.log("ACTION:", notification.action);
+  //       console.log("NOTIFICATION:", notification);
+  //     },
   
-      onRegistrationError: function(err) {
-        console.error(err.message, err);
-      },
+  //     onRegistrationError: function(err) {
+  //       console.error(err.message, err);
+  //     },
   
-      permissions: {
-        alert: true,
-        badge: true,
-        sound: true,
-      },
-      popInitialNotification: true,
-      requestPermissions: true,
-    });
-  },[])
+  //     permissions: {
+  //       alert: true,
+  //       badge: true,
+  //       sound: true,
+  //     },
+  //     popInitialNotification: true,
+  //     requestPermissions: true,
+  //   });
+  // },[])
 
-  const RegisterPushNotificationToken = async(token, jwt) => {
-      console.log('_________________PUSH NOTIFICATION REGISTRATION STARTS______________________')
-      try {
-        const result = await PushNotificationRegister(token, jwt)
-        console.log(result)
-      } catch (e) {
-        console.log('_________________PUSH NOTIFICATION REGISTRATION ERROR______________________', e)
-      }
-      console.log('_________________PUSH NOTIFICATION REGISTRATION ENDS______________________')
-  }
+  // const RegisterPushNotificationToken = async(token, jwt) => {
+  //     console.log('_________________PUSH NOTIFICATION REGISTRATION STARTS______________________')
+  //     try {
+  //       const result = await PushNotificationRegister(token, jwt)
+  //       console.log(result)
+  //     } catch (e) {
+  //       console.log('_________________PUSH NOTIFICATION REGISTRATION ERROR______________________', e)
+  //     }
+  //     console.log('_________________PUSH NOTIFICATION REGISTRATION ENDS______________________')
+  // }
 
   useEffect(() => {
     if (parseInt(seconds) === 0) {
@@ -296,7 +295,7 @@ const Login = ({navigation}) => {
         dispatch(setUser_ID(response.data.JWT));
         dispatch(setMail(response.data.Email));
         dispatch(setIsLoggedInWithMobile(true))
-        RegisterPushNotificationToken(pushNotificationToken, response.data.userId)
+        // RegisterPushNotificationToken(pushNotificationToken, response.data.userId)
         EUSavelocal('IsLoggedInWithMobile', JSON.stringify(true));
         EUSavelocal('Email', JSON.stringify(response.data.Email));
         EUSavelocal('Name', JSON.stringify(response.data.Name));
@@ -514,7 +513,7 @@ const Login = ({navigation}) => {
             dispatch(setJWT(result.data.userId));
             dispatch(setUser_ID(result.data.JWT));
             dispatch(setMail(result.data.Email));
-            RegisterPushNotificationToken(pushNotificationToken, result.data.userId)
+            // RegisterPushNotificationToken(pushNotificationToken, result.data.userId)
 
             // getProfile(result.data.Email)
             // getCourseCodes(result.data.JWT)
@@ -638,7 +637,7 @@ const Login = ({navigation}) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <ScrollView>
         <Modal isOpen={loginWithNumOtp} onClose={() => setLoginWithNumOtp(false)} size="lg">
         <Modal.Content maxWidth="600">
@@ -1125,7 +1124,7 @@ const Login = ({navigation}) => {
         </Modal>
 
         <Center w="100%">
-          <Box safeArea p="2" w="90%" maxW="350" py="10">
+          <Box safeArea p="2" w="90%" maxW="90%" py="10">
             <Heading
               size="md"
               color="coolGray.800"
@@ -1251,7 +1250,7 @@ const Login = ({navigation}) => {
                         alt="Google Logo"
                       />
                       <Text style={styles.googletext} mt={1}>
-                        Log In with Google
+                        Log In with Google 
                       </Text>
                     </HStack>
                   </Button>
@@ -1290,7 +1289,7 @@ const Login = ({navigation}) => {
           </Box>
         </Center>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 

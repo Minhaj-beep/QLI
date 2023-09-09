@@ -33,14 +33,14 @@ const Assessments = ({navigation}) => {
  
 
   return (
-    <SafeAreaView>
+    <View>
       <AppBar props={AppBarContent}/>
       <ScrollView style={styles.container}>
         <VStack style={{marginBottom:150}}>
           <RenderAssessment/>
         </VStack>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   )
 }
 

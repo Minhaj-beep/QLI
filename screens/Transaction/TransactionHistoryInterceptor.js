@@ -460,7 +460,7 @@ const TransactionHistoryInterceptor = ({props, pushData}) => {
   }
 
   return (
-    <SafeAreaView>
+    <View>
       <AppBar props={AppBarContent}/>
 
       {/* socket modal */}
@@ -629,7 +629,7 @@ const TransactionHistoryInterceptor = ({props, pushData}) => {
        {/* {THistory && <RenderTH/> }      */}
       </VStack>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   )
 }
 
